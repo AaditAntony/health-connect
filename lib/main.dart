@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-//import 'admin/admin_login_page.dart';
+import 'package:health_connect/admin/admin_dashboard.dart';
+import 'admin/admin_auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -11,7 +12,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -20,8 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Health Connect - Admin',
-     // home: const AdminLoginPage(),
-      home: Scaffold(),
+     home: AdminDashboard(),
     );
   }
 }
