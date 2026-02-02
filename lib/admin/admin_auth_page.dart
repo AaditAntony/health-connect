@@ -59,10 +59,7 @@ class _AdminAuthPageState extends State<AdminAuthPage> {
         throw "Account not found";
       }
 
-      if (doc['approved'] != true) {
-        throw "Waiting for admin approval";
-      }
-
+      // 🔥 ONLY ONE NAVIGATION (IMPORTANT)
       if (doc['role'] == 'admin') {
         Navigator.pushReplacement(
           context,
@@ -81,6 +78,7 @@ class _AdminAuthPageState extends State<AdminAuthPage> {
 
     setState(() => isLoading = false);
   }
+
 
   @override
   Widget build(BuildContext context) {
