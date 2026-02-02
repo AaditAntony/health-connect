@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:health_connect/admin/admin_dashboard.dart';
-import 'admin/admin_auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'admin/auth_wrapper.dart';
 import 'firebase_options.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,10 +17,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Health Connect - Admin',
-     home: AdminDashboard(),
+      home: AuthWrapper(), // 👈 VERY IMPORTANT
     );
   }
 }

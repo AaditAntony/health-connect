@@ -1,52 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../admin/admin_auth_page.dart';
 import '../core/responsive.dart';
-import 'add_patient_page.dart';
+import 'hospital_profile_page.dart';
+import 'hospital_verification_page.dart';
 
 class HospitalDashboard extends StatelessWidget {
   const HospitalDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final String hospitalId = FirebaseAuth.instance.currentUser!.uid;
+    final uid = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Hospital Dashboard"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pop(context);
-            },
-          )
-        ],
-      ),
+      appBar: AppBar(title: const Text("Hospital"),actions: [
+        IconButton(onPressed: () async {
+          await FirebaseAuth.instance.signOut();
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminAuthPage()),
+                (route) => false,
+          );
+
+        }, icon: Icon(Icons.circle_notifications_sharp))
+      ],),
       body: ResponsiveWrapper(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Welcome Hospital",
-              style: TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                child: const Text("Add Patient"),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddPatientPage(hospitalId: hospitalId),
-                    ),
-                  );
-                },
+        child: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('accounts')
+              .doc(uid)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data!.data() == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final data =
+            snapshot.data!.data() as Map<String, dynamic>;
+
+            // 1️⃣ Profile not submitted
+            if (!data.containsKey('hospitalName')) {
+              return const HospitalProfilePage();
+            }
+
+            // 2️⃣ Submitted but not approved
+            if (data['approved'] != true) {
+              return const HospitalVerificationPage();
+            }
+
+            // 3️⃣ Approved → real dashboard
+            return const Center(
+              child: Text(
+                "Hospital Dashboard\n(Add patients here)",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 20),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
