@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/responsive.dart';
+import '../hospital/hospital_dashboard.dart';
 import 'admin_dashboard.dart';
-//import '../hospital/hospital_dashboard.dart';
+
 
 class AdminAuthPage extends StatefulWidget {
   const AdminAuthPage({super.key});
@@ -68,10 +69,10 @@ class _AdminAuthPageState extends State<AdminAuthPage> {
           MaterialPageRoute(builder: (_) => const AdminDashboard()),
         );
       } else {
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (_) => const HospitalDashboard()),
-        // );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HospitalDashboard()),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context)

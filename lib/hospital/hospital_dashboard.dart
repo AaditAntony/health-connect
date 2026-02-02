@@ -37,12 +37,12 @@ class HospitalDashboard extends StatelessWidget {
               child: ElevatedButton(
                 child: const Text("Add Patient"),
                 onPressed: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (_) => AddPatientPage(hospitalId: hospitalId),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddPatientPage(hospitalId: hospitalId),
+                    ),
+                  );
                 },
               ),
             ),
