@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../core/responsive.dart';
-import 'add_patient_page.dart';
+//import 'add_patient_page.dart';
 
 class HospitalDashboard extends StatelessWidget {
   const HospitalDashboard({super.key});
