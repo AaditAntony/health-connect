@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/responsive.dart';
+import 'admin_auth_page.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -10,6 +12,18 @@ class AdminDashboard extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Admin Dashboard"),
+        actions: [
+          IconButton(onPressed: () async {
+            await FirebaseAuth.instance.signOut();
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const AdminAuthPage()),
+                  (route) => false,
+            );
+          },
+               icon: Icon(Icons.import_contacts_sharp))
+        ],
       ),
       body: ResponsiveWrapper(
         child: StreamBuilder<QuerySnapshot>(
