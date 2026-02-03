@@ -26,3 +26,4 @@ beginned the hospital modeule
 adding the patient
  the patient is added
 the patient list is added
+the patient dashboard is fixed
