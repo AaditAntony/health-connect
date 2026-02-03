@@ -22,3 +22,4 @@ the login page is done
 the temporary dash board is done
 
 3 febuary
+beginned the hospital modeule
