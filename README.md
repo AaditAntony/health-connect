@@ -23,3 +23,4 @@ the temporary dash board is done
 
 3 febuary
 beginned the hospital modeule
+adding the patient
