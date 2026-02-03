@@ -20,7 +20,6 @@ class AddTreatmentPage extends StatefulWidget {
 class _AddTreatmentPageState extends State<AddTreatmentPage> {
   final diagnosisController = TextEditingController();
   final treatmentController = TextEditingController();
-
   PlatformFile? reportImage;
 
   Future<PlatformFile?> pickImage() async {
@@ -69,39 +68,33 @@ class _AddTreatmentPageState extends State<AddTreatmentPage> {
       appBar: AppBar(title: const Text("Add Treatment")),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: diagnosisController,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  labelText: "Diagnosis Report",
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: treatmentController,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  labelText: "Treatment Plan",
-                ),
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: () async {
-                  reportImage = await pickImage();
-                  setState(() {});
-                },
-                child: const Text("Upload Report Image (Optional)"),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: saveTreatment,
-                child: const Text("Save Treatment"),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            TextField(
+              controller: diagnosisController,
+              maxLines: 4,
+              decoration: const InputDecoration(labelText: "Diagnosis"),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: treatmentController,
+              maxLines: 4,
+              decoration: const InputDecoration(labelText: "Treatment Plan"),
+            ),
+            const SizedBox(height: 15),
+            ElevatedButton(
+              onPressed: () async {
+                reportImage = await pickImage();
+                setState(() {});
+              },
+              child: const Text("Upload Report Image (Optional)"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: saveTreatment,
+              child: const Text("Save Treatment"),
+            ),
+          ],
         ),
       ),
     );
