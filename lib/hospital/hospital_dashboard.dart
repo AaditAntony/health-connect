@@ -2,11 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health_connect/hospital/add_patient_page.dart';
+import 'package:health_connect/hospital/patient_records_tab.dart';
 
 import '../admin/admin_auth_page.dart';
 import 'hospital_profile_page.dart';
 import 'hospital_verification_page.dart';
 import 'add_patient_list.dart';
+import 'hospital_web_layout.dart';
 
 class HospitalDashboard extends StatelessWidget {
   const HospitalDashboard({super.key});
@@ -54,35 +57,28 @@ class HospitalDashboard extends StatelessWidget {
           }
 
           // 3️⃣ Approved → MAIN HOSPITAL DASHBOARD
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Hospital Dashboard",
-                  style: TextStyle(fontSize: 20),
-                ),
-                const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              PatientListPage(hospitalId: uid),
-                        ),
-                      );
-                    },
-                    child: const Text("Manage Patients"),
-                  ),
-                ),
-              ],
-            ),
+          return HospitalWebLayout(
+            currentTab: HospitalTab.patients,
+            hospitalName: data['hospitalName'],
+            hospitalId: uid,
+            child: AddPatientPage(hospitalId: uid)
           );
         },
       ),
     );
   }
 }
+
+// import 'hospital_web_layout.dart';
+//
+// return HospitalWebLayout(
+// currentTab: HospitalTab.overview,
+// hospitalName: data['hospitalName'],
+// hospitalId: uid,
+// child: const Center(
+// child: Text(
+// "Overview content goes here",
+// style: TextStyle(fontSize: 18),
+// ),
+// ),
+// );
