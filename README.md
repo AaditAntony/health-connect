@@ -25,3 +25,4 @@ the temporary dash board is done
 beginned the hospital modeule
 adding the patient
  the patient is added
+the patient list is added
