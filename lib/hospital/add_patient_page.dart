@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../core/responsive.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddPatientPage extends StatefulWidget {
-  final String hospitalId;
-
-  const AddPatientPage({super.key, required this.hospitalId});
+  const AddPatientPage({super.key});
 
   @override
   State<AddPatientPage> createState() => _AddPatientPageState();
@@ -14,22 +12,31 @@ class AddPatientPage extends StatefulWidget {
 class _AddPatientPageState extends State<AddPatientPage> {
   final nameController = TextEditingController();
   final ageController = TextEditingController();
-  final problemController = TextEditingController();
+  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
 
-  bool isLoading = false;
+  String gender = "Male";
+  String bloodGroup = "O+";
 
-  Future<void> addPatient() async {
-    setState(() => isLoading = true);
+  Future<void> savePatient() async {
+    if (nameController.text.isEmpty || ageController.text.isEmpty) return;
+
+    final hospitalId = FirebaseAuth.instance.currentUser!.uid;
 
     await FirebaseFirestore.instance.collection('patients').add({
       "name": nameController.text.trim(),
       "age": ageController.text.trim(),
-      "problem": problemController.text.trim(),
-      "hospitalId": widget.hospitalId,
+      "gender": gender,
+      "bloodGroup": bloodGroup,
+      "phone": phoneController.text.trim(),
+      "email": emailController.text.trim(),
+
+      // 🔒 CRITICAL FIELD
+      "hospitalId": hospitalId,
+
       "createdAt": Timestamp.now(),
     });
 
-    setState(() => isLoading = false);
     Navigator.pop(context);
   }
 
@@ -37,33 +44,54 @@ class _AddPatientPageState extends State<AddPatientPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Add Patient")),
-      body: ResponsiveWrapper(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
           child: Column(
             children: [
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: "Patient Name"),
               ),
-              const SizedBox(height: 15),
               TextField(
                 controller: ageController,
+                keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: "Age"),
               ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: problemController,
-                decoration:
-                const InputDecoration(labelText: "Health Problem"),
+              DropdownButtonFormField(
+                value: gender,
+                items: const [
+                  DropdownMenuItem(value: "Male", child: Text("Male")),
+                  DropdownMenuItem(value: "Female", child: Text("Female")),
+                  DropdownMenuItem(value: "Other", child: Text("Other")),
+                ],
+                onChanged: (v) => setState(() => gender = v!),
+                decoration: const InputDecoration(labelText: "Gender"),
               ),
-              const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : addPatient,
-                  child: const Text("Save Patient"),
-                ),
+              DropdownButtonFormField(
+                value: bloodGroup,
+                items: const [
+                  DropdownMenuItem(value: "O+", child: Text("O+")),
+                  DropdownMenuItem(value: "O-", child: Text("O-")),
+                  DropdownMenuItem(value: "A+", child: Text("A+")),
+                  DropdownMenuItem(value: "B+", child: Text("B+")),
+                  DropdownMenuItem(value: "AB+", child: Text("AB+")),
+                ],
+                onChanged: (v) => setState(() => bloodGroup = v!),
+                decoration: const InputDecoration(labelText: "Blood Group"),
+              ),
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: "Phone"),
+              ),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: "Email"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: savePatient,
+                child: const Text("Save Patient"),
               ),
             ],
           ),
