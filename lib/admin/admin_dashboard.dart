@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health_connect/admin/overview_tab.dart';
+import 'package:health_connect/admin/pending_request_tab.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -127,7 +128,7 @@ class _AdminDashboardState extends State<AdminDashboard>
           children: [
             //_overviewTab(),
             OverviewTab(),
-            _pendingPlaceholder(),
+            PendingRequestsTab(),
             _approvedPlaceholder(),
           ],
         ),
@@ -288,14 +289,14 @@ class _AdminDashboardState extends State<AdminDashboard>
 
   // ================= PLACEHOLDERS =================
 
-  Widget _pendingPlaceholder() {
-    return const Center(
-      child: Text(
-        "Pending Requests UI – Next Task",
-        style: TextStyle(color: Colors.grey),
-      ),
-    );
-  }
+  // Widget _pendingPlaceholder() {
+  //   return const Center(
+  //     child: Text(
+  //       "Pending Requests UI – Next Task",
+  //       style: TextStyle(color: Colors.grey),
+  //     ),
+  //   );
+  // }
 
   Widget _approvedPlaceholder() {
     return const Center(
