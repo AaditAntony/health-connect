@@ -187,7 +187,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
 
                     const SizedBox(height: 12),
 
-                    // ---------- TOGGLE ----------
+                    // ---------- TOGGLE -----------
                     TextButton(
                       onPressed: () => setState(() => isLogin = !isLogin),
                       child: Text(
@@ -209,3 +209,4 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     );
   }
 }
+
