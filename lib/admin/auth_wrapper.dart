@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../hospital/hospital_dashboard.dart';
 import '../patient/patient_auth_page.dart';
+import '../patient/patient_dashboard.dart';
 import '../patient/patient_link_page.dart';
 import 'admin_auth_page.dart';
 
@@ -97,9 +98,7 @@ class AuthWrapper extends StatelessWidget {
           }
 
           // Linked patient → dashboard comes next (Phase 3)
-          return _blockedPage(
-            "Patient dashboard will be shown here next.",
-          );
+          return const PatientDashboard();
         },
       );
     }
