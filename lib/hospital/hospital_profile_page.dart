@@ -82,7 +82,7 @@ class _HospitalProfilePageState extends State<HospitalProfilePage> {
       "profileImageBase64": toBase64(profileImage!),
       "certificateBase64": toBase64(certificateImage!),
       "sealSignBase64": toBase64(sealSignImage!),
-
+      "profileSubmitted": true,
       "approved": false,
       "role": "hospital",
     }, SetOptions(merge: true));

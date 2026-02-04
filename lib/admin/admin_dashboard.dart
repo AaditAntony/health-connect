@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:health_connect/web/admin_login_page.dart';
 import '../core/responsive.dart';
 import 'admin_auth_page.dart';
 import 'hospital_detail_page.dart';
@@ -17,7 +18,7 @@ class AdminDashboard extends StatelessWidget {
 
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const AdminAuthPage()),
+            MaterialPageRoute(builder: (_) => const AdminLoginPage()),
                 (route) => false,
           );
 
