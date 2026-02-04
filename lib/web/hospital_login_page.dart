@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../admin/admin_dashboard.dart';
 
-class AdminLoginPage extends StatefulWidget {
-  const AdminLoginPage({super.key});
+import '../hospital/hospital_dashboard.dart';
+import '../hospital/hospital_profile_page.dart';
+import '../hospital/hospital_verification_page.dart';
+
+class HospitalLoginPage extends StatefulWidget {
+  const HospitalLoginPage({super.key});
 
   @override
-  State<AdminLoginPage> createState() => _AdminLoginPageState();
+  State<HospitalLoginPage> createState() => _HospitalLoginPageState();
 }
 
-class _AdminLoginPageState extends State<AdminLoginPage> {
+class _HospitalLoginPageState extends State<HospitalLoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -21,22 +24,14 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     setState(() => loading = true);
 
     try {
-      UserCredential cred;
-
-      if (isLogin) {
-        // -------- LOGIN --------
-        cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
-      } else {
-        // -------- REGISTER ADMIN (TEMP ROLE) --------
-        cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // ---------------- REGISTER ----------------
+      if (!isLogin) {
+        final cred =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
 
-        // Default role is hospital, admin approval is manual
         await FirebaseFirestore.instance
             .collection('accounts')
             .doc(cred.user!.uid)
@@ -44,25 +39,68 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
           "email": emailController.text.trim(),
           "role": "hospital",
           "approved": false,
+          "profileSubmitted": false, // 🔑 IMPORTANT
         });
+
+        await FirebaseAuth.instance.signOut();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Registration successful. Please login."),
+          ),
+        );
+
+
+        setState(() {
+          isLogin = true;
+          loading = false;
+        });
+        return;
+
       }
 
-      // -------- CHECK ROLE AFTER LOGIN --------
+      // ---------------- LOGIN ----------------
+      final cred =
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
       final doc = await FirebaseFirestore.instance
           .collection('accounts')
           .doc(cred.user!.uid)
           .get();
 
-      if (!doc.exists ||
-          doc['role'] != 'admin' ||
-          doc['approved'] != true) {
-        await FirebaseAuth.instance.signOut();
-        throw "Admin access pending approval";
+      final data = doc.data() as Map<String, dynamic>;
+
+      // ---- PROFILE NOT SUBMITTED ----
+      if (data['profileSubmitted'] == false) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HospitalProfilePage(),
+          ),
+        );
+        return;
       }
 
+      // ---- PROFILE SUBMITTED BUT NOT APPROVED ----
+      if (data['approved'] == false) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HospitalVerificationPage(),
+          ),
+        );
+        return;
+      }
+
+      // ---- APPROVED ----
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const AdminDashboard()),
+        MaterialPageRoute(
+          builder: (_) => const HospitalDashboard(),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context)
@@ -75,7 +113,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(isLogin ? "Admin Login" : "Register Admin")),
+      appBar:
+      AppBar(title: Text(isLogin ? "Hospital Login" : "Register Hospital")),
       body: Center(
         child: SizedBox(
           width: 420,
@@ -104,7 +143,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     onPressed: () => setState(() => isLogin = !isLogin),
                     child: Text(
                       isLogin
-                          ? "No admin account? Register Admin"
+                          ? "Create Hospital Account"
                           : "Already have an account? Login",
                     ),
                   ),

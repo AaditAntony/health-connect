@@ -5,10 +5,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../hospital/hospital_dashboard.dart';
+import '../hospital/hospital_verification_page.dart';
 import '../patient/patient_auth_page.dart';
 import '../patient/patient_dashboard.dart';
 import '../patient/patient_link_page.dart';
+import '../web/web_login_choice_page.dart';
 import 'admin_auth_page.dart';
+import 'admin_dashboard.dart';
 
 
 class AuthWrapper extends StatelessWidget {
@@ -34,13 +37,14 @@ class AuthWrapper extends StatelessWidget {
 
   Widget _entryGate() {
     if (kIsWeb) {
-      // Web → Admin / Hospital only
-      return const AdminAuthPage();
+      // Web → choose Admin or Hospital login
+      return const WebLoginChoicePage();
     } else {
       // Mobile → Patient only
       return const PatientAuthPage();
     }
   }
+
 
   // ---------------- POST LOGIN ROUTING ----------------
 
@@ -69,9 +73,18 @@ class AuthWrapper extends StatelessWidget {
           final data = snapshot.data!.data() as Map<String, dynamic>;
           final role = data['role'];
 
-          if (role == 'admin' || role == 'hospital') {
-            return const HospitalDashboard();
+          if (role == 'admin' && data['approved'] == true) {
+            return const AdminDashboard();
           }
+
+          if (role == 'hospital') {
+            if (data['approved'] == true) {
+              return const HospitalDashboard();
+            } else {
+              return const HospitalVerificationPage();
+            }
+          }
+
 
           return _blockedPage(
             "Access denied for this account on web.",

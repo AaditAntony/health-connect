@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../core/responsive.dart';
+import '../web/hospital_login_page.dart';
 
 class HospitalVerificationPage extends StatelessWidget {
   const HospitalVerificationPage({super.key});
@@ -7,7 +9,16 @@ class HospitalVerificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Verification Pending")),
+      appBar: AppBar(title: const Text("Verification Pending"),actions: [ IconButton(onPressed: () async {
+        await FirebaseAuth.instance.signOut();
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HospitalLoginPage()),
+              (route) => false,
+        );
+
+      }, icon: Icon(Icons.circle_notifications_sharp))],),
       body: ResponsiveWrapper(
         child: Center(
           child: Column(
