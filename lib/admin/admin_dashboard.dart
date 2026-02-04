@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health_connect/admin/overview_tab.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -124,7 +125,8 @@ class _AdminDashboardState extends State<AdminDashboard>
         child: TabBarView(
           controller: _tabController,
           children: [
-            _overviewTab(),
+            //_overviewTab(),
+            OverviewTab(),
             _pendingPlaceholder(),
             _approvedPlaceholder(),
           ],
@@ -135,102 +137,102 @@ class _AdminDashboardState extends State<AdminDashboard>
 
   // ================= OVERVIEW TAB =================
 
-  Widget _overviewTab() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "System Overview",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // -------- STAT CARDS --------
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              _statCard(
-                title: "Total Hospitals",
-                value: "15",
-                icon: Icons.local_hospital,
-                color: Colors.blue,
-              ),
-              _statCard(
-                title: "Total Patients",
-                value: "3,456",
-                icon: Icons.people,
-                color: Colors.green,
-              ),
-              _statCard(
-                title: "Pending Approvals",
-                value: "3",
-                icon: Icons.pending_actions,
-                color: Colors.purple,
-              ),
-              _statCard(
-                title: "Data Share Requests",
-                value: "28",
-                icon: Icons.share,
-                color: Colors.orange,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 32),
-
-          // -------- RECENT ACTIVITY --------
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "Recent Activity",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-
-                  _ActivityItem(
-                    color: Colors.green,
-                    title: "New hospital registration request",
-                    subtitle: "County Regional Hospital · 2 hours ago",
-                  ),
-                  Divider(),
-
-                  _ActivityItem(
-                    color: Colors.blue,
-                    title: "Hospital approved",
-                    subtitle: "University Health · 5 hours ago",
-                  ),
-                  Divider(),
-
-                  _ActivityItem(
-                    color: Colors.purple,
-                    title: "Data sharing request processed",
-                    subtitle:
-                    "Memorial Hospital → Central Medical · 1 day ago",
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _overviewTab() {
+  //   return SingleChildScrollView(
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           "System Overview",
+  //           style: TextStyle(
+  //             fontSize: 22,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 20),
+  //
+  //         // -------- STAT CARDS --------
+  //         Wrap(
+  //           spacing: 16,
+  //           runSpacing: 16,
+  //           children: [
+  //             _statCard(
+  //               title: "Total Hospitals",
+  //               value: "15",
+  //               icon: Icons.local_hospital,
+  //               color: Colors.blue,
+  //             ),
+  //             _statCard(
+  //               title: "Total Patients",
+  //               value: "3,456",
+  //               icon: Icons.people,
+  //               color: Colors.green,
+  //             ),
+  //             _statCard(
+  //               title: "Pending Approvals",
+  //               value: "3",
+  //               icon: Icons.pending_actions,
+  //               color: Colors.purple,
+  //             ),
+  //             _statCard(
+  //               title: "Data Share Requests",
+  //               value: "28",
+  //               icon: Icons.share,
+  //               color: Colors.orange,
+  //             ),
+  //           ],
+  //         ),
+  //
+  //         const SizedBox(height: 32),
+  //
+  //         // -------- RECENT ACTIVITY --------
+  //         Card(
+  //           elevation: 2,
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(24),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: const [
+  //                 Text(
+  //                   "Recent Activity",
+  //                   style: TextStyle(
+  //                     fontSize: 18,
+  //                     fontWeight: FontWeight.bold,
+  //                   ),
+  //                 ),
+  //                 SizedBox(height: 16),
+  //
+  //                 _ActivityItem(
+  //                   color: Colors.green,
+  //                   title: "New hospital registration request",
+  //                   subtitle: "County Regional Hospital · 2 hours ago",
+  //                 ),
+  //                 Divider(),
+  //
+  //                 _ActivityItem(
+  //                   color: Colors.blue,
+  //                   title: "Hospital approved",
+  //                   subtitle: "University Health · 5 hours ago",
+  //                 ),
+  //                 Divider(),
+  //
+  //                 _ActivityItem(
+  //                   color: Colors.purple,
+  //                   title: "Data sharing request processed",
+  //                   subtitle:
+  //                   "Memorial Hospital → Central Medical · 1 day ago",
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // ================= STAT CARD =================
 
