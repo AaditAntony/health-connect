@@ -28,3 +28,6 @@ adding the patient
 the patient list is added
 the patient dashboard is fixed
 dashboard-connection that is the banch where the working take place i mean the patinet form can be filled the diagonastic report ect
+
+
+patient-modify-history -> this branch is properly working ecept the admin section
