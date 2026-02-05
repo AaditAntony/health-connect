@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class OverviewTab extends StatelessWidget {
   const OverviewTab({super.key});
@@ -18,41 +19,21 @@ class OverviewTab extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // -------- STAT CARDS --------
+          // ================= STAT CARDS =================
           Wrap(
             spacing: 16,
             runSpacing: 16,
-            children: [
-              _statCard(
-                title: "Total Hospitals",
-                value: "15",
-                icon: Icons.local_hospital,
-                color: Colors.blue,
-              ),
-              _statCard(
-                title: "Total Patients",
-                value: "3,456",
-                icon: Icons.people,
-                color: Colors.green,
-              ),
-              _statCard(
-                title: "Pending Approvals",
-                value: "3",
-                icon: Icons.pending_actions,
-                color: Colors.purple,
-              ),
-              _statCard(
-                title: "Data Share Requests",
-                value: "28",
-                icon: Icons.share,
-                color: Colors.orange,
-              ),
+            children: const [
+              _TotalHospitalsCard(),
+              _TotalPatientsCard(),
+              _PendingApprovalsCard(),
+              _ApprovedHospitalsCard(),
             ],
           ),
 
           const SizedBox(height: 32),
 
-          // -------- RECENT ACTIVITY --------
+          // ================= RECENT ACTIVITY (STATIC) =================
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -75,22 +56,21 @@ class OverviewTab extends StatelessWidget {
                   _ActivityItem(
                     color: Colors.green,
                     title: "New hospital registration request",
-                    subtitle: "County Regional Hospital · 2 hours ago",
+                    subtitle: "2 hours ago",
                   ),
                   Divider(),
 
                   _ActivityItem(
                     color: Colors.blue,
                     title: "Hospital approved",
-                    subtitle: "University Health · 5 hours ago",
+                    subtitle: "5 hours ago",
                   ),
                   Divider(),
 
                   _ActivityItem(
                     color: Colors.purple,
-                    title: "Data sharing request processed",
-                    subtitle:
-                    "Memorial Hospital → Central Medical · 1 day ago",
+                    title: "Patient record updated",
+                    subtitle: "1 day ago",
                   ),
                 ],
               ),
@@ -100,14 +80,95 @@ class OverviewTab extends StatelessWidget {
       ),
     );
   }
+}
 
-  // -------- STAT CARD --------
-  Widget _statCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
+// ================= STAT CARDS =================
+
+class _TotalHospitalsCard extends StatelessWidget {
+  const _TotalHospitalsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _StatCard(
+      title: "Total Hospitals",
+      icon: Icons.local_hospital,
+      color: Colors.blue,
+      stream: FirebaseFirestore.instance
+          .collection('accounts')
+          .where('role', isEqualTo: 'hospital')
+          .snapshots(),
+    );
+  }
+}
+
+class _ApprovedHospitalsCard extends StatelessWidget {
+  const _ApprovedHospitalsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _StatCard(
+      title: "Approved Hospitals",
+      icon: Icons.verified,
+      color: Colors.green,
+      stream: FirebaseFirestore.instance
+          .collection('accounts')
+          .where('role', isEqualTo: 'hospital')
+          .where('approved', isEqualTo: true)
+          .snapshots(),
+    );
+  }
+}
+
+class _PendingApprovalsCard extends StatelessWidget {
+  const _PendingApprovalsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _StatCard(
+      title: "Pending Approvals",
+      icon: Icons.pending_actions,
+      color: Colors.orange,
+      stream: FirebaseFirestore.instance
+          .collection('accounts')
+          .where('role', isEqualTo: 'hospital')
+          .where('approved', isEqualTo: false)
+          .where('profileSubmitted', isEqualTo: true)
+          .snapshots(),
+    );
+  }
+}
+
+class _TotalPatientsCard extends StatelessWidget {
+  const _TotalPatientsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _StatCard(
+      title: "Total Patients",
+      icon: Icons.people,
+      color: Colors.purple,
+      stream: FirebaseFirestore.instance.collection('patients').snapshots(),
+    );
+  }
+}
+
+// ================= GENERIC STAT CARD =================
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final Stream<QuerySnapshot> stream;
+
+  const _StatCard({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.stream,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       width: 260,
       child: Card(
@@ -115,45 +176,54 @@ class OverviewTab extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: StreamBuilder<QuerySnapshot>(
+          stream: stream,
+          builder: (context, snapshot) {
+            final count =
+            snapshot.hasData ? snapshot.data!.docs.length : 0;
+
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
                 children: [
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      shape: BoxShape.circle,
                     ),
+                    child: Icon(icon, color: color),
                   ),
-                  Text(
-                    title,
-                    style: const TextStyle(color: Colors.grey),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        count.toString(),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        title,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-// -------- ACTIVITY ITEM --------
+// ================= ACTIVITY ITEM =================
+
 class _ActivityItem extends StatelessWidget {
   final Color color;
   final String title;
