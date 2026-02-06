@@ -33,3 +33,5 @@ dashboard-connection that is the banch where the working take place i mean the p
 patient-modify-history -> this branch is properly working ecept the admin section
 
 created an important branch called the admin-approved-hospital-ui  where all the admin-function is working fine
+
+admin-module-ux-done 
