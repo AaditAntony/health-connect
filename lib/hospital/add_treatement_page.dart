@@ -133,7 +133,7 @@ class _AddTreatmentPageState extends State<AddTreatmentPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7C3AED),
                       ),
-                      child: const Text("Save Treatment"),
+                      child: Text("Save Treatment",style: TextStyle(color: Colors.white),),
                     ),
                   ),
                 ],
