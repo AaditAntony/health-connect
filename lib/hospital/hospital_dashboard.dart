@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-import 'overview_tab.dart';
-import 'patient_records_tab.dart';
+import 'package:health_connect/hospital/patient_records_tab_wrapper.dart';
+import 'hospital_overview_tab.dart';
 import 'data_requests_tab.dart';
 
 class HospitalDashboard extends StatefulWidget {
@@ -104,8 +103,8 @@ class _HospitalDashboardState extends State<HospitalDashboard>
         child: TabBarView(
           controller: _tabController,
           children: const [
-            //HospitalOverviewTab(),
-           // PatientRecordsTabWrapper(),
+            HospitalOverviewTab(),
+            PatientRecordsTabWrapper(),
             DataRequestsTab(),
           ],
         ),
