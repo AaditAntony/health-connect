@@ -9,23 +9,23 @@ class PatientRecordsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Patient Records",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Patient Records",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 16),
+        ),
+        const SizedBox(height: 16),
 
-          StreamBuilder<QuerySnapshot>(
+        // -------- PATIENT LIST --------
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('patients')
-            // ✅ FILTER ONLY — NO orderBy
                 .where('hospitalId', isEqualTo: hospitalId)
                 .snapshots(),
             builder: (context, snapshot) {
@@ -36,34 +36,38 @@ class PatientRecordsTab extends StatelessWidget {
               final patients = snapshot.data!.docs;
 
               if (patients.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text("No patients found"),
+                return const Center(
+                  child: Text(
+                    "No patients added yet",
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 );
               }
 
-              return Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: patients.map((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
+              return SingleChildScrollView(
+                child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: patients.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
 
-                  return _PatientCard(
-                    hospitalId: hospitalId,
-                    patientId: doc.id,
-                    patientData: data,
-                  );
-                }).toList(),
+                    return _PatientCard(
+                      hospitalId: hospitalId,
+                      patientId: doc.id,
+                      patientData: data,
+                    );
+                  }).toList(),
+                ),
               );
             },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-// ---------------- PATIENT CARD ----------------
+// ================= PATIENT CARD =================
 
 class _PatientCard extends StatelessWidget {
   final String hospitalId;
@@ -82,31 +86,64 @@ class _PatientCard extends StatelessWidget {
       width: 360,
       child: Card(
         elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // -------- BASIC INFO --------
-              Text(
-                patientData['name'],
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              // -------- HEADER --------
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEDE9FE),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      color: Color(0xFF7C3AED),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      patientData['name'] ?? "Unnamed Patient",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 6),
+
+              const SizedBox(height: 12),
+
+              // -------- BASIC INFO --------
               Text(
                 "Age: ${patientData['age']} | "
                     "Gender: ${patientData['gender']} | "
                     "Blood: ${patientData['bloodGroup']}",
+                style: const TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 6),
-              Text("Phone: ${patientData['phone']}"),
+              Text(
+                "Phone: ${patientData['phone']}",
+                style: const TextStyle(color: Colors.grey),
+              ),
               if ((patientData['email'] ?? "").toString().isNotEmpty)
-                Text("Email: ${patientData['email']}"),
+                Text(
+                  "Email: ${patientData['email']}",
+                  style: const TextStyle(color: Colors.grey),
+                ),
 
-              const Divider(height: 24),
+              const SizedBox(height: 16),
+              const Divider(),
 
               // -------- LATEST TREATMENT --------
               StreamBuilder<QuerySnapshot>(
@@ -114,7 +151,6 @@ class _PatientCard extends StatelessWidget {
                     .collection('treatments')
                     .where('hospitalId', isEqualTo: hospitalId)
                     .where('patientId', isEqualTo: patientId)
-                // ✅ NO orderBy HERE
                     .limit(1)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -133,7 +169,9 @@ class _PatientCard extends StatelessWidget {
                     children: [
                       const Text(
                         "Latest Diagnosis",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -141,10 +179,12 @@ class _PatientCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       const Text(
                         "Treatment Plan",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -159,25 +199,27 @@ class _PatientCard extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // -------- ACTIONS --------
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AddTreatmentPage(
-                            patientId: patientId,
-                            hospitalId: hospitalId,
-                          ),
+              // -------- ACTION --------
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddTreatmentPage(
+                          patientId: patientId,
+                          hospitalId: hospitalId,
                         ),
-                      );
-                    },
-                    child: const Text("Add Treatment"),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text("Add Treatment",style: TextStyle(color: Colors.white),),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7C3AED),
                   ),
-                ],
+                ),
               ),
             ],
           ),
