@@ -1,85 +1,115 @@
-
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:health_connect/hospital/add_patient_page.dart';
-import 'package:health_connect/hospital/patient_records_tab.dart';
-import 'package:health_connect/web/hospital_login_page.dart';
 
-import '../admin/admin_auth_page.dart';
-import 'hospital_profile_page.dart';
-import 'hospital_verification_page.dart';
-import 'add_patient_list.dart';
-import 'hospital_web_layout.dart';
+import 'overview_tab.dart';
+import 'patient_records_tab.dart';
+import 'data_requests_tab.dart';
 
-class HospitalDashboard extends StatelessWidget {
+class HospitalDashboard extends StatefulWidget {
   const HospitalDashboard({super.key});
 
   @override
+  State<HospitalDashboard> createState() => _HospitalDashboardState();
+}
+
+class _HospitalDashboardState extends State<HospitalDashboard>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
-
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
+
+      // ================= APP BAR =================
       appBar: AppBar(
-        title: const Text("Hospital"),actions: [
-        IconButton(onPressed: () async {
-          await FirebaseAuth.instance.signOut();
+        elevation: 0,
+        backgroundColor: Colors.white,
+        titleSpacing: 24,
+        title: Row(
+          children: const [
+            Icon(Icons.local_hospital, color: Color(0xFF7C3AED)),
+            SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Hospital Dashboard",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "Hospital Panel",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: logout,
+            icon: const Icon(Icons.logout, color: Colors.black),
+            label: const Text(
+              "Logout",
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+          const SizedBox(width: 16),
+        ],
 
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const HospitalLoginPage()),
-                (route) => false,
-          );
-
-        }, icon: Icon(Icons.circle_notifications_sharp))
-      ],
+        // ================= TAB BAR =================
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              indicatorColor: const Color(0xFF7C3AED),
+              labelColor: const Color(0xFF7C3AED),
+              unselectedLabelColor: Colors.grey,
+              tabs: const [
+                Tab(text: "Overview"),
+                Tab(text: "Patient Records"),
+                Tab(text: "Data Requests"),
+              ],
+            ),
+          ),
+        ),
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('accounts')
-            .doc(uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data!.data() == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
 
-          final data =
-          snapshot.data!.data() as Map<String, dynamic>;
-
-          // 1️⃣ Profile not submitted
-          if (!data.containsKey('hospitalName')) {
-            return const HospitalProfilePage();
-          }
-
-          // 2️⃣ Submitted but not approved
-          if (data['approved'] != true) {
-            return const HospitalVerificationPage();
-          }
-
-          // 3️⃣ Approved → MAIN HOSPITAL DASHBOARD
-          return HospitalWebLayout(
-            currentTab: HospitalTab.patients,
-            hospitalName: data['hospitalName'],
-            hospitalId: uid,
-            child: AddPatientPage(hospitalId: uid)
-          );
-        },
+      // ================= BODY =================
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: TabBarView(
+          controller: _tabController,
+          children: const [
+            //HospitalOverviewTab(),
+           // PatientRecordsTabWrapper(),
+            DataRequestsTab(),
+          ],
+        ),
       ),
     );
   }
 }
-
-// import 'hospital_web_layout.dart';
-//
-// return HospitalWebLayout(
-// currentTab: HospitalTab.overview,
-// hospitalName: data['hospitalName'],
-// hospitalId: uid,
-// child: const Center(
-// child: Text(
-// "Overview content goes here",
-// style: TextStyle(fontSize: 18),
-// ),
-// ),
-// );
