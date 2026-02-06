@@ -143,7 +143,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7C3AED),
                       ),
-                      child: const Text("Save Patient"),
+                      child: Text("Save Patient",style: TextStyle(color: Colors.white),),
                     ),
                   ),
                 ],
