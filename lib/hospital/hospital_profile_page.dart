@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../core/responsive.dart';
 import 'hospital_verification_page.dart';
 
 class HospitalProfilePage extends StatefulWidget {
@@ -33,12 +32,14 @@ class _HospitalProfilePageState extends State<HospitalProfilePage> {
     "Kannur",
   ];
 
-  Future<PlatformFile?> pickImage() async {
+  Future<void> pickImage(Function(PlatformFile) onPicked) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       withData: true,
     );
-    return result?.files.first;
+    if (result != null) {
+      onPicked(result.files.first);
+    }
   }
 
   bool isValidSize(PlatformFile file) {
@@ -57,8 +58,9 @@ class _HospitalProfilePageState extends State<HospitalProfilePage> {
         profileImage == null ||
         certificateImage == null ||
         sealSignImage == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Fill all fields")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all fields")),
+      );
       return;
     }
 
@@ -82,6 +84,7 @@ class _HospitalProfilePageState extends State<HospitalProfilePage> {
       "profileImageBase64": toBase64(profileImage!),
       "certificateBase64": toBase64(certificateImage!),
       "sealSignBase64": toBase64(sealSignImage!),
+
       "profileSubmitted": true,
       "approved": false,
       "role": "hospital",
@@ -98,67 +101,165 @@ class _HospitalProfilePageState extends State<HospitalProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Hospital Profile")),
-      body: ResponsiveWrapper(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: "Hospital Name"),
-              ),
-              TextField(
-                controller: addressController,
-                decoration: const InputDecoration(labelText: "Address"),
-              ),
-              DropdownButtonFormField<String>(
-                value: district,
-                decoration: const InputDecoration(labelText: "District"),
-                items: districts
-                    .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                    .toList(),
-                onChanged: (v) => setState(() => district = v),
-              ),
-              TextField(
-                controller: yearController,
-                decoration:
-                const InputDecoration(labelText: "Year Established"),
-              ),
-              const SizedBox(height: 20),
+      backgroundColor: const Color(0xFFF5F6FA),
+      appBar: AppBar(
+        title: const Text("Hospital Profile"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      body: Center(
+        child: SizedBox(
+          width: 700,
+          child: Card(
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Hospital Details",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
-              ElevatedButton(
-                onPressed: () async {
-                  profileImage = await pickImage();
-                  setState(() {});
-                },
-                child: const Text("Upload Profile Image"),
-              ),
+                  TextField(
+                    controller: nameController,
+                    decoration:
+                    const InputDecoration(labelText: "Hospital Name"),
+                  ),
+                  const SizedBox(height: 12),
 
-              ElevatedButton(
-                onPressed: () async {
-                  certificateImage = await pickImage();
-                  setState(() {});
-                },
-                child: const Text("Upload Certificate"),
-              ),
+                  TextField(
+                    controller: addressController,
+                    decoration: const InputDecoration(labelText: "Address"),
+                  ),
+                  const SizedBox(height: 12),
 
-              ElevatedButton(
-                onPressed: () async {
-                  sealSignImage = await pickImage();
-                  setState(() {});
-                },
-                child: const Text("Upload Seal + Sign"),
-              ),
+                  DropdownButtonFormField<String>(
+                    value: district,
+                    decoration: const InputDecoration(labelText: "District"),
+                    items: districts
+                        .map(
+                          (d) => DropdownMenuItem(
+                        value: d,
+                        child: Text(d),
+                      ),
+                    )
+                        .toList(),
+                    onChanged: (v) => setState(() => district = v),
+                  ),
+                  const SizedBox(height: 12),
 
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: submitProfile,
-                child: const Text("Submit"),
+                  TextField(
+                    controller: yearController,
+                    decoration:
+                    const InputDecoration(labelText: "Year Established"),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  const Text(
+                    "Required Documents",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  _imagePicker(
+                    title: "Hospital Profile Image",
+                    file: profileImage,
+                    onPick: () => pickImage((f) {
+                      setState(() => profileImage = f);
+                    }),
+                  ),
+
+                  _imagePicker(
+                    title: "Hospital Certificate",
+                    file: certificateImage,
+                    onPick: () => pickImage((f) {
+                      setState(() => certificateImage = f);
+                    }),
+                  ),
+
+                  _imagePicker(
+                    title: "Seal & Authorized Signature",
+                    file: sealSignImage,
+                    onPick: () => pickImage((f) {
+                      setState(() => sealSignImage = f);
+                    }),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: submitProfile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7C3AED),
+                      ),
+                      child:  Text("Submit for Verification",style:TextStyle(color: Colors.white) ,),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  // ================= IMAGE PICKER WIDGET =================
+
+  Widget _imagePicker({
+    required String title,
+    required PlatformFile? file,
+    required VoidCallback onPick,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              ElevatedButton.icon(
+                onPressed: onPick,
+                icon: const Icon(Icons.upload),
+                label: const Text("Upload"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade200,
+                  foregroundColor: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 16),
+              if (file != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    file.bytes!,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
