@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:health_connect/patient/patient_auth_page.dart';
 import 'patient_medical_history_page.dart';
 
 class PatientDashboard extends StatefulWidget {
@@ -53,6 +54,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>PatientAuthPage()));
             },
           ),
         ],
