@@ -37,7 +37,10 @@ class _PatientDashboardState extends State<PatientDashboard> {
   Widget build(BuildContext context) {
     if (patientId == null) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        backgroundColor: Color(0xFFF5F6FA),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
@@ -47,29 +50,57 @@ class _PatientDashboardState extends State<PatientDashboard> {
     ];
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
+
+      // ================= APP BAR =================
       appBar: AppBar(
-        title: const Text("Patient Dashboard"),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        title: const Text(
+          "Patient Dashboard",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
+            tooltip: "Logout",
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>PatientAuthPage()));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PatientAuthPage(),
+                ),
+              );
             },
           ),
         ],
       ),
-      body: pages[currentIndex],
+
+      // ================= BODY =================
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        child: pages[currentIndex],
+      ),
+
+      // ================= BOTTOM NAV =================
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) => setState(() => currentIndex = index),
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF7C3AED),
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.medical_services),
+            icon: Icon(Icons.medical_services_outlined),
+            activeIcon: Icon(Icons.medical_services),
             label: "History",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.layers),
+            icon: Icon(Icons.layers_outlined),
+            activeIcon: Icon(Icons.layers),
             label: "More",
           ),
         ],
@@ -85,12 +116,25 @@ class _PlaceholderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "More features coming soon",
-        style: TextStyle(fontSize: 16, color: Colors.grey),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(
+            Icons.construction,
+            size: 48,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 12),
+          Text(
+            "More features coming soon",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-// ok
