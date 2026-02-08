@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health_connect/admin/pending_request_tab.dart';
+import 'package:health_connect/web/admin_login_page.dart';
 
 import 'overview_tab.dart';
 import 'approved_hospitals_tab.dart';
@@ -30,8 +31,8 @@ class _AdminDashboardState extends State<AdminDashboard>
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
-    // AuthWrapper will automatically redirect
-  }
+    Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>AdminLoginPage()))
+;  }
 
   @override
   Widget build(BuildContext context) {
