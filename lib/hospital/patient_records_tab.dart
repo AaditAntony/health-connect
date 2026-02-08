@@ -53,7 +53,7 @@ class PatientRecordsTab extends StatelessWidget {
 
                     return _PatientCard(
                       hospitalId: hospitalId,
-                      patientId: doc.id,
+                      patientId: doc.id, // 🔑 Patient ID
                       patientData: data,
                     );
                   }).toList(),
@@ -142,6 +142,45 @@ class _PatientCard extends StatelessWidget {
                   style: const TextStyle(color: Colors.grey),
                 ),
 
+              const SizedBox(height: 12),
+
+              // ======== PATIENT ID (ADDED – UI ONLY) ========
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.purple.shade100,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.badge,
+                      size: 16,
+                      color: Color(0xFF7C3AED),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        "Patient ID: $patientId",
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF7C3AED),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // ======== END PATIENT ID ========
+
               const SizedBox(height: 16),
               const Divider(),
 
@@ -169,9 +208,7 @@ class _PatientCard extends StatelessWidget {
                     children: [
                       const Text(
                         "Latest Diagnosis",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -182,9 +219,7 @@ class _PatientCard extends StatelessWidget {
                       const SizedBox(height: 10),
                       const Text(
                         "Treatment Plan",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -215,7 +250,10 @@ class _PatientCard extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text("Add Treatment",style: TextStyle(color: Colors.white),),
+                  label: const Text(
+                    "Add Treatment",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7C3AED),
                   ),
