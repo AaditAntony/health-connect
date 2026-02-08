@@ -67,19 +67,22 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
           .collection('patient_users')
           .doc(authUid)
           .set({
-        "authUid": authUid,
-        "patientId": patientDoc!.id,
-        "linkedAt": Timestamp.now(),
-      });
+            "authUid": authUid,
+            "patientId": patientDoc!.id,
+            "linkedAt": Timestamp.now(),
+          });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Medical record linked successfully")),
-
       );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=> PatientDashboard()  ));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PatientDashboard()),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
     setState(() => loading = false);
@@ -96,9 +99,7 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
         foregroundColor: const Color(0xFF4C1D95),
         title: const Text(
           "Link Medical Record",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
 
@@ -130,10 +131,7 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
 
                   const Text(
                     "Securely connect your hospital records to view your medical history.",
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.black54, fontSize: 14),
                   ),
 
                   const SizedBox(height: 22),
@@ -143,9 +141,7 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFF3E8FF),
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: const Color(0xFFDDD6FE),
-                      ),
+                      border: Border.all(color: const Color(0xFFDDD6FE)),
                     ),
                     child: RadioGroup<LinkMethod>(
                       groupValue: method,
@@ -163,9 +159,7 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
                           RadioListTile(
                             value: LinkMethod.patientId,
                             activeColor: Color(0xFF7C3AED),
-                            title: Text(
-                              "Link using Patient ID (from bill)",
-                            ),
+                            title: Text("Link using Patient ID (from bill)"),
                           ),
                         ],
                       ),
@@ -249,7 +243,6 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
         ),
       ),
     );
-
-
   }
 }
+// done
