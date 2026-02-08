@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:health_connect/patient/patient_dashboard.dart';
 
 enum LinkMethod { phone, patientId }
 
@@ -66,17 +67,22 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
           .collection('patient_users')
           .doc(authUid)
           .set({
-        "authUid": authUid,
-        "patientId": patientDoc!.id,
-        "linkedAt": Timestamp.now(),
-      });
+            "authUid": authUid,
+            "patientId": patientDoc!.id,
+            "linkedAt": Timestamp.now(),
+          });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Medical record linked successfully")),
       );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PatientDashboard()),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
     setState(() => loading = false);
@@ -85,80 +91,147 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Link Medical Record")),
+      backgroundColor: const Color(0xFFF5F3FF),
+
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF4C1D95),
+        title: const Text(
+          "Link Medical Record",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+
       body: Center(
         child: SizedBox(
           width: 420,
           child: Card(
-            elevation: 3,
+            elevation: 4,
+            shadowColor: const Color(0xFF7C3AED).withOpacity(0.25),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // -------- TITLE --------
                   const Text(
                     "Link your medical record",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF4C1D95),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
 
-                  // -------- NEW RADIO GROUP (NO DEPRECATION) --------
-                  RadioGroup<LinkMethod>(
-                    groupValue: method,
-                    onChanged: (value) {
-                      setState(() => method = value!);
-                    },
-                    child: Column(
-                      children: const [
-                        RadioListTile(
-                          value: LinkMethod.phone,
-                          title: Text("Link using Phone Number"),
-                        ),
-                        RadioListTile(
-                          value: LinkMethod.patientId,
-                          title: Text("Link using Patient ID (from bill)"),
-                        ),
-                      ],
+                  const Text(
+                    "Securely connect your hospital records to view your medical history.",
+                    style: TextStyle(color: Colors.black54, fontSize: 14),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  // -------- RADIO GROUP --------
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3E8FF),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFDDD6FE)),
+                    ),
+                    child: RadioGroup<LinkMethod>(
+                      groupValue: method,
+                      onChanged: (value) {
+                        setState(() => method = value!);
+                      },
+                      child: Column(
+                        children: const [
+                          RadioListTile(
+                            value: LinkMethod.phone,
+                            activeColor: Color(0xFF7C3AED),
+                            title: Text("Link using Phone Number"),
+                          ),
+                          Divider(height: 1),
+                          RadioListTile(
+                            value: LinkMethod.patientId,
+                            activeColor: Color(0xFF7C3AED),
+                            title: Text("Link using Patient ID (from bill)"),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 18),
 
                   // -------- INPUT FIELD --------
                   if (method == LinkMethod.phone)
                     TextField(
                       controller: phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Phone Number",
-                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: const Color(0xFFFDFBFF),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF7C3AED),
+                            width: 2,
+                          ),
+                        ),
                       ),
                     ),
 
                   if (method == LinkMethod.patientId)
                     TextField(
                       controller: patientIdController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Patient ID",
                         hintText: "Example: AbC123Xyz",
-                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: const Color(0xFFFDFBFF),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF7C3AED),
+                            width: 2,
+                          ),
+                        ),
                       ),
                     ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 26),
 
-                  // -------- ACTION --------
+                  // -------- ACTION BUTTON --------
                   SizedBox(
                     width: double.infinity,
+                    height: 50,
                     child: ElevatedButton(
                       onPressed: loading ? null : linkPatient,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(
-                          loading ? "Linking..." : "Link Record",
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7C3AED),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 3,
+                      ),
+                      child: Text(
+                        loading ? "Linking..." : "Link Record",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -172,3 +245,4 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
     );
   }
 }
+// done
