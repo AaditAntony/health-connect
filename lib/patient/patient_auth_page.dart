@@ -78,63 +78,146 @@ class _PatientAuthPageState extends State<PatientAuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F6FA),
       body: Center(
-        child: SizedBox(
-          width: 380,
-          child: Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    isLogin ? "Patient Login" : "Patient Registration",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(labelText: "Email"),
-                  ),
-                  const SizedBox(height: 12),
-
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: "Password"),
-                  ),
-                  const SizedBox(height: 24),
-
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: loading ? null : submit,
-                      child: Text(
-                        loading
-                            ? "Please wait..."
-                            : isLogin
-                            ? "Login"
-                            : "Register",
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: SizedBox(
+              width: 400,
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(28),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // -------- ICON --------
+                      Container(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEDE9FE),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.person_outline,
+                            size: 36,
+                            color: Color(0xFF7C3AED),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
 
-                  TextButton(
-                    onPressed: () {
-                      setState(() => isLogin = !isLogin);
-                    },
-                    child: Text(
-                      isLogin
-                          ? "No account? Register"
-                          : "Already have an account? Login",
-                    ),
+                      const SizedBox(height: 20),
+
+                      // -------- TITLE --------
+                      Text(
+                        isLogin ? "Patient Login" : "Patient Registration",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // -------- SUBTITLE --------
+                      Text(
+                        isLogin
+                            ? "Access your medical records securely"
+                            : "Create an account to access your medical history",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // -------- EMAIL --------
+                      TextField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: "Email",
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // -------- PASSWORD --------
+                      TextField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // -------- BUTTON --------
+                      SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: loading ? null : submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7C3AED),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            loading
+                                ? "Please wait..."
+                                : isLogin
+                                ? "Login"
+                                : "Register",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // -------- TOGGLE --------
+                      TextButton(
+                        onPressed: () {
+                          setState(() => isLogin = !isLogin);
+                        },
+                        child: Text(
+                          isLogin
+                              ? "Don’t have an account? Register"
+                              : "Already have an account? Login",
+                          style: const TextStyle(
+                            color: Color(0xFF7C3AED),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -142,4 +225,5 @@ class _PatientAuthPageState extends State<PatientAuthPage> {
       ),
     );
   }
+
 }
