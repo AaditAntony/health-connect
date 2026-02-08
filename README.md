@@ -36,3 +36,6 @@ created an important branch called the admin-approved-hospital-ui  where all the
 
 # admin-module-ux-done   
 this is the branch were the admine module is working fine
+
+# patient-linking-page
+this is the working module of the patient
