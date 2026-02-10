@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -159,30 +161,51 @@ class _SharedPatientCard extends StatelessWidget {
 
                     return Column(
                       children: treatments.map((doc) {
-                        final t =
-                        doc.data() as Map<String, dynamic>;
+                        final t = doc.data() as Map<String, dynamic>;
+                        final String? imageBase64 = t['reportImageBase64'];
 
                         return Padding(
-                          padding:
-                          const EdgeInsets.symmetric(vertical: 6),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Diagnosis: ${t['diagnosis']}",
+                                "Diagnosis",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              Text(t['diagnosis']),
+                              const SizedBox(height: 8),
+
                               Text(
-                                "Treatment: ${t['treatmentPlan']}",
+                                "Treatment Plan",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              const Divider(),
+                              Text(t['treatmentPlan']),
+                              const SizedBox(height: 8),
+
+                              // -------- IMAGE (IF AVAILABLE) --------
+                              if (imageBase64 != null && imageBase64.isNotEmpty)
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.memory(
+                                    base64Decode(imageBase64),
+                                    height: 180,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+
+                              const Divider(height: 32),
                             ],
                           ),
                         );
                       }).toList(),
                     );
+
                   },
                 ),
               ],
