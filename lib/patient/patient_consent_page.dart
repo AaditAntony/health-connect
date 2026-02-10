@@ -236,7 +236,7 @@ class _ConsentCard extends StatelessWidget {
   // ================= OTP DIALOG =================
 
   void _showOtpDialog(
-      BuildContext parentContext, // 👈 IMPORTANT
+      BuildContext parentContext,
       String requestId,
       String correctOtp,
       ) {
@@ -325,7 +325,7 @@ class _ConsentCard extends StatelessWidget {
                           "status": "approved",
                         });
 
-                        Navigator.of(dialogContext).pop(); // ✅ CLOSE DIALOG
+                        Navigator.of(dialogContext).pop();
 
                         ScaffoldMessenger.of(parentContext).showSnackBar(
                           const SnackBar(
