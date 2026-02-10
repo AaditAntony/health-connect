@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:health_connect/patient/patient_auth_page.dart';
+import 'package:health_connect/patient/patient_consent_page.dart';
 import 'patient_medical_history_page.dart';
 
 class PatientDashboard extends StatefulWidget {
@@ -47,6 +48,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     final pages = [
       PatientMedicalHistoryPage(patientId: patientId!),
       const _PlaceholderPage(),
+      PatientConsentPage(patientId: patientId!)
     ];
 
     return Scaffold(
@@ -102,6 +104,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
             icon: Icon(Icons.layers_outlined),
             activeIcon: Icon(Icons.layers),
             label: "More",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.layers_outlined),
+            activeIcon: Icon(Icons.layers),
+            label: "Consent",
           ),
         ],
       ),
