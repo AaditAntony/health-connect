@@ -236,59 +236,116 @@ class _ConsentCard extends StatelessWidget {
   // ================= OTP DIALOG =================
 
   void _showOtpDialog(
-      BuildContext context,
+      BuildContext parentContext, // 👈 IMPORTANT
       String requestId,
       String correctOtp,
       ) {
     final otpController = TextEditingController();
 
     showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text("OTP Verification"),
-          content: TextField(
-            controller: otpController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: "Enter OTP",
-              border: OutlineInputBorder(),
+      context: parentContext,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // -------- TITLE --------
+                const Text(
+                  "OTP Verification",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                const Text(
+                  "Enter the OTP provided by the hospital to approve data sharing.",
+                  style: TextStyle(color: Colors.grey),
+                ),
+
+                const SizedBox(height: 20),
+
+                // -------- OTP INPUT --------
+                TextField(
+                  controller: otpController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  decoration: InputDecoration(
+                    labelText: "OTP",
+                    counterText: "",
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // -------- ACTIONS --------
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop();
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7C3AED),
+                      ),
+                      onPressed: () async {
+                        if (otpController.text.trim() != correctOtp) {
+                          ScaffoldMessenger.of(parentContext).showSnackBar(
+                            const SnackBar(
+                              content: Text("Invalid OTP"),
+                            ),
+                          );
+                          return;
+                        }
+
+                        // -------- UPDATE FIRESTORE --------
+                        await FirebaseFirestore.instance
+                            .collection('data_requests')
+                            .doc(requestId)
+                            .update({
+                          "status": "approved",
+                        });
+
+                        Navigator.of(dialogContext).pop(); // ✅ CLOSE DIALOG
+
+                        ScaffoldMessenger.of(parentContext).showSnackBar(
+                          const SnackBar(
+                            content: Text("Consent approved successfully"),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Verify",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (otpController.text.trim() != correctOtp) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Invalid OTP")),
-                  );
-                  return;
-                }
-
-                await FirebaseFirestore.instance
-                    .collection('data_requests')
-                    .doc(requestId)
-                    .update({
-                  "status": "approved",
-                });
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Consent approved successfully"),
-                  ),
-                );
-              },
-              child: const Text("Verify"),
-            ),
-          ],
         );
       },
     );
   }
 }
+
