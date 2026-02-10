@@ -1,18 +1,16 @@
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../hospital/hospital_dashboard.dart';
+import '../hospital/hospital_profile_page.dart';
 import '../hospital/hospital_verification_page.dart';
 import '../patient/patient_auth_page.dart';
 import '../patient/patient_dashboard.dart';
 import '../patient/patient_link_page.dart';
 import '../web/web_login_choice_page.dart';
-import 'admin_auth_page.dart';
 import 'admin_dashboard.dart';
-
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -22,13 +20,11 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Not logged in
         if (!snapshot.hasData) {
           return _entryGate();
         }
 
-        final user = snapshot.data!;
-        return _routeAfterLogin(user);
+        return _routeAfterLogin(snapshot.data!);
       },
     );
   }
@@ -37,20 +33,16 @@ class AuthWrapper extends StatelessWidget {
 
   Widget _entryGate() {
     if (kIsWeb) {
-      // Web → choose Admin or Hospital login
       return const WebLoginChoicePage();
     } else {
-      // Mobile → Patient only
       return const PatientAuthPage();
     }
   }
-
 
   // ---------------- POST LOGIN ROUTING ----------------
 
   Widget _routeAfterLogin(User user) {
     if (kIsWeb) {
-      // WEB LOGIN FLOW
       return FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
             .collection('accounts')
@@ -64,7 +56,6 @@ class AuthWrapper extends StatelessWidget {
           }
 
           if (!snapshot.data!.exists) {
-            // Patient trying to access web
             return _blockedPage(
               "Patient access is available only on the mobile app.",
             );
@@ -73,48 +64,63 @@ class AuthWrapper extends StatelessWidget {
           final data = snapshot.data!.data() as Map<String, dynamic>;
           final role = data['role'];
 
-          if (role == 'admin' && data['approved'] == true) {
-            return const AdminDashboard();
-          }
-
-          if (role == 'hospital') {
+          // ---------- ADMIN ----------
+          if (role == 'admin') {
             if (data['approved'] == true) {
-              return const HospitalDashboard();
+              return const AdminDashboard();
             } else {
-              return const HospitalVerificationPage();
+              return _blockedPage("Admin approval pending.");
             }
           }
 
+          // ---------- HOSPITAL ----------
+          if (role == 'hospital') {
+            final bool profileSubmitted =
+                data['profileSubmitted'] == true;
+            final bool approved = data['approved'] == true;
 
-          return _blockedPage(
-            "Access denied for this account on web.",
-          );
-        },
-      );
-    } else {
-      // MOBILE LOGIN FLOW (Patient only)
-      return FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('patient_users')
-            .doc(user.uid)
-            .get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
+            // 1️⃣ Profile not submitted
+            if (!profileSubmitted) {
+              return const HospitalProfilePage();
+            }
+
+            // 2️⃣ Profile submitted, waiting for admin approval
+            if (profileSubmitted && !approved) {
+              return const HospitalVerificationPage();
+            }
+
+            // 3️⃣ Approved hospital
+            if (approved) {
+              return const HospitalDashboard();
+            }
           }
 
-          if (!snapshot.data!.exists) {
-            // Patient logged in but not linked
-            return const PatientLinkPage();
-          }
-
-          // Linked patient → dashboard comes next (Phase 3)
-          return const PatientDashboard();
+          return _blockedPage("Access denied.");
         },
       );
     }
+
+    // ---------------- MOBILE (PATIENT) ----------------
+
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('patient_users')
+          .doc(user.uid)
+          .get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.data!.exists) {
+          return const PatientLinkPage();
+        }
+
+        return const PatientDashboard();
+      },
+    );
   }
 
   // ---------------- BLOCKED PAGE ----------------
@@ -141,3 +147,4 @@ class AuthWrapper extends StatelessWidget {
     );
   }
 }
+// fixed set-1
