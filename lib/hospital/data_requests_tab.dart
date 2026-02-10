@@ -38,13 +38,25 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
 
     try {
       final hospitalId = FirebaseAuth.instance.currentUser!.uid;
+
+      // 🔹 Fetch hospital name + seal
+      final hospitalDoc = await FirebaseFirestore.instance
+          .collection('accounts')
+          .doc(hospitalId)
+          .get();
+
+      final String hospitalName = hospitalDoc['hospitalName'];
+      final String sealSignBase64 = hospitalDoc['sealSignBase64'];
+
       final otp = _generateOtp();
 
       await FirebaseFirestore.instance.collection('data_requests').add({
         "fromHospitalId": hospitalId,
+        "fromHospitalName": hospitalName,
         "toHospitalId": selectedHospitalId,
         "patientId": patientIdController.text.trim(),
         "otp": otp,
+        "sealSignBase64": sealSignBase64,
         "status": "pending",
         "createdAt": Timestamp.now(),
       });
@@ -68,6 +80,7 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
 
     setState(() => loading = false);
   }
+
 
   @override
   Widget build(BuildContext context) {
