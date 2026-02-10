@@ -137,7 +137,7 @@ class _ConsentCard extends StatelessWidget {
                         text: fromHospitalName,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      const TextSpan(text: " are being requested to share with "),
+                      const TextSpan(text: " are being shared with "),
                       TextSpan(
                         text: toHospitalName,
                         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -149,8 +149,40 @@ class _ConsentCard extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
+                // -------- OTP DISPLAY (NEW) --------
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.purple.shade100,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.lock,
+                        color: Color(0xFF7C3AED),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "OTP: $otp",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF7C3AED),
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
                 const Text(
-                  "Please enter the OTP provided by the hospital to approve this request.",
+                  "Please enter the above OTP to approve this data sharing request.",
                   style: TextStyle(color: Colors.grey),
                 ),
 
