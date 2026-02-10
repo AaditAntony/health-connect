@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health_connect/hospital/patient_records_tab_wrapper.dart';
 import 'package:health_connect/hospital/shared_patient_records_page.dart';
+import 'package:health_connect/web/hospital_login_page.dart';
 import 'add_patient_page.dart';
 import 'hospital_overview_tab.dart';
 import 'data_requests_tab.dart';
@@ -31,6 +32,7 @@ class _HospitalDashboardState extends State<HospitalDashboard>
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HospitalLoginPage()));
   }
 
   @override
