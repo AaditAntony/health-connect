@@ -15,7 +15,6 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
 
   bool loading = false;
   String? generatedOtp;
-
   String? selectedHospitalId;
 
   // -------- OTP GENERATOR --------
@@ -39,7 +38,6 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
     try {
       final hospitalId = FirebaseAuth.instance.currentUser!.uid;
 
-      // 🔹 Fetch hospital name + seal
       final hospitalDoc = await FirebaseFirestore.instance
           .collection('accounts')
           .doc(hospitalId)
@@ -81,121 +79,168 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
     setState(() => loading = false);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ================= HEADER =================
           const Text(
             "Request Patient Data",
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           const Text(
-            "Select an approved hospital and generate an OTP "
-                "to request patient consent.",
+            "Generate an OTP and request patient consent to access medical records.",
             style: TextStyle(color: Colors.grey),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
-          // -------- PATIENT ID --------
-          TextField(
-            controller: patientIdController,
-            decoration: const InputDecoration(
-              labelText: "Patient ID",
-              hintText: "From patient bill",
-              border: OutlineInputBorder(),
+          // ================= FORM CARD =================
+          Card(
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // -------- APPROVED HOSPITAL DROPDOWN --------
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('accounts')
-                .where('role', isEqualTo: 'hospital')
-                .where('approved', isEqualTo: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const CircularProgressIndicator();
-              }
-
-              final hospitals = snapshot.data!.docs;
-
-              return DropdownButtonFormField<String>(
-                value: selectedHospitalId,
-                decoration: const InputDecoration(
-                  labelText: "Select Target Hospital",
-                  border: OutlineInputBorder(),
-                ),
-                items: hospitals.map((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  return DropdownMenuItem<String>(
-                    value: doc.id,
-                    child: Text(
-                      data['hospitalName'] ?? doc.id,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  // -------- PATIENT ID --------
+                  TextField(
+                    controller: patientIdController,
+                    decoration: InputDecoration(
+                      labelText: "Patient ID",
+                      hintText: "Enter Patient ID from bill",
+                      prefixIcon: const Icon(
+                        Icons.badge,
+                        color: Color(0xFF7C3AED),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() => selectedHospitalId = value);
-                },
-              );
-            },
-          ),
+                  ),
 
-          const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-          // -------- CREATE BUTTON --------
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: loading ? null : createRequest,
-              child: Text(
-                loading ? "Creating..." : "Create Request & Generate OTP",
+                  // -------- HOSPITAL DROPDOWN --------
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('accounts')
+                        .where('role', isEqualTo: 'hospital')
+                        .where('approved', isEqualTo: true)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const LinearProgressIndicator();
+                      }
+
+                      final hospitals = snapshot.data!.docs;
+
+                      return DropdownButtonFormField<String>(
+                        value: selectedHospitalId,
+                        decoration: InputDecoration(
+                          labelText: "Select Target Hospital",
+                          prefixIcon: const Icon(
+                            Icons.local_hospital,
+                            color: Color(0xFF7C3AED),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        items: hospitals.map((doc) {
+                          final data =
+                          doc.data() as Map<String, dynamic>;
+                          return DropdownMenuItem<String>(
+                            value: doc.id,
+                            child:
+                            Text(data['hospitalName'] ?? doc.id),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() => selectedHospitalId = value);
+                        },
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // -------- CREATE BUTTON --------
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: loading ? null : createRequest,
+                      icon: const Icon(Icons.vpn_key),
+                      label: Text(
+                        loading
+                            ? "Creating Request..."
+                            : "Generate OTP & Request Consent",
+                        style:
+                        const TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                        const Color(0xFF7C3AED),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
-          // -------- OTP DISPLAY --------
+          // ================= OTP DISPLAY =================
           if (generatedOtp != null)
             Card(
-              color: Colors.green.shade50,
-              elevation: 2,
+              elevation: 3,
+              color: const Color(0xFFF3E8FF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       "Generated OTP",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      generatedOtp!,
-                      style: const TextStyle(
-                        fontSize: 28,
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
+                        fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: Text(
+                        generatedOtp!,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 3,
+                          color: Color(0xFF7C3AED),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     const Text(
-                      "Share this OTP with the patient for verification.",
+                      "Share this OTP securely with the patient to confirm consent.",
                       style: TextStyle(color: Colors.grey),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -206,3 +251,4 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
     );
   }
 }
+ //ui fixed
