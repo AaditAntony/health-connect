@@ -42,6 +42,4 @@ this is the working module of the patient
 
 # data-request-page
 working module of most things
-aeeßeeeee
-ee
-eee
+
