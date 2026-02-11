@@ -14,13 +14,32 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
   final doctorCountController = TextEditingController();
   final descriptionController = TextEditingController();
 
+  List<TextEditingController> doctorNameControllers = [];
+  List<TextEditingController> departmentControllers = [];
+
   bool loading = false;
   String? existingPlanId;
 
   @override
   void initState() {
     super.initState();
+    doctorCountController.addListener(_updateDoctorFields);
     _loadExistingPlan();
+  }
+
+  // ---------------- DYNAMIC DOCTOR FIELDS ----------------
+
+  void _updateDoctorFields() {
+    final count = int.tryParse(doctorCountController.text) ?? 0;
+
+    if (count < 0) return;
+
+    setState(() {
+      doctorNameControllers =
+          List.generate(count, (_) => TextEditingController());
+      departmentControllers =
+          List.generate(count, (_) => TextEditingController());
+    });
   }
 
   // ---------------- LOAD EXISTING PLAN ----------------
@@ -38,23 +57,39 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
       final doc = query.docs.first;
       final data = doc.data();
 
-      setState(() {
-        existingPlanId = doc.id;
-        amountController.text = data['amount'].toString();
-        doctorCountController.text = data['doctorCount'].toString();
-        descriptionController.text = data['description'];
-      });
+      existingPlanId = doc.id;
+
+      amountController.text = data['amount'].toString();
+      doctorCountController.text = data['doctorCount'].toString();
+      descriptionController.text = data['description'];
+
+      final doctors = List<Map<String, dynamic>>.from(data['doctors']);
+
+      doctorNameControllers =
+          List.generate(doctors.length, (i) {
+            return TextEditingController(text: doctors[i]['name']);
+          });
+
+      departmentControllers =
+          List.generate(doctors.length, (i) {
+            return TextEditingController(text: doctors[i]['department']);
+          });
+
+      setState(() {});
     }
   }
 
   // ---------------- SAVE PLAN ----------------
 
   Future<void> savePlan() async {
+    final count = int.tryParse(doctorCountController.text) ?? 0;
+
     if (amountController.text.isEmpty ||
         doctorCountController.text.isEmpty ||
-        descriptionController.text.isEmpty) {
+        descriptionController.text.isEmpty ||
+        doctorNameControllers.length != count) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Fill all fields")),
+        const SnackBar(content: Text("Fill all fields correctly")),
       );
       return;
     }
@@ -64,10 +99,25 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
     final hospitalId = FirebaseAuth.instance.currentUser!.uid;
 
     try {
+      List<Map<String, dynamic>> doctors = [];
+
+      for (int i = 0; i < count; i++) {
+        if (doctorNameControllers[i].text.isEmpty ||
+            departmentControllers[i].text.isEmpty) {
+          throw "Fill all doctor details";
+        }
+
+        doctors.add({
+          "name": doctorNameControllers[i].text.trim(),
+          "department": departmentControllers[i].text.trim(),
+        });
+      }
+
       final data = {
         "amount": int.parse(amountController.text.trim()),
-        "doctorCount": int.parse(doctorCountController.text.trim()),
+        "doctorCount": count,
         "description": descriptionController.text.trim(),
+        "doctors": doctors,
         "createdByHospitalId": hospitalId,
         "createdAt": Timestamp.now(),
       };
@@ -106,98 +156,115 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: Center(
-        child: SizedBox(
-          width: 600,
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.workspace_premium,
-                    size: 60,
-                    color: Color(0xFF7C3AED),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    "Create SmartCarePlan",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // -------- AMOUNT --------
-                  TextField(
-                    controller: amountController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: "Monthly Amount (₹)",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Center(
+          child: SizedBox(
+            width: 700,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Create SmartCarePlan",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 24),
 
-                  const SizedBox(height: 16),
-
-                  // -------- DOCTOR COUNT --------
-                  TextField(
-                    controller: doctorCountController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: "Number of Doctors",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    TextField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: _input("Monthly Amount (₹)"),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // -------- DESCRIPTION --------
-                  TextField(
-                    controller: descriptionController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      labelText: "Plan Description",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                    TextField(
+                      controller: doctorCountController,
+                      keyboardType: TextInputType.number,
+                      decoration: _input("Number of Doctors"),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: loading ? null : savePlan,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF7C3AED),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    // -------- DYNAMIC DOCTORS --------
+                    for (int i = 0;
+                    i < doctorNameControllers.length;
+                    i++)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Doctor ${i + 1}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF7C3AED),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: doctorNameControllers[i],
+                            decoration: _input("Doctor Name"),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: departmentControllers[i],
+                            decoration: _input("Department"),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+
+                    TextField(
+                      controller: descriptionController,
+                      maxLines: 3,
+                      decoration: _input("Plan Description"),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: loading ? null : savePlan,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7C3AED),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          loading ? "Saving..." : "Save Plan",
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: Text(
-                        loading ? "Saving..." : "Save Plan",
-                        style: const TextStyle(color: Colors.white),
-                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _input(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
       ),
     );
   }
