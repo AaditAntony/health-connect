@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health_connect/hospital/patient_records_tab_wrapper.dart';
 import 'package:health_connect/hospital/shared_patient_records_page.dart';
+import 'package:health_connect/hospital/smart_care_plan_page.dart';
 import 'package:health_connect/web/hospital_login_page.dart';
 import 'add_patient_page.dart';
 import 'hospital_overview_tab.dart';
@@ -21,7 +22,7 @@ class _HospitalDashboardState extends State<HospitalDashboard>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
   }
 
   @override
@@ -97,6 +98,7 @@ class _HospitalDashboardState extends State<HospitalDashboard>
                 Tab(text: "Add Patient"),
                 Tab(text: "Data Requests"),
                 Tab(text: "Shared Records"),
+                Tab(text: "Smart Care Page")
               ],
             ),
           ),
@@ -113,7 +115,8 @@ class _HospitalDashboardState extends State<HospitalDashboard>
             PatientRecordsTabWrapper(),
             AddPatientPage(),
             DataRequestsTab(),
-            SharedPatientRecordsPage()
+            SharedPatientRecordsPage(),
+            SmartCarePlanPage()
           ],
         ),
       ),
