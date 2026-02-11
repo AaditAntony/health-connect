@@ -171,6 +171,49 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // ---------------- HEADER LOGO ----------------
+                    Center(
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0xFF7C3AED),
+                                  Color(0xFF5B21B6),
+                                ],
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.workspace_premium,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            "SmartCarePlan",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            "Create subscription plans for your patients",
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
                     const Text(
                       "Create SmartCarePlan",
                       style: TextStyle(
