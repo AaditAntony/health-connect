@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:health_connect/patient/patient_auth_page.dart';
 import 'package:health_connect/patient/patient_consent_page.dart';
+import 'package:health_connect/patient/patient_smartcare_plan_page.dart';
 import 'patient_medical_history_page.dart';
 
 class PatientDashboard extends StatefulWidget {
@@ -47,7 +48,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
     final pages = [
       PatientMedicalHistoryPage(patientId: patientId!),
-      const _PlaceholderPage(),
+      PatientSmartCarePlanPage(),
       PatientConsentPage(patientId: patientId!)
     ];
 
@@ -103,7 +104,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
           BottomNavigationBarItem(
             icon: Icon(Icons.layers_outlined),
             activeIcon: Icon(Icons.layers),
-            label: "More",
+            label: "Smart-Plan",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.layers_outlined),
