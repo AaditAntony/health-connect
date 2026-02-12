@@ -59,7 +59,10 @@ class PatientSmartCarePlanPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('smartcareplans')
+            .where('status', isEqualTo: 'active')
+            .where('expiresAt', isGreaterThan: Timestamp.now())
             .snapshots(),
+
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
