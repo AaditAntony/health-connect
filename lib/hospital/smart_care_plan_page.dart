@@ -13,25 +13,24 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
   final amountController = TextEditingController();
   final doctorCountController = TextEditingController();
   final descriptionController = TextEditingController();
+  final durationController = TextEditingController();
 
   List<TextEditingController> doctorNameControllers = [];
   List<TextEditingController> departmentControllers = [];
 
+  String selectedDurationType = "days"; // minutes / hours / days
   bool loading = false;
-  String? existingPlanId;
 
   @override
   void initState() {
     super.initState();
     doctorCountController.addListener(_updateDoctorFields);
-    _loadExistingPlan();
   }
 
   // ---------------- DYNAMIC DOCTOR FIELDS ----------------
 
   void _updateDoctorFields() {
     final count = int.tryParse(doctorCountController.text) ?? 0;
-
     if (count < 0) return;
 
     setState(() {
@@ -42,51 +41,17 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
     });
   }
 
-  // ---------------- LOAD EXISTING PLAN ----------------
-
-  Future<void> _loadExistingPlan() async {
-    final hospitalId = FirebaseAuth.instance.currentUser!.uid;
-
-    final query = await FirebaseFirestore.instance
-        .collection('smartcareplans')
-        .where('createdByHospitalId', isEqualTo: hospitalId)
-        .limit(1)
-        .get();
-
-    if (query.docs.isNotEmpty) {
-      final doc = query.docs.first;
-      final data = doc.data();
-
-      existingPlanId = doc.id;
-
-      amountController.text = data['amount'].toString();
-      doctorCountController.text = data['doctorCount'].toString();
-      descriptionController.text = data['description'];
-
-      final doctors = List<Map<String, dynamic>>.from(data['doctors']);
-
-      doctorNameControllers =
-          List.generate(doctors.length, (i) {
-            return TextEditingController(text: doctors[i]['name']);
-          });
-
-      departmentControllers =
-          List.generate(doctors.length, (i) {
-            return TextEditingController(text: doctors[i]['department']);
-          });
-
-      setState(() {});
-    }
-  }
-
   // ---------------- SAVE PLAN ----------------
 
   Future<void> savePlan() async {
     final count = int.tryParse(doctorCountController.text) ?? 0;
+    final durationValue = int.tryParse(durationController.text);
 
     if (amountController.text.isEmpty ||
         doctorCountController.text.isEmpty ||
         descriptionController.text.isEmpty ||
+        durationValue == null ||
+        durationValue <= 0 ||
         doctorNameControllers.length != count) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Fill all fields correctly")),
@@ -96,9 +61,9 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
 
     setState(() => loading = true);
 
-    final hospitalId = FirebaseAuth.instance.currentUser!.uid;
-
     try {
+      final hospitalId = FirebaseAuth.instance.currentUser!.uid;
+
       List<Map<String, dynamic>> doctors = [];
 
       for (int i = 0; i < count; i++) {
@@ -113,29 +78,46 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
         });
       }
 
+      // -------- CALCULATE EXPIRY --------
+      DateTime now = DateTime.now();
+      DateTime expiry;
+
+      if (selectedDurationType == "minutes") {
+        expiry = now.add(Duration(minutes: durationValue));
+      } else if (selectedDurationType == "hours") {
+        expiry = now.add(Duration(hours: durationValue));
+      } else {
+        expiry = now.add(Duration(days: durationValue));
+      }
+
       final data = {
         "amount": int.parse(amountController.text.trim()),
         "doctorCount": count,
         "description": descriptionController.text.trim(),
         "doctors": doctors,
         "createdByHospitalId": hospitalId,
-        "createdAt": Timestamp.now(),
+        "createdAt": Timestamp.fromDate(now),
+        "expiresAt": Timestamp.fromDate(expiry),
+        "status": "active",
       };
 
-      if (existingPlanId == null) {
-        await FirebaseFirestore.instance
-            .collection('smartcareplans')
-            .add(data);
-      } else {
-        await FirebaseFirestore.instance
-            .collection('smartcareplans')
-            .doc(existingPlanId)
-            .update(data);
-      }
+      await FirebaseFirestore.instance
+          .collection('smartcareplans')
+          .add(data);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("SmartCarePlan saved successfully")),
+        const SnackBar(content: Text("SmartCarePlan created successfully")),
       );
+
+      // -------- CLEAR FORM AFTER SAVE --------
+      amountController.clear();
+      doctorCountController.clear();
+      descriptionController.clear();
+      durationController.clear();
+      doctorNameControllers.clear();
+      departmentControllers.clear();
+
+      setState(() {});
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.toString())));
@@ -171,7 +153,8 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ---------------- HEADER LOGO ----------------
+
+                    // -------- HEADER --------
                     Center(
                       child: Column(
                         children: [
@@ -204,24 +187,13 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                           const SizedBox(height: 6),
                           const Text(
                             "Create subscription plans for your patients",
-                            style: TextStyle(
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(color: Colors.grey),
                           ),
                         ],
                       ),
                     ),
 
                     const SizedBox(height: 30),
-
-                    const Text(
-                      "Create SmartCarePlan",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
 
                     TextField(
                       controller: amountController,
@@ -237,12 +209,48 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                       decoration: _input("Number of Doctors"),
                     ),
 
+                    const SizedBox(height: 16),
+
+                    // -------- DURATION SECTION --------
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: durationController,
+                            keyboardType: TextInputType.number,
+                            decoration: _input("Plan Duration"),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        DropdownButton<String>(
+                          value: selectedDurationType,
+                          items: const [
+                            DropdownMenuItem(
+                              value: "minutes",
+                              child: Text("Minutes"),
+                            ),
+                            DropdownMenuItem(
+                              value: "hours",
+                              child: Text("Hours"),
+                            ),
+                            DropdownMenuItem(
+                              value: "days",
+                              child: Text("Days"),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              selectedDurationType = value!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+
                     const SizedBox(height: 24),
 
                     // -------- DYNAMIC DOCTORS --------
-                    for (int i = 0;
-                    i < doctorNameControllers.length;
-                    i++)
+                    for (int i = 0; i < doctorNameControllers.length; i++)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -283,12 +291,11 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF7C3AED),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: Text(
-                          loading ? "Saving..." : "Save Plan",
+                          loading ? "Saving..." : "Create Plan",
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
