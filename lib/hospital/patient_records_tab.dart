@@ -259,6 +259,28 @@ class _PatientCard extends StatelessWidget {
                   ),
                 ),
               ),
+
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text(
+                    "AI-Generation",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7C3AED),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
