@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:health_connect/hospital/patient_summary_page.dart';
+import 'package:health_connect/hospital/patient_ai_summary_page.dart';
 import 'add_treatement_page.dart';
 
 class PatientRecordsTab extends StatelessWidget {
@@ -268,7 +268,7 @@ class _PatientCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>PatientAiSummaryPage(patientId: patientId, hospitalId: hospitalId)
+                        builder: (_) =>AiMedicalSummaryPage(patientId: patientId, hospitalId: hospitalId)
                       ),
                     );
                   },
