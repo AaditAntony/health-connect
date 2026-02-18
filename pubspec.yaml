@@ -38,6 +38,8 @@ dependencies:
   cloud_firestore: ^6.1.2
   firebase_auth: ^6.1.4
   file_picker: ^10.3.10
+  razorpay_flutter: ^1.4.1
+  fluttertoast: ^9.0.0
 
 dev_dependencies:
   flutter_test:
