@@ -205,16 +205,82 @@ Digitally Generated Clinical Summary
   }
 
   Widget _buildSummaryScreen() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Text(
-        displayedText,
-        style: const TextStyle(
-          fontSize: 15,
-          height: 1.6,
-          fontFamily: 'monospace',
-        ),
-      ),
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('accounts')
+          .doc(widget.hospitalId)
+          .get(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final hospitalData =
+        snapshot.data!.data() as Map<String, dynamic>;
+
+        final String? sealBase64 =
+        hospitalData['sealSignBase64'];
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              // -------- SUMMARY TEXT --------
+              Text(
+                displayedText,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.6,
+                  fontFamily: 'monospace',
+                ),
+              ),
+
+              const SizedBox(height: 40),
+              const Divider(),
+              const SizedBox(height: 20),
+
+              // -------- DIGITAL SIGNATURE AREA --------
+              const Text(
+                "Authorized & Digitally Verified By",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              Text(
+                hospitalData['hospitalName'] ?? "Hospital",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // -------- SEAL IMAGE (BOTTOM LEFT STYLE) --------
+              if (sealBase64 != null && sealBase64.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.memory(
+                      base64Decode(sealBase64),
+                      height: 80,
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
+
 }
