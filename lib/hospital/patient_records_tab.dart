@@ -268,7 +268,7 @@ class _PatientCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
+                        builder: (_) =>PatientAiSummaryPage(patientId: patientId, hospitalId: hospitalId)
                       ),
                     );
                   },
