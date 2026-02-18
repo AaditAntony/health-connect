@@ -1,52 +1,110 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class PatientSmartCarePlanPage extends StatelessWidget {
+class PatientSmartCarePlanPage extends StatefulWidget {
   const PatientSmartCarePlanPage({super.key});
 
-  Future<void> activatePlan(
-      BuildContext context,
-      String planId,
-      Map<String, dynamic> planData,
-      ) async {
+  @override
+  State<PatientSmartCarePlanPage> createState() =>
+      _PatientSmartCarePlanPageState();
+}
+
+class _PatientSmartCarePlanPageState
+    extends State<PatientSmartCarePlanPage> {
+  late Razorpay _razorpay;
+
+  String? pendingPlanId;
+  Map<String, dynamic>? pendingPlanData;
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpay = Razorpay();
+
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
+  }
+
+  // ================= PAYMENT HANDLERS =================
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    if (pendingPlanId == null || pendingPlanData == null) return;
+
     final authUid = FirebaseAuth.instance.currentUser!.uid;
 
-    // Get linked patientId
     final patientDoc = await FirebaseFirestore.instance
         .collection('patient_users')
         .doc(authUid)
         .get();
 
-    final String patientId = patientDoc['patientId'];
-
-    // Prevent duplicate activation
-    final existing = await FirebaseFirestore.instance
-        .collection('patient_plans')
-        .where('patientId', isEqualTo: patientId)
-        .where('planId', isEqualTo: planId)
-        .get();
-
-    if (existing.docs.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Plan already activated")),
-      );
-      return;
-    }
+    final patientId = patientDoc['patientId'];
 
     await FirebaseFirestore.instance.collection('patient_plans').add({
       "patientId": patientId,
-      "planId": planId,
-      "hospitalId": planData['createdByHospitalId'],
-      "amount": planData['amount'],
+      "planId": pendingPlanId,
+      "hospitalId": pendingPlanData!['createdByHospitalId'],
+      "amount": pendingPlanData!['amount'],
       "activatedAt": Timestamp.now(),
       "status": "active",
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Your SmartCarePlan is now activated")),
-    );
+    Fluttertoast.showToast(msg: "Payment successful. Plan activated!");
+
+    setState(() {
+      pendingPlanId = null;
+      pendingPlanData = null;
+    });
   }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    Fluttertoast.showToast(msg: "Payment failed. Plan not activated.");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    Fluttertoast.showToast(msg: "External wallet selected");
+  }
+
+  // ================= OPEN RAZORPAY =================
+
+  void _openCheckout(String planId, Map<String, dynamic> data) async {
+    pendingPlanId = planId;
+    pendingPlanData = data;
+
+    int amount = data['amount'] * 100; // convert to paisa
+
+    var options = {
+      'key': 'rzp_test_1DP5mmOlF5G5ag',
+      'amount': amount,
+      'name': 'Health Connect',
+      'description': 'SmartCarePlan Payment',
+      'retry': {'enabled': true, 'max_count': 1},
+      'prefill': {
+        'contact': '9999999999',
+        'email': 'test@razorpay.com'
+      },
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  // ================= UI =================
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +120,6 @@ class PatientSmartCarePlanPage extends StatelessWidget {
             .where('status', isEqualTo: 'active')
             .where('expiresAt', isGreaterThan: Timestamp.now())
             .snapshots(),
-
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -72,10 +129,7 @@ class PatientSmartCarePlanPage extends StatelessWidget {
 
           if (plans.isEmpty) {
             return const Center(
-              child: Text(
-                "No plans available",
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: Text("No plans available"),
             );
           }
 
@@ -85,7 +139,7 @@ class PatientSmartCarePlanPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final doc = plans[index];
               final data = doc.data() as Map<String, dynamic>;
-              final List doctors = data['doctors'] ?? [];
+              final doctors = data['doctors'] ?? [];
 
               return Card(
                 elevation: 4,
@@ -99,37 +153,22 @@ class PatientSmartCarePlanPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      // HEADER
                       Row(
                         children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFFEDE9FE),
-                            ),
-                            child: const Icon(
-                              Icons.workspace_premium,
-                              color: Color(0xFF7C3AED),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              "SmartCarePlan",
-                              style: const TextStyle(
+                          const Icon(Icons.workspace_premium,
+                              color: Color(0xFF7C3AED)),
+                          const SizedBox(width: 10),
+                          const Text(
+                            "SmartCarePlan",
+                            style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
 
                       const SizedBox(height: 16),
 
-                      // PRICE
                       Text(
                         "₹ ${data['amount']} / Month",
                         style: const TextStyle(
@@ -139,42 +178,20 @@ class PatientSmartCarePlanPage extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 10),
 
-                      Text(
-                        "${data['doctorCount']} Doctor Visits Included",
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // DESCRIPTION
-                      Text(
-                        data['description'] ?? "",
-                        style: const TextStyle(color: Colors.black87),
-                      ),
+                      Text(data['description'] ?? ""),
 
                       const Divider(height: 24),
 
-                      // DOCTORS
-                      const Text(
-                        "Included Specialists",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      ...doctors.map((doc) {
+                      ...doctors.map<Widget>((doc) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
                             children: [
-                              const Icon(
-                                Icons.check_circle,
-                                size: 18,
-                                color: Color(0xFF7C3AED),
-                              ),
+                              const Icon(Icons.check_circle,
+                                  size: 18,
+                                  color: Color(0xFF7C3AED)),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -194,12 +211,9 @@ class PatientSmartCarePlanPage extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF7C3AED),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
                           ),
                           onPressed: () =>
-                              activatePlan(context, doc.id, data),
+                              _openCheckout(doc.id, data),
                           child: const Text(
                             "Activate Plan",
                             style: TextStyle(color: Colors.white),
