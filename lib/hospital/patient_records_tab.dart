@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:health_connect/hospital/patient_summary_page.dart';
 import 'add_treatement_page.dart';
 
 class PatientRecordsTab extends StatelessWidget {
