@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'patient_link_page.dart';
 import 'patient_dashboard.dart';
 
@@ -58,18 +57,18 @@ class _PatientAuthPageState extends State<PatientAuthPage> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              "Registration successful. Please login to continue.",
-            ),
+            content: Text("Registration successful. Please login to continue."),
           ),
         );
 
         setState(() => isLogin = true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
 
     setState(() => loading = false);
@@ -210,9 +209,7 @@ class _PatientAuthPageState extends State<PatientAuthPage> {
                           isLogin
                               ? "Don’t have an account? Register"
                               : "Already have an account? Login",
-                          style: const TextStyle(
-                            color: Color(0xFF7C3AED),
-                          ),
+                          style: const TextStyle(color: Color(0xFF7C3AED)),
                         ),
                       ),
                     ],
@@ -225,5 +222,4 @@ class _PatientAuthPageState extends State<PatientAuthPage> {
       ),
     );
   }
-
 }

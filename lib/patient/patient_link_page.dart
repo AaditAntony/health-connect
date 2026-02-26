@@ -103,140 +103,142 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
         ),
       ),
 
-      body: Center(
-        child: SizedBox(
-          width: 420,
-          child: Card(
-            elevation: 4,
-            shadowColor: const Color(0xFF7C3AED).withOpacity(0.25),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // -------- TITLE --------
-                  const Text(
-                    "Link your medical record",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4C1D95),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-
-                  const Text(
-                    "Securely connect your hospital records to view your medical history.",
-                    style: TextStyle(color: Colors.black54, fontSize: 14),
-                  ),
-
-                  const SizedBox(height: 22),
-
-                  // -------- RADIO GROUP --------
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3E8FF),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFDDD6FE)),
-                    ),
-                    child: RadioGroup<LinkMethod>(
-                      groupValue: method,
-                      onChanged: (value) {
-                        setState(() => method = value!);
-                      },
-                      child: Column(
-                        children: const [
-                          RadioListTile(
-                            value: LinkMethod.phone,
-                            activeColor: Color(0xFF7C3AED),
-                            title: Text("Link using Phone Number"),
-                          ),
-                          Divider(height: 1),
-                          RadioListTile(
-                            value: LinkMethod.patientId,
-                            activeColor: Color(0xFF7C3AED),
-                            title: Text("Link using Patient ID (from bill)"),
-                          ),
-                        ],
+      body: SingleChildScrollView(
+        child: Center(
+          child: SizedBox(
+            width: 420,
+            child: Card(
+              elevation: 4,
+              shadowColor: const Color(0xFF7C3AED).withOpacity(0.25),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // -------- TITLE --------
+                    const Text(
+                      "Link your medical record",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF4C1D95),
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  // -------- INPUT FIELD --------
-                  if (method == LinkMethod.phone)
-                    TextField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: "Phone Number",
-                        filled: true,
-                        fillColor: const Color(0xFFFDFBFF),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF7C3AED),
-                            width: 2,
-                          ),
+                    const SizedBox(height: 6),
+        
+                    const Text(
+                      "Securely connect your hospital records to view your medical history.",
+                      style: TextStyle(color: Colors.black54, fontSize: 14),
+                    ),
+        
+                    const SizedBox(height: 22),
+        
+                    // -------- RADIO GROUP --------
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3E8FF),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFDDD6FE)),
+                      ),
+                      child: RadioGroup<LinkMethod>(
+                        groupValue: method,
+                        onChanged: (value) {
+                          setState(() => method = value!);
+                        },
+                        child: Column(
+                          children: const [
+                            RadioListTile(
+                              value: LinkMethod.phone,
+                              activeColor: Color(0xFF7C3AED),
+                              title: Text("Link using Phone Number"),
+                            ),
+                            Divider(height: 1),
+                            RadioListTile(
+                              value: LinkMethod.patientId,
+                              activeColor: Color(0xFF7C3AED),
+                              title: Text("Link using Patient ID (from bill)"),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-
-                  if (method == LinkMethod.patientId)
-                    TextField(
-                      controller: patientIdController,
-                      decoration: InputDecoration(
-                        labelText: "Patient ID",
-                        hintText: "Example: AbC123Xyz",
-                        filled: true,
-                        fillColor: const Color(0xFFFDFBFF),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF7C3AED),
-                            width: 2,
+        
+                    const SizedBox(height: 18),
+        
+                    // -------- INPUT FIELD --------
+                    if (method == LinkMethod.phone)
+                      TextField(
+                        controller: phoneController,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: "Phone Number",
+                          filled: true,
+                          fillColor: const Color(0xFFFDFBFF),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF7C3AED),
+                              width: 2,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-
-                  const SizedBox(height: 26),
-
-                  // -------- ACTION BUTTON --------
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: loading ? null : linkPatient,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF7C3AED),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 3,
-                      ),
-                      child: Text(
-                        loading ? "Linking..." : "Link Record",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+        
+                    if (method == LinkMethod.patientId)
+                      TextField(
+                        controller: patientIdController,
+                        decoration: InputDecoration(
+                          labelText: "Patient ID",
+                          hintText: "Example: AbC123Xyz",
+                          filled: true,
+                          fillColor: const Color(0xFFFDFBFF),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF7C3AED),
+                              width: 2,
+                            ),
+                          ),
                         ),
                       ),
+        
+                    const SizedBox(height: 26),
+        
+                    // -------- ACTION BUTTON --------
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: loading ? null : linkPatient,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7C3AED),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 3,
+                        ),
+                        child: Text(
+                          loading ? "Linking..." : "Link Record",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
