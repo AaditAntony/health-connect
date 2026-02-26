@@ -9,9 +9,7 @@ class PatientConsentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Data Sharing Consent"),
-      ),
+      appBar: AppBar(title: const Text("Data Sharing Consent")),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('data_requests')
@@ -116,10 +114,7 @@ class _ConsentCard extends StatelessWidget {
                 // -------- TITLE --------
                 const Text(
                   "Medical Data Transfer Request",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 12),
@@ -127,10 +122,7 @@ class _ConsentCard extends StatelessWidget {
                 // -------- MESSAGE --------
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: Colors.black87, fontSize: 14),
                     children: [
                       const TextSpan(text: "Your medical records from "),
                       TextSpan(
@@ -155,16 +147,11 @@ class _ConsentCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.purple.shade50,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.purple.shade100,
-                    ),
+                    border: Border.all(color: Colors.purple.shade100),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.lock,
-                        color: Color(0xFF7C3AED),
-                      ),
+                      const Icon(Icons.lock, color: Color(0xFF7C3AED)),
                       const SizedBox(width: 8),
                       Text(
                         "OTP: $otp",
@@ -197,14 +184,10 @@ class _ConsentCard extends StatelessWidget {
                         await FirebaseFirestore.instance
                             .collection('data_requests')
                             .doc(requestId)
-                            .update({
-                          "status": "rejected",
-                        });
+                            .update({"status": "rejected"});
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Request rejected"),
-                          ),
+                          const SnackBar(content: Text("Request rejected")),
                         );
                       },
                       child: const Text(
@@ -215,11 +198,7 @@ class _ConsentCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {
-                        _showOtpDialog(
-                          context,
-                          requestId,
-                          otp,
-                        );
+                        _showOtpDialog(context, requestId, otp);
                       },
                       child: const Text("Proceed"),
                     ),
@@ -236,10 +215,10 @@ class _ConsentCard extends StatelessWidget {
   // ================= OTP DIALOG =================
 
   void _showOtpDialog(
-      BuildContext parentContext,
-      String requestId,
-      String correctOtp,
-      ) {
+    BuildContext parentContext,
+    String requestId,
+    String correctOtp,
+  ) {
     final otpController = TextEditingController();
 
     showDialog(
@@ -259,10 +238,7 @@ class _ConsentCard extends StatelessWidget {
                 // -------- TITLE --------
                 const Text(
                   "OTP Verification",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 12),
@@ -310,9 +286,7 @@ class _ConsentCard extends StatelessWidget {
                       onPressed: () async {
                         if (otpController.text.trim() != correctOtp) {
                           ScaffoldMessenger.of(parentContext).showSnackBar(
-                            const SnackBar(
-                              content: Text("Invalid OTP"),
-                            ),
+                            const SnackBar(content: Text("Invalid OTP")),
                           );
                           return;
                         }
@@ -321,17 +295,19 @@ class _ConsentCard extends StatelessWidget {
                         await FirebaseFirestore.instance
                             .collection('data_requests')
                             .doc(requestId)
-                            .update({
-                          "status": "approved",
-                        });
+                            .update({"status": "approved"});
 
                         Navigator.of(dialogContext).pop();
 
-                        ScaffoldMessenger.of(parentContext).showSnackBar(
-                          const SnackBar(
-                            content: Text("Consent approved successfully"),
-                          ),
-                        );
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          if (parentContext.mounted) {
+                            ScaffoldMessenger.of(parentContext).showSnackBar(
+                              const SnackBar(
+                                content: Text("Consent approved successfully"),
+                              ),
+                            );
+                          }
+                        });
                       },
                       child: const Text(
                         "Verify",
@@ -348,4 +324,3 @@ class _ConsentCard extends StatelessWidget {
     );
   }
 }
-
