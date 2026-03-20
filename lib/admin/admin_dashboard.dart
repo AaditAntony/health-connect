@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:health_connect/admin/admin_payments_page.dart';
 import 'package:health_connect/admin/pending_request_tab.dart';
 import 'package:health_connect/web/admin_login_page.dart';
 
@@ -20,7 +22,7 @@ class _AdminDashboardState extends State<AdminDashboard>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -31,8 +33,11 @@ class _AdminDashboardState extends State<AdminDashboard>
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder:(context)=>AdminLoginPage()))
-;  }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => AdminLoginPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +65,7 @@ class _AdminDashboardState extends State<AdminDashboard>
                 ),
                 Text(
                   "System Admin",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
@@ -73,71 +75,35 @@ class _AdminDashboardState extends State<AdminDashboard>
           TextButton.icon(
             onPressed: logout,
             icon: const Icon(Icons.logout, color: Colors.black),
-            label: const Text(
-              "Logout",
-              style: TextStyle(color: Colors.black),
-            ),
+            label: const Text("Logout", style: TextStyle(color: Colors.black)),
           ),
           const SizedBox(width: 16),
         ],
 
-        // ================= TAB BAR =================
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Container(
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              indicatorColor: const Color(0xFF7C3AED),
-              labelColor: const Color(0xFF7C3AED),
-              unselectedLabelColor: Colors.grey,
-              tabs: [
-                const Tab(text: "Overview"),
-                Tab(
-                  child: Row(
-                    children: [
-                      const Text("Pending Requests"),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          "3", // later bind from Firebase
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Tab(text: "Approved Hospitals"),
-              ],
-            ),
-          ),
+        // ================= FIXED TAB BAR =================
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: const Color(0xFF7C3AED),
+          labelColor: const Color(0xFF7C3AED),
+          unselectedLabelColor: Colors.grey,
+          tabs: const [
+            Tab(text: "Overview"),
+            Tab(text: "Pending"),
+            Tab(text: "Approved"),
+            Tab(text: "Payments"),
+          ],
         ),
       ),
 
       // ================= BODY =================
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: TabBarView(
-          controller: _tabController,
-          children: const [
-            OverviewTab(),
-            PendingRequestsTab(),
-            ApprovedHospitalsTab(),
-          ],
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          OverviewTab(),
+          PendingRequestsTab(), // <-- badge moved inside this page
+          ApprovedHospitalsTab(),
+          AdminPaymentsPage(),
+        ],
       ),
     );
   }

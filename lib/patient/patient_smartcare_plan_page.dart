@@ -12,8 +12,7 @@ class PatientSmartCarePlanPage extends StatefulWidget {
       _PatientSmartCarePlanPageState();
 }
 
-class _PatientSmartCarePlanPageState
-    extends State<PatientSmartCarePlanPage> {
+class _PatientSmartCarePlanPageState extends State<PatientSmartCarePlanPage> {
   late Razorpay _razorpay;
 
   String? pendingPlanId;
@@ -36,9 +35,7 @@ class _PatientSmartCarePlanPageState
     super.dispose();
   }
 
-  // ==========================================================
-  // ================= ACTIVATE PLAN (COMMON METHOD) ==========
-  // ==========================================================
+  // ================= ACTIVATE PLAN =================
 
   Future<void> _activatePlan() async {
     if (pendingPlanId == null || pendingPlanData == null) return;
@@ -52,7 +49,7 @@ class _PatientSmartCarePlanPageState
 
     final String patientId = patientDoc['patientId'];
 
-    // Prevent duplicate activation
+    // Prevent duplicate
     final existing = await FirebaseFirestore.instance
         .collection('patient_plans')
         .where('patientId', isEqualTo: patientId)
@@ -61,11 +58,13 @@ class _PatientSmartCarePlanPageState
 
     if (existing.docs.isNotEmpty) {
       Fluttertoast.showToast(
-          msg: "Plan already activated",
-          backgroundColor: Colors.orange);
+        msg: "Plan already activated",
+        backgroundColor: Colors.orange,
+      );
       return;
     }
 
+    // Save plan
     await FirebaseFirestore.instance.collection('patient_plans').add({
       "patientId": patientId,
       "planId": pendingPlanId,
@@ -73,6 +72,17 @@ class _PatientSmartCarePlanPageState
       "amount": pendingPlanData!['amount'],
       "activatedAt": Timestamp.now(),
       "status": "active",
+    });
+
+    // Save payment
+    await FirebaseFirestore.instance.collection('payments').add({
+      "patientId": patientId,
+      "planId": pendingPlanId,
+      "hospitalId": pendingPlanData!['createdByHospitalId'],
+      "amount": pendingPlanData!['amount'],
+      "status": "success",
+      "paymentMethod": "razorpay",
+      "createdAt": Timestamp.now(),
     });
 
     Fluttertoast.showToast(
@@ -87,180 +97,214 @@ class _PatientSmartCarePlanPageState
     });
   }
 
-  // ==========================================================
-  // ================= PAYMENT HANDLERS =======================
-  // ==========================================================
+  // ================= PAYMENT HANDLERS =================
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     await _activatePlan();
   }
 
   void _handlePaymentError(PaymentFailureResponse response) async {
-    // Even on failure → activate (Demo Mode)
-    await _activatePlan();
+    await _activatePlan(); // demo mode
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) async {
     await _activatePlan();
   }
 
-  // ==========================================================
-  // ================= OPEN CHECKOUT ==========================
-  // ==========================================================
+  // ================= OPEN CHECKOUT =================
 
   void _openCheckout(String planId, Map<String, dynamic> data) {
     pendingPlanId = planId;
     pendingPlanData = data;
 
-    int amount = data['amount'] * 100; // convert to paisa
+    int amount = data['amount'] * 100;
 
     var options = {
       'key': 'rzp_test_1DP5mmOlF5G5ag',
       'amount': amount,
       'name': 'Health Connect',
       'description': 'SmartCarePlan Payment',
-      'retry': {'enabled': true, 'max_count': 1},
-      'prefill': {
-        'contact': '9999999999',
-        'email': 'demo@healthconnect.com'
-      },
-      'external': {
-        'wallets': ['paytm']
-      }
+      'prefill': {'contact': '9999999999', 'email': 'demo@healthconnect.com'},
     };
 
     try {
       _razorpay.open(options);
     } catch (e) {
-      debugPrint(e.toString());
       _activatePlan(); // fallback
     }
   }
 
-  // ==========================================================
-  // ================= UI ====================================
-  // ==========================================================
+  // ================= UI =================
 
   @override
   Widget build(BuildContext context) {
+    final authUid = FirebaseAuth.instance.currentUser!.uid;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
         title: const Text("SmartCare Plans"),
         backgroundColor: const Color(0xFF7C3AED),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('smartcareplans')
-            .where('status', isEqualTo: 'active')
-            .where('expiresAt', isGreaterThan: Timestamp.now())
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+      body: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('patient_users')
+            .doc(authUid)
+            .get(),
+        builder: (context, patientSnapshot) {
+          if (!patientSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final plans = snapshot.data!.docs;
+          final patientId = patientSnapshot.data!['patientId'];
 
-          if (plans.isEmpty) {
-            return const Center(
-              child: Text("No plans available"),
-            );
-          }
+          return StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('smartcareplans')
+                .where('status', isEqualTo: 'active')
+                .where('expiresAt', isGreaterThan: Timestamp.now())
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: plans.length,
-            itemBuilder: (context, index) {
-              final doc = plans[index];
-              final data = doc.data() as Map<String, dynamic>;
-              final doctors = data['doctors'] ?? [];
+              final plans = snapshot.data!.docs;
 
-              return Card(
-                elevation: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              if (plans.isEmpty) {
+                return const Center(child: Text("No plans available"));
+              }
 
-                      Row(
-                        children: const [
-                          Icon(Icons.workspace_premium,
-                              color: Color(0xFF7C3AED)),
-                          SizedBox(width: 10),
-                          Text(
-                            "SmartCarePlan",
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: plans.length,
+                itemBuilder: (context, index) {
+                  final doc = plans[index];
+                  final data = doc.data() as Map<String, dynamic>;
+                  final doctors = data['doctors'] ?? [];
 
-                      const SizedBox(height: 16),
-
-                      Text(
-                        "₹ ${data['amount']} / Month",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF7C3AED),
-                        ),
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      Text(data['description'] ?? ""),
-
-                      const Divider(height: 24),
-
-                      ...doctors.map<Widget>((doc) {
-                        return Padding(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.check_circle,
-                                  size: 18,
-                                  color: Color(0xFF7C3AED)),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  "${doc['name']} • ${doc['department']}",
+                  return Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Icon(
+                                Icons.workspace_premium,
+                                color: Color(0xFF7C3AED),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                "SmartCarePlan",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
-                        );
-                      }).toList(),
 
-                      const SizedBox(height: 20),
+                          const SizedBox(height: 16),
 
-                      SizedBox(
-                        width: double.infinity,
-                        height: 45,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF7C3AED),
+                          Text(
+                            "₹ ${data['amount']} / Month",
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF7C3AED),
+                            ),
                           ),
-                          onPressed: () =>
-                              _openCheckout(doc.id, data),
-                          child: const Text(
-                            "Activate Plan",
-                            style:
-                                TextStyle(color: Colors.white),
+
+                          const SizedBox(height: 10),
+
+                          Text(data['description'] ?? ""),
+
+                          const Divider(height: 24),
+
+                          ...doctors.map<Widget>((doc) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.check_circle,
+                                    size: 18,
+                                    color: Color(0xFF7C3AED),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      "${doc['name']} • ${doc['department']}",
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+
+                          const SizedBox(height: 20),
+
+                          // ================= BUTTON WITH STATUS =================
+                          StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('patient_plans')
+                                .where('patientId', isEqualTo: patientId)
+                                .where('planId', isEqualTo: doc.id)
+                                .snapshots(),
+                            builder: (context, planSnapshot) {
+                              final isActivated =
+                                  planSnapshot.hasData &&
+                                  planSnapshot.data!.docs.isNotEmpty;
+
+                              return SizedBox(
+                                width: double.infinity,
+                                height: 45,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: isActivated
+                                        ? Colors.green
+                                        : const Color(0xFF7C3AED),
+                                  ),
+                                  onPressed: isActivated
+                                      ? null
+                                      : () => _openCheckout(doc.id, data),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        isActivated
+                                            ? Icons.check_circle
+                                            : Icons.lock_open,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        isActivated
+                                            ? "Activated"
+                                            : "Activate Plan",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
           );
