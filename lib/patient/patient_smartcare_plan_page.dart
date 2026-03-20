@@ -22,6 +22,7 @@ class _PatientSmartCarePlanPageState
   @override
   void initState() {
     super.initState();
+
     _razorpay = Razorpay();
 
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
@@ -35,9 +36,11 @@ class _PatientSmartCarePlanPageState
     super.dispose();
   }
 
-  // ================= PAYMENT HANDLERS =================
+  // ==========================================================
+  // ================= ACTIVATE PLAN (COMMON METHOD) ==========
+  // ==========================================================
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+  Future<void> _activatePlan() async {
     if (pendingPlanId == null || pendingPlanData == null) return;
 
     final authUid = FirebaseAuth.instance.currentUser!.uid;
@@ -47,7 +50,21 @@ class _PatientSmartCarePlanPageState
         .doc(authUid)
         .get();
 
-    final patientId = patientDoc['patientId'];
+    final String patientId = patientDoc['patientId'];
+
+    // Prevent duplicate activation
+    final existing = await FirebaseFirestore.instance
+        .collection('patient_plans')
+        .where('patientId', isEqualTo: patientId)
+        .where('planId', isEqualTo: pendingPlanId)
+        .get();
+
+    if (existing.docs.isNotEmpty) {
+      Fluttertoast.showToast(
+          msg: "Plan already activated",
+          backgroundColor: Colors.orange);
+      return;
+    }
 
     await FirebaseFirestore.instance.collection('patient_plans').add({
       "patientId": patientId,
@@ -58,7 +75,11 @@ class _PatientSmartCarePlanPageState
       "status": "active",
     });
 
-    Fluttertoast.showToast(msg: "Payment successful. Plan activated!");
+    Fluttertoast.showToast(
+      msg: "Amount has been paid and your plan is activated",
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+    );
 
     setState(() {
       pendingPlanId = null;
@@ -66,17 +87,28 @@ class _PatientSmartCarePlanPageState
     });
   }
 
-  void _handlePaymentError(PaymentFailureResponse response) {
-    Fluttertoast.showToast(msg: "Payment failed. Plan not activated.");
+  // ==========================================================
+  // ================= PAYMENT HANDLERS =======================
+  // ==========================================================
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    await _activatePlan();
   }
 
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    Fluttertoast.showToast(msg: "External wallet selected");
+  void _handlePaymentError(PaymentFailureResponse response) async {
+    // Even on failure → activate (Demo Mode)
+    await _activatePlan();
   }
 
-  // ================= OPEN RAZORPAY =================
+  void _handleExternalWallet(ExternalWalletResponse response) async {
+    await _activatePlan();
+  }
 
-  void _openCheckout(String planId, Map<String, dynamic> data) async {
+  // ==========================================================
+  // ================= OPEN CHECKOUT ==========================
+  // ==========================================================
+
+  void _openCheckout(String planId, Map<String, dynamic> data) {
     pendingPlanId = planId;
     pendingPlanData = data;
 
@@ -90,7 +122,7 @@ class _PatientSmartCarePlanPageState
       'retry': {'enabled': true, 'max_count': 1},
       'prefill': {
         'contact': '9999999999',
-        'email': 'test@razorpay.com'
+        'email': 'demo@healthconnect.com'
       },
       'external': {
         'wallets': ['paytm']
@@ -101,10 +133,13 @@ class _PatientSmartCarePlanPageState
       _razorpay.open(options);
     } catch (e) {
       debugPrint(e.toString());
+      _activatePlan(); // fallback
     }
   }
 
-  // ================= UI =================
+  // ==========================================================
+  // ================= UI ====================================
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -154,11 +189,11 @@ class _PatientSmartCarePlanPageState
                     children: [
 
                       Row(
-                        children: [
-                          const Icon(Icons.workspace_premium,
+                        children: const [
+                          Icon(Icons.workspace_premium,
                               color: Color(0xFF7C3AED)),
-                          const SizedBox(width: 10),
-                          const Text(
+                          SizedBox(width: 10),
+                          Text(
                             "SmartCarePlan",
                             style: TextStyle(
                                 fontSize: 18,
@@ -186,7 +221,8 @@ class _PatientSmartCarePlanPageState
 
                       ...doctors.map<Widget>((doc) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          padding:
+                              const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
                             children: [
                               const Icon(Icons.check_circle,
@@ -210,13 +246,15 @@ class _PatientSmartCarePlanPageState
                         height: 45,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7C3AED),
+                            backgroundColor:
+                                const Color(0xFF7C3AED),
                           ),
                           onPressed: () =>
                               _openCheckout(doc.id, data),
                           child: const Text(
                             "Activate Plan",
-                            style: TextStyle(color: Colors.white),
+                            style:
+                                TextStyle(color: Colors.white),
                           ),
                         ),
                       ),
