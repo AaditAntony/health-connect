@@ -29,45 +29,52 @@ class ApprovedHospitalsTab extends StatelessWidget {
           );
         }
 
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columnSpacing: 250,
-            headingRowColor: MaterialStateProperty.all(
-              const Color(0xFFF3F0FF),
-            ),
-            columns: const [
-              DataColumn(label: Text("Hospital Name")),
-              DataColumn(label: Text("District")),
-              DataColumn(label: Text("Established")),
-              DataColumn(label: Text("Status")),
-            ],
-            rows: docs.map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: constraints.maxWidth, // 👈 KEY FIX
+                ),
+                child: DataTable(
+                  columnSpacing: 120, // reduced from 250 (was too large)
+                  headingRowColor: MaterialStateProperty.all(
+                    const Color(0xFFF3F0FF),
+                  ),
+                  columns: const [
+                    DataColumn(label: Text("Hospital Name")),
+                    DataColumn(label: Text("District")),
+                    DataColumn(label: Text("Established")),
+                    DataColumn(label: Text("Status")),
+                  ],
+                  rows: docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
 
-              return DataRow(
-                cells: [
-                  DataCell(
-                    Text(data['hospitalName'] ?? "-"),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              HospitalDetailPage(hospitalId: doc.id),
+                    return DataRow(
+                      cells: [
+                        DataCell(
+                          Text(data['hospitalName'] ?? "-"),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    HospitalDetailPage(hospitalId: doc.id),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                  DataCell(Text(data['district'] ?? "-")),
-                  DataCell(Text(data['establishedYear'] ?? "-")),
-                  const DataCell(
-                    _ApprovedBadge(),
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
+                        DataCell(Text(data['district'] ?? "-")),
+                        DataCell(Text(data['establishedYear'] ?? "-")),
+                        const DataCell(_ApprovedBadge()),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            );
+          },
         );
       },
     );

@@ -7,74 +7,107 @@ class PendingRequestsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('accounts')
-          .where('role', isEqualTo: 'hospital')
-          .where('approved', isEqualTo: false)
-          .where('profileSubmitted', isEqualTo: true)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Column(
+      children: [
+        // ================= COUNT HEADER =================
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('accounts')
+              .where('role', isEqualTo: 'hospital')
+              .where('approved', isEqualTo: false)
+              .where('profileSubmitted', isEqualTo: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const SizedBox();
 
-        final docs = snapshot.data!.docs;
+            final count = snapshot.data!.docs.length;
 
-        if (docs.isEmpty) {
-          return const Center(
-            child: Text(
-              "No pending hospital requests",
-              style: TextStyle(color: Colors.grey),
-            ),
-          );
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.all(8),
-          itemCount: docs.length,
-          itemBuilder: (context, index) {
-            final data = docs[index].data() as Map<String, dynamic>;
-
-            return _PendingHospitalCard(
-              hospitalId: docs[index].id,
-              data: data,
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  const Icon(Icons.pending_actions, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Pending Requests: $count",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
             );
           },
-        );
-      },
+        ),
+
+        // ================= LIST =================
+        Expanded(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('accounts')
+                .where('role', isEqualTo: 'hospital')
+                .where('approved', isEqualTo: false)
+                .where('profileSubmitted', isEqualTo: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final docs = snapshot.data!.docs;
+
+              if (docs.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "No pending hospital requests",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  final data = docs[index].data() as Map<String, dynamic>;
+
+                  return _PendingHospitalCard(
+                    hospitalId: docs[index].id,
+                    data: data,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
 
-// ---------------- CARD ----------------
+// ================= CARD =================
 
 class _PendingHospitalCard extends StatelessWidget {
   final String hospitalId;
   final Map<String, dynamic> data;
 
-  const _PendingHospitalCard({
-    required this.hospitalId,
-    required this.data,
-  });
+  const _PendingHospitalCard({required this.hospitalId, required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => HospitalDetailPage(
-                hospitalId: hospitalId,
-              ),
+              builder: (_) => HospitalDetailPage(hospitalId: hospitalId),
             ),
           );
         },
@@ -139,6 +172,10 @@ class _PendingHospitalCard extends StatelessWidget {
                           .collection('accounts')
                           .doc(hospitalId)
                           .update({"approved": true});
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Hospital Approved")),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -153,6 +190,10 @@ class _PendingHospitalCard extends StatelessWidget {
                           .collection('accounts')
                           .doc(hospitalId)
                           .delete();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Hospital Rejected")),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
