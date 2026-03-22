@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import '../api_keys.dart';
 
 class AiMedicalSummaryPage extends StatefulWidget {
   final String patientId;
@@ -58,76 +60,50 @@ class _AiMedicalSummaryPageState extends State<AiMedicalSummaryPage> {
     final hospital = hospitalDoc.data() as Map<String, dynamic>;
 
     final hospitalName = hospital['hospitalName'] ?? "Unknown Hospital";
-    final hospitalSeal = hospital['sealSignBase64'];
 
     int visitCount = treatments.docs.length;
 
-    String diagnosisTrend = visitCount > 2
-        ? "Recurring cardiovascular and metabolic irregularities"
-        : "Limited but clinically relevant diagnostic entries";
+    try {
+      if (ApiKeys.geminiApiKey == 'YOUR_API_KEY_HERE') {
+        fullText = "Error: Please configure your Gemini API Key in lib/api_keys.dart to generate the AI Summary.";
+        await Future.delayed(const Duration(seconds: 2));
+      } else {
+        final model = GenerativeModel(
+          model: 'gemini-2.5-flash',
+          apiKey: ApiKeys.geminiApiKey,
+        );
+        
+        // build the prompt
+        String prompt = '''
+You are a highly advanced AI medical assistant providing a report for $hospitalName. 
+Please generate a comprehensive, professional, and clinical medical summary report for the patient.
 
-    String lastDiagnosis = visitCount > 0
-        ? treatments.docs.last['diagnosis']
-        : "No diagnosis recorded";
-
-    String lastTreatment = visitCount > 0
-        ? treatments.docs.last['treatmentPlan']
-        : "No treatment plan recorded";
-
-    fullText = """
-AI-GENERATED MEDICAL SUMMARY
-Generated on: ${DateTime.now().toLocal()}
-
-------------------------------------------------------------
-
-PATIENT PROFILE
-
+Patient Profile:
 Name: ${patient['name']}
 Age: ${patient['age']}
 Blood Group: ${patient['bloodGroup']}
 Gender: ${patient['gender']}
 
-------------------------------------------------------------
+Treatment History ($visitCount visits):
+${treatments.docs.map((doc) => "- Diagnosis: ${doc['diagnosis']}, Treatment: ${doc['treatmentPlan']}").join('\n')}
 
-CLINICAL OVERVIEW
+Based on this data, provide a structured clinical medical summary report with the following sections (Do not use Markdown formatting like bold ** or headers # in your response, just plain text with line breaks as we are displaying it in a monospace code-like UI):
+- CLINICAL OVERVIEW
+- CLINICAL ANALYSIS (including healing suggestions and insights)
+- RECOMMENDATIONS (practical recommendations for recovery)
 
-This patient has undergone $visitCount recorded consultations at this facility.
+Ensure that the tone is strictly professional. Do not invent any new medical conditions not implied by the treatment history.
+''';
 
-Primary diagnostic trend indicates:
-$diagnosisTrend
-
-Most recent evaluation indicates:
-
-Diagnosis:
-$lastDiagnosis
-
-Treatment Plan:
-$lastTreatment
-
-------------------------------------------------------------
-
-CLINICAL ANALYSIS
-
-Based on available data, the patient demonstrates moderate response to therapeutic interventions.
-
-Treatment adherence appears satisfactory with no immediate escalation indicators.
-
-However, continued monitoring is strongly recommended.
-
-Risk assessment suggests:
-
-• Moderate cardiovascular risk
-• Lifestyle-associated metabolic patterns
-• Need for periodic blood pressure evaluation
+        final response = await model.generateContent([Content.text(prompt)]);
+        
+        fullText = """
+AI-GENERATED MEDICAL SUMMARY
+Generated on: ${DateTime.now().toLocal()}
 
 ------------------------------------------------------------
 
-RECOMMENDATIONS
-
-1. Maintain structured medication schedule
-2. Monthly cardiovascular review
-3. Dietary sodium reduction
-4. Routine metabolic panel testing
+${response.text?.trim() ?? "Unable to generate AI summary."}
 
 ------------------------------------------------------------
 
@@ -146,8 +122,11 @@ $hospitalName is a professionally accredited healthcare institution known for st
 Digitally Generated Clinical Summary
 (Automated Medical Intelligence System)
 """;
-
-    await Future.delayed(const Duration(seconds: 2));
+      }
+    } catch (e) {
+      print("AI Summary Error: $e");
+      fullText = "An error occurred while generating the AI summary:\n\n$e";
+    }
 
     setState(() {
       isGenerating = false;
