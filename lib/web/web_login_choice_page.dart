@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:health_connect/doctor/doctor_auth_page.dart';
-import 'package:health_connect/patient/patient_auth_page.dart';
 import 'admin_login_page.dart';
 import 'hospital_login_page.dart';
 
@@ -47,13 +46,6 @@ class WebLoginChoicePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 32),
 
-                    _buildRoleButton(
-                      context,
-                      title: "Login as Patient",
-                      icon: Icons.person_outline,
-                      page: const PatientAuthPage(),
-                    ),
-                    const SizedBox(height: 16),
                     _buildRoleButton(
                       context,
                       title: "Login as Doctor",
