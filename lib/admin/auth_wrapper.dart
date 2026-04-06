@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart'; // import kIsWeb
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +9,7 @@ import '../hospital/hospital_profile_page.dart';
 import '../hospital/hospital_verification_page.dart';
 import '../patient/patient_dashboard.dart';
 import '../patient/patient_link_page.dart';
+import '../patient/patient_auth_page.dart'; // Import patient auth page
 import '../web/web_login_choice_page.dart';
 import 'admin_dashboard.dart';
 
@@ -20,8 +22,11 @@ class AuthWrapper extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          // Unified Entry Gate for all platforms
-          return const WebLoginChoicePage();
+          if (kIsWeb) {
+            return const WebLoginChoicePage();
+          } else {
+            return const PatientAuthPage();
+          }
         }
 
         return _routeAfterLogin(snapshot.data!);
