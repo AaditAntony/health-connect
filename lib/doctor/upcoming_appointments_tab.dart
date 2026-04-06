@@ -19,6 +19,10 @@ class UpcomingAppointmentsTab extends StatelessWidget {
           .orderBy('timestamp', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -26,9 +30,7 @@ class UpcomingAppointmentsTab extends StatelessWidget {
         final docs = snapshot.data!.docs;
 
         if (docs.isEmpty) {
-          return const Center(
-            child: Text("No upcoming appointments."),
-          );
+          return const Center(child: Text("No upcoming appointments."));
         }
 
         return ListView.builder(
@@ -46,7 +48,9 @@ class UpcomingAppointmentsTab extends StatelessWidget {
             return Card(
               elevation: 2,
               margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -57,17 +61,27 @@ class UpcomingAppointmentsTab extends StatelessWidget {
                       children: [
                         Text(
                           "Patient ID: ${data['patientId']}",
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: statusColor.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             status.toUpperCase(),
-                            style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+                            style: TextStyle(
+                              color: statusColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
@@ -75,11 +89,19 @@ class UpcomingAppointmentsTab extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(width: 4),
                         Text(data['date'] ?? ""),
                         const SizedBox(width: 16),
-                        const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                        const Icon(
+                          Icons.access_time,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(width: 4),
                         Text(data['time'] ?? ""),
                       ],
@@ -91,13 +113,17 @@ class UpcomingAppointmentsTab extends StatelessWidget {
                         children: [
                           TextButton(
                             onPressed: () => _updateStatus(appId, 'rejected'),
-                            style: TextButton.styleFrom(foregroundColor: Colors.red),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.red,
+                            ),
                             child: const Text("Reject"),
                           ),
                           const SizedBox(width: 8),
                           ElevatedButton(
                             onPressed: () => _updateStatus(appId, 'approved'),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                            ),
                             child: const Text("Approve"),
                           ),
                         ],
@@ -117,11 +143,19 @@ class UpcomingAppointmentsTab extends StatelessWidget {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.edit_note, color: Colors.white),
-                          label: const Text("Write Prescription", style: TextStyle(color: Colors.white)),
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7C3AED)),
+                          icon: const Icon(
+                            Icons.edit_note,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            "Write Prescription",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7C3AED),
+                          ),
                         ),
-                      )
+                      ),
                   ],
                 ),
               ),

@@ -5,7 +5,8 @@ import 'package:health_connect/patient/patient_auth_page.dart';
 import 'package:health_connect/patient/patient_consent_page.dart';
 import 'package:health_connect/patient/patient_smartcare_plan_page.dart';
 import 'patient_medical_history_page.dart';
-import 'patient_appointments_tab.dart'; // newly added
+import 'patient_appointments_tab.dart'; 
+import 'patient_overview_tab.dart'; // newly added
 
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -50,6 +51,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
     }
 
     final pages = [
+      PatientOverviewTab(patientId: patientId!),
       PatientMedicalHistoryPage(patientId: patientId!),
       PatientAppointmentsTab(patientId: patientId!),
       PatientSmartCarePlanPage(),
@@ -102,6 +104,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: "Overview",
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.medical_services_outlined),
             activeIcon: Icon(Icons.medical_services),
