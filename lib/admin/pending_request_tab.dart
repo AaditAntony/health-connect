@@ -7,206 +7,134 @@ class PendingRequestsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // ================= COUNT HEADER =================
-        StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('accounts')
-              .where('role', isEqualTo: 'hospital')
-              .where('approved', isEqualTo: false)
-              .where('profileSubmitted', isEqualTo: true)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const SizedBox();
-
-            final count = snapshot.data!.docs.length;
-
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  const Icon(Icons.pending_actions, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Pending Requests: $count",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-
-        // ================= LIST =================
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('accounts')
-                .where('role', isEqualTo: 'hospital')
-                .where('approved', isEqualTo: false)
-                .where('profileSubmitted', isEqualTo: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final docs = snapshot.data!.docs;
-
-              if (docs.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No pending hospital requests",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                itemCount: docs.length,
-                itemBuilder: (context, index) {
-                  final data = docs[index].data() as Map<String, dynamic>;
-
-                  return _PendingHospitalCard(
-                    hospitalId: docs[index].id,
-                    data: data,
-                  );
-                },
-              );
-            },
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          const TabBar(
+            labelColor: Color(0xFF7C3AED),
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Color(0xFF7C3AED),
+            tabs: [
+              Tab(text: "Hospitals"),
+              Tab(text: "Doctors"),
+            ],
           ),
-        ),
-      ],
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildPendingList(context, 'hospital'),
+                _buildPendingList(context, 'doctor'),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
-}
 
-// ================= CARD =================
+  Widget _buildPendingList(BuildContext context, String role) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('accounts')
+          .where('role', isEqualTo: role)
+          .where('approved', isEqualTo: false)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-class _PendingHospitalCard extends StatelessWidget {
-  final String hospitalId;
-  final Map<String, dynamic> data;
+        final docs = snapshot.data!.docs;
 
-  const _PendingHospitalCard({required this.hospitalId, required this.data});
+        // Note: For hospitals, we normally also checked profileSubmitted == true.
+        // Let's filter that locally to keep the query simple.
+        final filteredDocs = docs.where((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          if (role == 'hospital') {
+            return data['profileSubmitted'] == true;
+          }
+          return true; // Doctors are pending immediately
+        }).toList();
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => HospitalDetailPage(hospitalId: hospitalId),
+        if (filteredDocs.isEmpty) {
+          return Center(
+            child: Text(
+              "No pending ${role}s requests",
+              style: const TextStyle(color: Colors.grey),
             ),
           );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // -------- ICON --------
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEDE9FE),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.local_hospital,
-                  color: Color(0xFF7C3AED),
-                ),
-              ),
+        }
 
-              const SizedBox(width: 16),
+        return ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: filteredDocs.length,
+          itemBuilder: (context, index) {
+            final data = filteredDocs[index].data() as Map<String, dynamic>;
+            final id = filteredDocs[index].id;
 
-              // -------- DETAILS --------
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            return Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFFEDE9FE),
+                  child: Icon(
+                    role == 'hospital' ? Icons.local_hospital : Icons.person,
+                    color: const Color(0xFF7C3AED),
+                  ),
+                ),
+                title: Text(
+                  role == 'hospital'
+                      ? (data['hospitalName'] ?? "Unnamed Hospital")
+                      : (data['email'] ?? "Unknown Doctor"),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(role == 'hospital'
+                    ? (data['district'] ?? "No District")
+                    : "Doctor Applicant"),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      data['hospitalName'] ?? "Unnamed Hospital",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.check_circle, color: Colors.green),
+                      onPressed: () => _approve(context, id, role),
+                      tooltip: "Approve",
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      data['district'] ?? "",
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      data['email'] ?? "",
-                      style: const TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      "Established: ${data['establishedYear'] ?? '-'}",
-                      style: const TextStyle(color: Colors.grey),
+                    IconButton(
+                      icon: const Icon(Icons.cancel, color: Colors.red),
+                      onPressed: () => _reject(context, id, role),
+                      tooltip: "Reject",
                     ),
                   ],
                 ),
               ),
+            );
+          },
+        );
+      },
+    );
+  }
 
-              // -------- ACTIONS --------
-              Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await FirebaseFirestore.instance
-                          .collection('accounts')
-                          .doc(hospitalId)
-                          .update({"approved": true});
+  Future<void> _approve(BuildContext context, String id, String role) async {
+    await FirebaseFirestore.instance
+        .collection('accounts')
+        .doc(id)
+        .update({"approved": true});
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("${role.toUpperCase()} Approved")),
+    );
+  }
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Hospital Approved")),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      minimumSize: const Size(90, 36),
-                    ),
-                    child: const Text("Approve"),
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await FirebaseFirestore.instance
-                          .collection('accounts')
-                          .doc(hospitalId)
-                          .delete();
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Hospital Rejected")),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      minimumSize: const Size(90, 36),
-                    ),
-                    child: const Text("Reject"),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+  Future<void> _reject(BuildContext context, String id, String role) async {
+    await FirebaseFirestore.instance.collection('accounts').doc(id).delete();
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("${role.toUpperCase()} Rejected")),
     );
   }
 }

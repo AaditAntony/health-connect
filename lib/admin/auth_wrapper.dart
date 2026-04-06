@@ -1,12 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../doctor/doctor_dashboard.dart';
 import '../hospital/hospital_dashboard.dart';
 import '../hospital/hospital_profile_page.dart';
 import '../hospital/hospital_verification_page.dart';
-import '../patient/patient_auth_page.dart';
 import '../patient/patient_dashboard.dart';
 import '../patient/patient_link_page.dart';
 import '../web/web_login_choice_page.dart';
@@ -21,7 +20,8 @@ class AuthWrapper extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return _entryGate();
+          // Unified Entry Gate for all platforms
+          return const WebLoginChoicePage();
         }
 
         return _routeAfterLogin(snapshot.data!);
@@ -29,96 +29,81 @@ class AuthWrapper extends StatelessWidget {
     );
   }
 
-  // ---------------- ENTRY GATE ----------------
-
-  Widget _entryGate() {
-    if (kIsWeb) {
-      return const WebLoginChoicePage();
-    } else {
-      return const PatientAuthPage();
-    }
-  }
-
   // ---------------- POST LOGIN ROUTING ----------------
 
   Widget _routeAfterLogin(User user) {
-    if (kIsWeb) {
-      return FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('accounts')
-            .doc(user.uid)
-            .get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          if (!snapshot.data!.exists) {
-            return _blockedPage(
-              "Patient access is available only on the mobile app.",
-            );
-          }
-
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          final role = data['role'];
-
-          // ---------- ADMIN ----------
-          if (role == 'admin') {
-            if (data['approved'] == true) {
-              return const AdminDashboard();
-            } else {
-              return _blockedPage("Admin approval pending.");
-            }
-          }
-
-          // ---------- HOSPITAL ----------
-          if (role == 'hospital') {
-            final bool profileSubmitted =
-                data['profileSubmitted'] == true;
-            final bool approved = data['approved'] == true;
-
-            // 1️⃣ Profile not submitted
-            if (!profileSubmitted) {
-              return const HospitalProfilePage();
-            }
-
-            // 2️⃣ Profile submitted, waiting for admin approval
-            if (profileSubmitted && !approved) {
-              return const HospitalVerificationPage();
-            }
-
-            // 3️⃣ Approved hospital
-            if (approved) {
-              return const HospitalDashboard();
-            }
-          }
-
-          return _blockedPage("Access denied.");
-        },
-      );
-    }
-
-    // ---------------- MOBILE (PATIENT) ----------------
-
+    // We check `patient_users` first.
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance
           .collection('patient_users')
           .doc(user.uid)
           .get(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+      builder: (context, patientSnapshot) {
+        if (patientSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        if (!snapshot.data!.exists) {
-          return const PatientLinkPage();
+        // If user is a patient, route them to patient flow
+        if (patientSnapshot.hasData && patientSnapshot.data!.exists) {
+          return const PatientDashboard();
         }
 
-        return const PatientDashboard();
+        // If not a patient, they might be an Admin, Hospital, or Doctor.
+        // Or they might be a newly registered Patient who hasn't linked yet!
+        // Wait, patient registration does sign out, but if they login and don't exist in `patient_users`?
+        // Ah, `PatientAuthPage` creates the auth user but doesn't create `patient_users` doc until `PatientLinkPage`.
+        // Let's check `accounts` collection to see if they are Admin/Hospital/Doctor.
+        return FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection('accounts')
+              .doc(user.uid)
+              .get(),
+          builder: (context, accountSnapshot) {
+            if (accountSnapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (accountSnapshot.hasData && accountSnapshot.data!.exists) {
+              final data = accountSnapshot.data!.data() as Map<String, dynamic>;
+              final role = data['role'];
+
+              // ---------- ADMIN ----------
+              if (role == 'admin') {
+                if (data['approved'] == true) {
+                  return const AdminDashboard();
+                } else {
+                  return _blockedPage("Admin approval pending.");
+                }
+              }
+
+              // ---------- HOSPITAL ----------
+              if (role == 'hospital') {
+                final bool profileSubmitted = data['profileSubmitted'] == true;
+                final bool approved = data['approved'] == true;
+
+                if (!profileSubmitted) return const HospitalProfilePage();
+                if (profileSubmitted && !approved) return const HospitalVerificationPage();
+                if (approved) return const HospitalDashboard();
+              }
+
+              // ---------- DOCTOR ----------
+              if (role == 'doctor') {
+                final bool approved = data['approved'] == true;
+                if (approved) return const DoctorDashboard();
+                return _blockedPage("Your application as a Doctor is pending Admin review.");
+              }
+
+              return _blockedPage("Invalid role assigned.");
+            }
+
+            // If not in `accounts`, they must be a Patient needing to link their ID.
+            return const PatientLinkPage();
+          },
+        );
       },
     );
   }
@@ -133,13 +118,18 @@ class AuthWrapper extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.block, size: 60, color: Colors.red),
+              const Icon(Icons.block, size: 60, color: Colors.blueGrey),
               const SizedBox(height: 16),
               Text(
                 message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => FirebaseAuth.instance.signOut(),
+                child: const Text("Sign Out"),
+              )
             ],
           ),
         ),
@@ -147,4 +137,3 @@ class AuthWrapper extends StatelessWidget {
     );
   }
 }
-// fixed set-1

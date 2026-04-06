@@ -5,6 +5,7 @@ import 'package:health_connect/patient/patient_auth_page.dart';
 import 'package:health_connect/patient/patient_consent_page.dart';
 import 'package:health_connect/patient/patient_smartcare_plan_page.dart';
 import 'patient_medical_history_page.dart';
+import 'patient_appointments_tab.dart'; // newly added
 
 class PatientDashboard extends StatefulWidget {
   const PatientDashboard({super.key});
@@ -30,9 +31,11 @@ class _PatientDashboardState extends State<PatientDashboard> {
         .doc(uid)
         .get();
 
-    setState(() {
-      patientId = doc['patientId'];
-    });
+    if (mounted) {
+      setState(() {
+        patientId = doc['patientId'];
+      });
+    }
   }
 
   @override
@@ -48,6 +51,7 @@ class _PatientDashboardState extends State<PatientDashboard> {
 
     final pages = [
       PatientMedicalHistoryPage(patientId: patientId!),
+      PatientAppointmentsTab(patientId: patientId!),
       PatientSmartCarePlanPage(),
       PatientConsentPage(patientId: patientId!)
     ];
@@ -70,12 +74,14 @@ class _PatientDashboardState extends State<PatientDashboard> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PatientAuthPage(),
-                ),
-              );
+              if (mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PatientAuthPage(),
+                  ),
+                );
+              }
             },
           ),
         ],
@@ -102,44 +108,19 @@ class _PatientDashboardState extends State<PatientDashboard> {
             label: "History",
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_outlined),
+            activeIcon: Icon(Icons.calendar_today),
+            label: "Appts",
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.layers_outlined),
             activeIcon: Icon(Icons.layers),
             label: "Smart-Plan",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.layers_outlined),
-            activeIcon: Icon(Icons.layers),
+            icon: Icon(Icons.security_outlined),
+            activeIcon: Icon(Icons.security),
             label: "Consent",
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------- PLACEHOLDER PAGE ----------------
-
-class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(
-            Icons.construction,
-            size: 48,
-            color: Colors.grey,
-          ),
-          SizedBox(height: 12),
-          Text(
-            "More features coming soon",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
           ),
         ],
       ),

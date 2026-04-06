@@ -4,9 +4,10 @@ import 'package:health_connect/hospital/patient_records_tab_wrapper.dart';
 import 'package:health_connect/hospital/shared_patient_records_page.dart';
 import 'package:health_connect/hospital/smart_care_plan_page.dart';
 import 'package:health_connect/web/hospital_login_page.dart';
-import 'add_patient_page.dart';
+// import 'add_patient_page.dart';
 import 'hospital_overview_tab.dart';
-import 'data_requests_tab.dart';
+// import 'data_requests_tab.dart';
+import 'test_appointments_tab.dart';
 
 class HospitalDashboard extends StatefulWidget {
   const HospitalDashboard({super.key});
@@ -15,112 +16,126 @@ class HospitalDashboard extends StatefulWidget {
   State<HospitalDashboard> createState() => _HospitalDashboardState();
 }
 
-class _HospitalDashboardState extends State<HospitalDashboard>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 6, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+class _HospitalDashboardState extends State<HospitalDashboard> {
+  int _selectedIndex = 0;
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HospitalLoginPage()));
+    if (!mounted) return;
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HospitalLoginPage()));
   }
+
+  // We are pruning some of the older redundant tabs to streamline the responsive UI.
+  // DataRequests Tab can be added back if needed, but for the new flow we prioritize 
+  // Overview, Records, Test Appointments, Smart Care.
+  final List<Widget> _pages = const [
+    HospitalOverviewTab(),
+    PatientRecordsTabWrapper(),
+    TestAppointmentsTab(),
+    SharedPatientRecordsPage(),
+    SmartCarePlanPage()
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
+      appBar: _buildAppBar(),
+      drawer: _buildDrawer(),
+      body: _pages[_selectedIndex],
+    );
+  }
 
-      // ================= APP BAR =================
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        titleSpacing: 24,
-        title: Row(
-          children: const [
-            Icon(Icons.local_hospital, color: Color(0xFF7C3AED)),
-            SizedBox(width: 10),
-            Column(
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      titleSpacing: 0,
+      title: Row(
+        children: const [
+          Icon(Icons.local_hospital, color: Color(0xFF7C3AED)),
+          SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Hospital Dashboard",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              Text(
+                "Hospital Panel",
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          tooltip: "Logout",
+          icon: const Icon(Icons.logout, color: Colors.black),
+          onPressed: logout,
+        ),
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(color: Color(0xFF7C3AED)),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                Icon(Icons.local_hospital, color: Colors.white, size: 40),
+                SizedBox(height: 10),
                 Text(
-                  "Hospital Dashboard",
+                  "Hospital Panel",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Colors.white,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  "Hospital Panel",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
               ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: logout,
-            icon: const Icon(Icons.logout, color: Colors.black),
-            label: const Text(
-              "Logout",
-              style: TextStyle(color: Colors.black),
-            ),
           ),
-          const SizedBox(width: 16),
+          _buildDrawerItem(0, Icons.dashboard, "Overview"),
+          _buildDrawerItem(1, Icons.folder_shared, "Patient Records"),
+          _buildDrawerItem(2, Icons.biotech, "Test Appointments"),
+          _buildDrawerItem(3, Icons.share, "Shared Records"),
+          _buildDrawerItem(4, Icons.lightbulb, "Smart Care Plan"),
         ],
-
-        // ================= TAB BAR =================
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Container(
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              indicatorColor: const Color(0xFF7C3AED),
-              labelColor: const Color(0xFF7C3AED),
-              unselectedLabelColor: Colors.grey,
-              tabs: const [
-                Tab(text: "Overview"),
-                Tab(text: "Patient Records"),
-                Tab(text: "Add Patient"),
-                Tab(text: "Data Requests"),
-                Tab(text: "Shared Records"),
-                Tab(text: "Smart Care Page")
-              ],
-            ),
-          ),
-        ),
-      ),
-
-      // ================= BODY =================
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: TabBarView(
-          controller: _tabController,
-          children: const [
-            HospitalOverviewTab(),
-            PatientRecordsTabWrapper(),
-            AddPatientPage(),
-            DataRequestsTab(),
-            SharedPatientRecordsPage(),
-            SmartCarePlanPage()
-          ],
-        ),
       ),
     );
   }
+
+  Widget _buildDrawerItem(int index, IconData icon, String title) {
+    bool isSelected = _selectedIndex == index;
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? const Color(0xFF7C3AED) : Colors.grey),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isSelected ? const Color(0xFF7C3AED) : Colors.black87,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      selected: isSelected,
+      selectedTileColor: const Color(0xFF7C3AED).withOpacity(0.1),
+      onTap: () {
+        setState(() => _selectedIndex = index);
+        Navigator.pop(context); // Close drawer
+      },
+    );
+  }
 }
-// nav done
