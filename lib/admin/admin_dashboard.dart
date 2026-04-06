@@ -7,6 +7,7 @@ import 'package:health_connect/web/admin_login_page.dart';
 
 import 'overview_tab.dart';
 import 'approved_hospitals_tab.dart';
+// We will create approved_doctors_tab or combine it.
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -15,96 +16,135 @@ class AdminDashboard extends StatefulWidget {
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+class _AdminDashboardState extends State<AdminDashboard> {
+  int _selectedIndex = 0;
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
+    if (!mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => AdminLoginPage()),
+      MaterialPageRoute(builder: (context) => const AdminLoginPage()),
     );
   }
+
+  final List<Widget> _pages = const [
+    OverviewTab(),
+    PendingRequestsTab(),
+    ApprovedHospitalsTab(),
+    AdminPaymentsPage(),
+  ];
+
+  final List<String> _titles = [
+    "Overview",
+    "Pending Requests",
+    "Approved Entities",
+    "Payments",
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
+      appBar: _buildAppBar(),
+      drawer: _buildDrawer(),
+      body: _pages[_selectedIndex],
+    );
+  }
 
-      // ================= APP BAR =================
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        titleSpacing: 24,
-        title: Row(
-          children: const [
-            Icon(Icons.shield_outlined, color: Color(0xFF7C3AED)),
-            SizedBox(width: 10),
-            Column(
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      titleSpacing: 0,
+      title: Row(
+        children: const [
+          Icon(Icons.shield_outlined, color: Color(0xFF7C3AED)),
+          SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Admin Dashboard",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              Text(
+                "System Admin",
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          tooltip: "Logout",
+          icon: const Icon(Icons.logout, color: Colors.black),
+          onPressed: logout,
+        ),
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Color(0xFF7C3AED),
+            ),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                Icon(Icons.admin_panel_settings, color: Colors.white, size: 40),
+                SizedBox(height: 10),
                 Text(
-                  "Admin Dashboard",
+                  "Admin Panel",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Colors.white,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  "System Admin",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
               ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton.icon(
-            onPressed: logout,
-            icon: const Icon(Icons.logout, color: Colors.black),
-            label: const Text("Logout", style: TextStyle(color: Colors.black)),
           ),
-          const SizedBox(width: 16),
+          _buildDrawerItem(0, Icons.dashboard, "Overview"),
+          _buildDrawerItem(1, Icons.pending_actions, "Pending Requests"),
+          _buildDrawerItem(2, Icons.verified_user, "Approved Entities"),
+          _buildDrawerItem(3, Icons.payments, "Payments"),
         ],
+      ),
+    );
+  }
 
-        // ================= FIXED TAB BAR =================
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: const Color(0xFF7C3AED),
-          labelColor: const Color(0xFF7C3AED),
-          unselectedLabelColor: Colors.grey,
-          tabs: const [
-            Tab(text: "Overview"),
-            Tab(text: "Pending"),
-            Tab(text: "Approved"),
-            Tab(text: "Payments"),
-          ],
+  Widget _buildDrawerItem(int index, IconData icon, String title) {
+    bool isSelected = _selectedIndex == index;
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? const Color(0xFF7C3AED) : Colors.grey),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isSelected ? const Color(0xFF7C3AED) : Colors.black87,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
-
-      // ================= BODY =================
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          OverviewTab(),
-          PendingRequestsTab(), // <-- badge moved inside this page
-          ApprovedHospitalsTab(),
-          AdminPaymentsPage(),
-        ],
-      ),
+      selected: isSelected,
+      selectedTileColor: const Color(0xFF7C3AED).withOpacity(0.1),
+      onTap: () {
+        setState(() {
+          _selectedIndex = index;
+        });
+        Navigator.pop(context); // Close drawer
+      },
     );
   }
 }

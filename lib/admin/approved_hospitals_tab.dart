@@ -7,10 +7,37 @@ class ApprovedHospitalsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          const TabBar(
+            labelColor: Color(0xFF7C3AED),
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Color(0xFF7C3AED),
+            tabs: [
+              Tab(text: "Hospitals"),
+              Tab(text: "Doctors"),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _buildApprovedList(context, 'hospital'),
+                _buildApprovedList(context, 'doctor'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildApprovedList(BuildContext context, String role) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('accounts')
-          .where('role', isEqualTo: 'hospital')
+          .where('role', isEqualTo: role)
           .where('approved', isEqualTo: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -21,57 +48,55 @@ class ApprovedHospitalsTab extends StatelessWidget {
         final docs = snapshot.data!.docs;
 
         if (docs.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
-              "No approved hospitals",
-              style: TextStyle(color: Colors.grey),
+              "No approved ${role}s found.",
+              style: const TextStyle(color: Colors.grey),
             ),
           );
         }
 
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minWidth: constraints.maxWidth, // 👈 KEY FIX
-                ),
-                child: DataTable(
-                  columnSpacing: 120, // reduced from 250 (was too large)
-                  headingRowColor: MaterialStateProperty.all(
-                    const Color(0xFFF3F0FF),
-                  ),
-                  columns: const [
-                    DataColumn(label: Text("Hospital Name")),
-                    DataColumn(label: Text("District")),
-                    DataColumn(label: Text("Established")),
-                    DataColumn(label: Text("Status")),
-                  ],
-                  rows: docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
+        return ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: docs.length,
+          itemBuilder: (context, index) {
+            final data = docs[index].data() as Map<String, dynamic>;
+            final id = docs[index].id;
 
-                    return DataRow(
-                      cells: [
-                        DataCell(
-                          Text(data['hospitalName'] ?? "-"),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    HospitalDetailPage(hospitalId: doc.id),
-                              ),
-                            );
-                          },
-                        ),
-                        DataCell(Text(data['district'] ?? "-")),
-                        DataCell(Text(data['establishedYear'] ?? "-")),
-                        const DataCell(_ApprovedBadge()),
-                      ],
-                    );
-                  }).toList(),
+            return Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFFEDE9FE),
+                  child: Icon(
+                    role == 'hospital' ? Icons.local_hospital : Icons.person,
+                    color: const Color(0xFF7C3AED),
+                  ),
                 ),
+                title: Text(
+                  role == 'hospital'
+                      ? (data['hospitalName'] ?? "Unnamed Hospital")
+                      : (data['name'] ?? data['email'] ?? "Unknown Doctor"),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(role == 'hospital'
+                    ? "District: ${data['district'] ?? '-'}"
+                    : "Doctor ID: $id"),
+                trailing: const _ApprovedBadge(),
+                onTap: role == 'hospital'
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HospitalDetailPage(hospitalId: id),
+                          ),
+                        );
+                      }
+                    : null, // Additional doctor info later
               ),
             );
           },
@@ -80,8 +105,6 @@ class ApprovedHospitalsTab extends StatelessWidget {
     );
   }
 }
-
-// ---------------- STATUS BADGE ----------------
 
 class _ApprovedBadge extends StatelessWidget {
   const _ApprovedBadge();
