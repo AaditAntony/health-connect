@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health_connect/hospital/hospital_dashboard.dart';
 
 class AddPatientPage extends StatefulWidget {
   const AddPatientPage({super.key});
@@ -41,7 +42,10 @@ class _AddPatientPageState extends State<AddPatientPage> {
       "createdAt": Timestamp.now(),
     });
 
-    Navigator.pop(context);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HospitalDashboard()),
+    );
   }
 
   @override
@@ -69,17 +73,15 @@ class _AddPatientPageState extends State<AddPatientPage> {
                 children: [
                   const Text(
                     "Patient Information",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
 
                   TextField(
                     controller: nameController,
-                    decoration:
-                    const InputDecoration(labelText: "Patient Name"),
+                    decoration: const InputDecoration(
+                      labelText: "Patient Name",
+                    ),
                   ),
                   const SizedBox(height: 12),
 
@@ -122,15 +124,17 @@ class _AddPatientPageState extends State<AddPatientPage> {
                   TextField(
                     controller: phoneController,
                     keyboardType: TextInputType.phone,
-                    decoration:
-                    const InputDecoration(labelText: "Phone Number"),
+                    decoration: const InputDecoration(
+                      labelText: "Phone Number",
+                    ),
                   ),
                   const SizedBox(height: 12),
 
                   TextField(
                     controller: emailController,
-                    decoration:
-                    const InputDecoration(labelText: "Email (optional)"),
+                    decoration: const InputDecoration(
+                      labelText: "Email (optional)",
+                    ),
                   ),
 
                   const SizedBox(height: 32),
@@ -143,7 +147,10 @@ class _AddPatientPageState extends State<AddPatientPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF7C3AED),
                       ),
-                      child: Text("Save Patient",style: TextStyle(color: Colors.white),),
+                      child: Text(
+                        "Save Patient",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],
