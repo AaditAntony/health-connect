@@ -7,6 +7,9 @@ import '../web/web_login_choice_page.dart';
 
 import 'upcoming_appointments_tab.dart'; // import the tab
 import 'doctor_patients_tab.dart';
+import 'hospital_patients_page.dart';
+import 'doctor_schedule_page.dart';
+import 'doctor_analytics_page.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -37,14 +40,14 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         titleSpacing: 0,
         title: Row(
           children: const [
-            SizedBox(width: 16),
+            SizedBox(width: 8),
             Icon(Icons.medical_information, color: Color(0xFF7C3AED)),
             SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Doctor Dashboard",
+                  "HealthConnect",
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -52,8 +55,8 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                   ),
                 ),
                 Text(
-                  "Medical Professional Panel",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  "Doctor Panel",
+                  style: TextStyle(color: Colors.grey, fontSize: 11, letterSpacing: 0.5),
                 ),
               ],
             ),
@@ -61,12 +64,64 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.black),
-            tooltip: "Logout",
-            onPressed: logout,
+            icon: const Icon(Icons.notifications_none_outlined, color: Colors.black87),
+            onPressed: () {},
           ),
           const SizedBox(width: 8),
         ],
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: const BoxDecoration(color: Color(0xFF7C3AED)),
+              currentAccountPicture: const CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person, color: Color(0xFF7C3AED), size: 40),
+              ),
+              accountName: const Text("Medical Professional", style: TextStyle(fontWeight: FontWeight.bold)),
+              accountEmail: Text(FirebaseAuth.instance.currentUser?.email ?? ""),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard_outlined),
+              title: const Text("Main Dashboard"),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.local_hospital_outlined),
+              title: const Text("Hospital Directory"),
+              subtitle: const Text("All hospital patients"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const HospitalPatientsPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_month_outlined),
+              title: const Text("Work Schedule"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorSchedulePage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.analytics_outlined),
+              title: const Text("Performance Analytics"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const DoctorAnalyticsPage()));
+              },
+            ),
+            const Divider(),
+            const Spacer(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text("Logout", style: TextStyle(color: Colors.red)),
+              onTap: logout,
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
       body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(

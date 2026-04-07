@@ -12,6 +12,8 @@ import '../patient/patient_link_page.dart';
 import '../patient/patient_auth_page.dart'; // Import patient auth page
 import '../web/web_login_choice_page.dart';
 import 'admin_dashboard.dart';
+import '../doctor/doctor_profile_page.dart';
+import '../doctor/doctor_verification_page.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -109,9 +111,12 @@ class AuthWrapper extends StatelessWidget {
 
               // ---------- DOCTOR ----------
               if (role == 'doctor') {
+                final bool profileSubmitted = data['profileSubmitted'] == true;
                 final bool approved = data['approved'] == true;
+
+                if (!profileSubmitted) return const DoctorProfilePage();
+                if (profileSubmitted && !approved) return const DoctorVerificationPage();
                 if (approved) return const DoctorDashboard();
-                return _blockedPage("Your application as a Doctor is pending Admin review.");
               }
 
               return _blockedPage("Invalid role assigned.");
