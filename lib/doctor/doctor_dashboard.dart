@@ -6,6 +6,7 @@ import '../web/web_login_choice_page.dart';
 // import 'doctor_patients_tab.dart';
 
 import 'upcoming_appointments_tab.dart'; // import the tab
+import 'doctor_patients_tab.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -91,16 +92,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
     if (_selectedIndex == 0) {
       return const UpcomingAppointmentsTab();
     } else {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.people, size: 60, color: Colors.grey),
-            SizedBox(height: 16),
-            Text("Your patient list will appear here", style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-      );
+      return const DoctorPatientsTab();
     }
   }
 }
