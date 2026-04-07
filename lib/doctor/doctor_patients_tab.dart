@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../patient/patient_medical_history_page.dart';
 import 'add_treatment_page.dart';
 import 'add_scan_page.dart';
 
-class DoctorPatientsTab extends StatelessWidget {
+class DoctorPatientsTab extends StatefulWidget {
   const DoctorPatientsTab({super.key});
+
+  @override
+  State<DoctorPatientsTab> createState() => _DoctorPatientsTabState();
+}
+
+class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
+  void _copyToClipboard(String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("$label copied to clipboard")),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,79 +85,135 @@ class DoctorPatientsTab extends StatelessWidget {
             final patientData = patientsList[index];
             final pId = patientData['patientId'];
             final lastAppt = patientData['lastAppointment'];
-            final totalAppts = patientData['totalAppointments'];
+            return FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance.collection('patient_users').doc(pId).get(),
+              builder: (context, patientSnapshot) {
+                final patientInfo = patientSnapshot.data?.data() as Map<String, dynamic>?;
+                final name = patientInfo?['name'] ?? "Patient: $pId";
+                final phone = patientInfo?['phone'] ?? "N/A";
 
-            return Card(
-              elevation: 2,
-              margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ExpansionTile(
-                tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                leading: CircleAvatar(
-                  backgroundColor: const Color(0xFF7C3AED).withOpacity(0.1),
-                  radius: 24,
-                  child: const Icon(Icons.person, color: Color(0xFF7C3AED), size: 28),
-                ),
-                title: Text(
-                  "Patient ID: $pId",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                subtitle: Text("Last Visit: $lastAppt", style: const TextStyle(fontSize: 12)),
-                children: [
-                  const Divider(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
+                return Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ExpansionTile(
+                    tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xFF7C3AED).withOpacity(0.1),
+                      radius: 24,
+                      child: const Icon(Icons.person, color: Color(0xFF7C3AED), size: 28),
+                    ),
+                    title: Text(
+                      name,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AddTreatmentPage(patientId: pId),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.medical_services_outlined, size: 18),
-                            label: const Text("Treatment"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFF7C3AED),
-                              side: const BorderSide(color: Color(0xFF7C3AED)),
-                              elevation: 0,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AddScanPage(patientId: pId),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.biotech_outlined, size: 18),
-                            label: const Text("Add Scan"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFF7C3AED),
-                              side: const BorderSide(color: Color(0xFF7C3AED)),
-                              elevation: 0,
-                            ),
-                          ),
-                        ),
+                        Text("ID: $pId", style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text("Last Visit: $lastAppt", style: const TextStyle(fontSize: 12)),
                       ],
                     ),
+                    children: [
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            TextButton.icon(
+                              onPressed: () => _copyToClipboard(pId, "Patient ID"),
+                              icon: const Icon(Icons.copy, size: 16),
+                              label: const Text("Copy ID", style: TextStyle(fontSize: 12)),
+                            ),
+                            TextButton.icon(
+                              onPressed: () => _copyToClipboard(phone, "Phone Number"),
+                              icon: const Icon(Icons.phone_android, size: 16),
+                              label: const Text("Copy Phone", style: TextStyle(fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => AddTreatmentPage(patientId: pId),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.medical_services_outlined, size: 18),
+                                label: const Text("Treatment"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: const Color(0xFF7C3AED),
+                                  side: const BorderSide(color: Color(0xFF7C3AED)),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => AddScanPage(patientId: pId),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.biotech_outlined, size: 18),
+                                label: const Text("Add Scan"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: const Color(0xFF7C3AED),
+                                  side: const BorderSide(color: Color(0xFF7C3AED)),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PatientMedicalHistoryPage(patientId: pId),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.history, size: 18),
+                            label: const Text("View Full Medical History"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF7C3AED),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                ],
-              ),
+                );
+              },
             );
           },
         );
