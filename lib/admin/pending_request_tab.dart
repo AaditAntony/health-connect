@@ -55,10 +55,10 @@ class PendingRequestsTab extends StatelessWidget {
         // Let's filter that locally to keep the query simple.
         final filteredDocs = docs.where((doc) {
           final data = doc.data() as Map<String, dynamic>;
-          if (role == 'hospital') {
+          if (role == 'hospital' || role == 'doctor') {
             return data['profileSubmitted'] == true;
           }
-          return true; // Doctors are pending immediately
+          return true; // Other roles pending immediately
         }).toList();
 
         if (filteredDocs.isEmpty) {
@@ -94,7 +94,7 @@ class PendingRequestsTab extends StatelessWidget {
                 title: Text(
                   role == 'hospital'
                       ? (data['hospitalName'] ?? "Unnamed Hospital")
-                      : (data['email'] ?? "Unknown Doctor"),
+                      : (data['doctorName'] ?? data['email'] ?? "Unknown Doctor"),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(role == 'hospital'

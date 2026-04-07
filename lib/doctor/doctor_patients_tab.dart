@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'add_treatment_page.dart';
+import 'add_scan_page.dart';
 
 class DoctorPatientsTab extends StatelessWidget {
   const DoctorPatientsTab({super.key});
@@ -77,40 +79,70 @@ class DoctorPatientsTab extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 leading: CircleAvatar(
                   backgroundColor: const Color(0xFF7C3AED).withOpacity(0.1),
-                  radius: 28,
-                  child: const Icon(Icons.person, color: Color(0xFF7C3AED), size: 32),
+                  radius: 24,
+                  child: const Icon(Icons.person, color: Color(0xFF7C3AED), size: 28),
                 ),
                 title: Text(
                   "Patient ID: $pId",
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.history, size: 16, color: Colors.grey),
-                          const SizedBox(width: 6),
-                          Text("Last Visit: $lastAppt", style: const TextStyle(color: Colors.black87)),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.list_alt, size: 16, color: Colors.grey),
-                          const SizedBox(width: 6),
-                          Text("Total Appointments: $totalAppts", style: const TextStyle(color: Colors.black87)),
-                        ],
-                      ),
-                    ],
+                subtitle: Text("Last Visit: $lastAppt", style: const TextStyle(fontSize: 12)),
+                children: [
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AddTreatmentPage(patientId: pId),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.medical_services_outlined, size: 18),
+                            label: const Text("Treatment"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFF7C3AED),
+                              side: const BorderSide(color: Color(0xFF7C3AED)),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AddScanPage(patientId: pId),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.biotech_outlined, size: 18),
+                            label: const Text("Add Scan"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFF7C3AED),
+                              side: const BorderSide(color: Color(0xFF7C3AED)),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                ],
               ),
             );
           },
