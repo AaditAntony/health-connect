@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class SystemStatsTab extends StatelessWidget {
   const SystemStatsTab({super.key});
@@ -58,13 +59,20 @@ class SystemStatsTab extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
 
+                  // --- REVENUE SPLIT PIE ---
+                  _RevenueSplitPie(
+                    scanRevenue: stats['scanRevenue'] ?? 0.0,
+                    treatRevenue: stats['treatRevenue'] ?? 0.0,
+                  ),
+                  const SizedBox(height: 32),
+
                   // --- SCAN TYPES BREAKDOWN ---
                   const Text(
-                    "Service Utilization",
+                    "Service Utilization (Scan Popularity)",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  _buildUtilizationList(stats['scanTypes'] ?? {}),
+                  _UtilizationBarChart(scanTypes: stats['scanTypes'] ?? {}),
                 ],
               );
             },
@@ -74,43 +82,10 @@ class SystemStatsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildUtilizationList(Map<String, int> scanTypes) {
-    if (scanTypes.isEmpty) return const Text("No data available");
-    
-    // Sort by count descending
-    final sortedKeys = scanTypes.keys.toList()..sort((a, b) => scanTypes[b]!.compareTo(scanTypes[a]!));
-
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: sortedKeys.length,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final type = sortedKeys[index];
-          final count = scanTypes[type];
-          return ListTile(
-            title: Text(type),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF7C3AED).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                count.toString(),
-                style: const TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   Future<Map<String, dynamic>> _fetchOverallStats() async {
-    double totalRevenue = 0;
+    double scanRevenue = 0;
+    double treatRevenue = 0;
     int scanCount = 0;
     int treatmentCount = 0;
     Map<String, int> scanTypes = {};
@@ -119,7 +94,7 @@ class SystemStatsTab extends StatelessWidget {
     scanCount = scanSnap.docs.length;
     for (var doc in scanSnap.docs) {
       final data = doc.data();
-      totalRevenue += (data['cost'] ?? 0.0);
+      scanRevenue += (data['cost'] ?? 0.0);
       final type = data['scanType'] ?? "Other";
       scanTypes[type] = (scanTypes[type] ?? 0) + 1;
     }
@@ -127,15 +102,155 @@ class SystemStatsTab extends StatelessWidget {
     final treatSnap = await FirebaseFirestore.instance.collection('treatments').get();
     treatmentCount = treatSnap.docs.length;
     for (var doc in treatSnap.docs) {
-      totalRevenue += (doc.data()['cost'] ?? 0.0);
+      treatRevenue += (doc.data()['cost'] ?? 0.0);
     }
 
     return {
-      'totalRevenue': totalRevenue,
+      'totalRevenue': scanRevenue + treatRevenue,
+      'scanRevenue': scanRevenue,
+      'treatRevenue': treatRevenue,
       'scanCount': scanCount,
       'treatmentCount': treatmentCount,
       'scanTypes': scanTypes,
     };
+  }
+}
+
+class _UtilizationBarChart extends StatelessWidget {
+  final Map<String, int> scanTypes;
+  const _UtilizationBarChart({required this.scanTypes});
+
+  @override
+  Widget build(BuildContext context) {
+    if (scanTypes.isEmpty) return const Text("No scan data available");
+    
+    final sortedKeys = scanTypes.keys.toList()..sort((a, b) => scanTypes[b]!.compareTo(scanTypes[a]!));
+    final displayKeys = sortedKeys.take(5).toList();
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: SizedBox(
+          height: 250,
+          child: BarChart(
+            BarChartData(
+              gridData: FlGridData(show: false),
+              titlesData: FlTitlesData(
+                show: true,
+                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      if (value.toInt() < displayKeys.length) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            displayKeys[value.toInt()],
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }
+                      return const Text("");
+                    },
+                  ),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: List.generate(displayKeys.length, (i) {
+                return BarChartGroupData(
+                  x: i,
+                  barRods: [
+                    BarChartRodData(
+                      toY: scanTypes[displayKeys[i]]!.toDouble(),
+                      color: const Color(0xFF7C3AED),
+                      width: 16,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RevenueSplitPie extends StatelessWidget {
+  final double scanRevenue;
+  final double treatRevenue;
+  const _RevenueSplitPie({required this.scanRevenue, required this.treatRevenue});
+
+  @override
+  Widget build(BuildContext context) {
+    final total = scanRevenue + treatRevenue;
+    if (total == 0) return const SizedBox();
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            const Text("Revenue Composition", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _legendRow(Colors.blue, "Scans", "\u20B9${scanRevenue.toStringAsFixed(0)}"),
+                      const SizedBox(height: 12),
+                      _legendRow(Colors.orange, "Treatments", "\u20B9${treatRevenue.toStringAsFixed(0)}"),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: PieChart(
+                    PieChartData(
+                      sections: [
+                        PieChartSectionData(color: Colors.blue, value: scanRevenue, radius: 40, showTitle: false),
+                        PieChartSectionData(color: Colors.orange, value: treatRevenue, radius: 40, showTitle: false),
+                      ],
+                      centerSpaceRadius: 30,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _legendRow(Color color, String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+            const SizedBox(width: 8),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Text(value, style: const TextStyle(color: Colors.grey)),
+        ),
+      ],
+    );
   }
 }
 

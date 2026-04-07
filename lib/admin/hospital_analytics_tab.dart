@@ -90,6 +90,28 @@ class HospitalAnalyticsTab extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 24),
+                        const Text("Service Mix", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LinearProgressIndicator(
+                            value: metrics['treatments'] + metrics['scans'] > 0 
+                              ? metrics['treatments'] / (metrics['treatments'] + metrics['scans']) 
+                              : 0.5,
+                            backgroundColor: Colors.blue.shade100,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                            minHeight: 10,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const [
+                            Text("Imaging / Scans", style: TextStyle(fontSize: 10, color: Colors.blue)),
+                            Text("Treatments", style: TextStyle(fontSize: 10, color: Colors.orange)),
+                          ],
+                        ),
                       ],
                     ),
                   ),
