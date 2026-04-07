@@ -154,9 +154,9 @@ class PatientMedicalHistoryPage extends StatelessWidget {
         DateTime? lastVisit;
         for (var list in grouped.values) {
           for (var record in list) {
-            final dynamic createdAt = record['createdAt'];
-            if (createdAt != null && createdAt is Timestamp) {
-              final date = createdAt.toDate();
+            final dynamic dtField = record['timestamp'] ?? record['createdAt'];
+            if (dtField != null && dtField is Timestamp) {
+              final date = dtField.toDate();
               if (lastVisit == null || date.isAfter(lastVisit!)) {
                 lastVisit = date;
               }
@@ -211,12 +211,10 @@ class PatientMedicalHistoryPage extends StatelessWidget {
             ...grouped.entries.map((entry) {
               final records = entry.value;
               records.sort((a, b) {
-                final t1 = a['createdAt'] is Timestamp 
-                    ? (a['createdAt'] as Timestamp).toDate() 
-                    : DateTime.now();
-                final t2 = b['createdAt'] is Timestamp 
-                    ? (b['createdAt'] as Timestamp).toDate() 
-                    : DateTime.now();
+                final aDt = a['timestamp'] ?? a['createdAt'];
+                final bDt = b['timestamp'] ?? b['createdAt'];
+                final t1 = aDt is Timestamp ? aDt.toDate() : DateTime.now();
+                final t2 = bDt is Timestamp ? bDt.toDate() : DateTime.now();
                 return t2.compareTo(t1);
               });
 
@@ -243,9 +241,9 @@ class PatientMedicalHistoryPage extends StatelessWidget {
                     ),
                   ),
                   ...records.map((record) {
-                    final dynamic createdAt = record['createdAt'];
-                    final date = (createdAt != null && createdAt is Timestamp) 
-                        ? createdAt.toDate().toLocal().toString().split('.')[0]
+                    final dynamic dtField = record['timestamp'] ?? record['createdAt'];
+                    final date = (dtField != null && dtField is Timestamp) 
+                        ? dtField.toDate().toLocal().toString().split('.')[0]
                         : "Pending...";
                     final imageBase64 = record['reportImageBase64'];
 
