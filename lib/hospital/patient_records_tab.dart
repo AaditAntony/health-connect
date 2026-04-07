@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:health_connect/hospital/patient_ai_summary_page.dart';
+import '../patient/patient_medical_history_page.dart';
 import 'add_treatement_page.dart';
 
 class PatientRecordsTab extends StatelessWidget {
@@ -84,6 +86,13 @@ class _PatientCard extends StatelessWidget {
     required this.patientId,
     required this.patientData,
   });
+
+  void _copyToClipboard(BuildContext context, String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("$label copied to clipboard")),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,8 +190,30 @@ class _PatientCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.copy, size: 16, color: Color(0xFF7C3AED)),
+                      onPressed: () => _copyToClipboard(context, patientId, "Patient ID"),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.phone, size: 14, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text(
+                    patientData['phone'] ?? "N/A",
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () => _copyToClipboard(context, patientData['phone'] ?? "", "Phone"),
+                    child: const Text("Copy Phone", style: TextStyle(fontSize: 11)),
+                  ),
+                ],
               ),
               // ======== END PATIENT ID ========
 
@@ -287,6 +318,28 @@ class _PatientCard extends StatelessWidget {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7C3AED),
+                  ),
+                ),
+              ),
+
+              Align(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PatientMedicalHistoryPage(patientId: patientId),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.history, color: Colors.white),
+                  label: const Text(
+                    "Full Medical History",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
                   ),
                 ),
               ),

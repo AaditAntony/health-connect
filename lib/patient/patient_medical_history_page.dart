@@ -10,7 +10,7 @@ class PatientMedicalHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: const Color(0xFFF2F5F9),
         appBar: AppBar(
@@ -28,6 +28,7 @@ class PatientMedicalHistoryPage extends StatelessWidget {
             tabs: [
               Tab(text: "Hospital Records"),
               Tab(text: "Doctor Prescriptions"),
+              Tab(text: "Scan Reports"),
             ],
           ),
         ),
@@ -35,6 +36,7 @@ class PatientMedicalHistoryPage extends StatelessWidget {
           children: [
             _buildHospitalRecords(),
             _buildDoctorPrescriptions(),
+            _buildScanRecords(),
           ],
         ),
       ),
@@ -302,6 +304,96 @@ class PatientMedicalHistoryPage extends StatelessWidget {
               );
             }).toList(),
           ],
+        );
+      },
+    );
+  }
+
+  Widget _buildScanRecords() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('scans')
+          .where('patientId', isEqualTo: patientId)
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final docs = snapshot.data!.docs;
+        if (docs.isEmpty) {
+          return const Center(child: Text("No scan reports found", style: TextStyle(color: Colors.grey)));
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: docs.length,
+          itemBuilder: (context, index) {
+            final data = docs[index].data() as Map<String, dynamic>;
+            final timestamp = data['timestamp'];
+            final dateStr = (timestamp != null && timestamp is Timestamp)
+                ? timestamp.toDate().toLocal().toString().split('.')[0]
+                : "Pending...";
+
+            return Card(
+              elevation: 2,
+              margin: const EdgeInsets.only(bottom: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.biotech, color: Color(0xFF7C3AED)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            data['scanType'] ?? "Diagnostic Scan",
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ),
+                        Text(
+                          dateStr,
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 24),
+                    _detailBox(
+                      title: "Procedure / Region",
+                      value: data['scanInfo'] ?? "-",
+                      color: const Color(0xFFF3F0FF),
+                      accent: const Color(0xFF7C3AED),
+                    ),
+                    _detailBox(
+                      title: "Observations",
+                      value: data['observations'] ?? "-",
+                      color: const Color(0xFFF1F5F9),
+                      accent: const Color(0xFF64748B),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.person, size: 14, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(
+                          "Referred by: ${data['doctorName'] ?? "Unknown"}",
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

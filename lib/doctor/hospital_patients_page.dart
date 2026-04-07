@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../patient/patient_medical_history_page.dart';
 
 class HospitalPatientsPage extends StatefulWidget {
   const HospitalPatientsPage({super.key});
@@ -119,6 +120,25 @@ class _HospitalPatientsPageState extends State<HospitalPatientsPage> {
                             label: const Text("Copy Phone"),
                           ),
                         ],
+                      ),
+                      const Divider(),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PatientMedicalHistoryPage(patientId: pId),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.history, color: Color(0xFF7C3AED)),
+                          label: const Text(
+                            "View Full Medical History",
+                            style: TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
                     ],
                   ),
