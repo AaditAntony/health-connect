@@ -49,6 +49,10 @@ class PatientMedicalHistoryPage extends StatelessWidget {
           .orderBy('timestamp', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -118,6 +122,10 @@ class PatientMedicalHistoryPage extends StatelessWidget {
           .where('patientId', isEqualTo: patientId)
           .snapshots(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }

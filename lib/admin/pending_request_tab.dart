@@ -41,6 +41,10 @@ class PendingRequestsTab extends StatelessWidget {
           .where('approved', isEqualTo: false)
           .snapshots(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }

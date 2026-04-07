@@ -152,6 +152,10 @@ class _PatientSmartCarePlanPageState extends State<PatientSmartCarePlanPage> {
             .doc(authUid)
             .get(),
         builder: (context, patientSnapshot) {
+        if (patientSnapshot.hasError) {
+          debugPrint("Error: ${patientSnapshot.error}");
+          return Center(child: Text("Error: \n${patientSnapshot.error}", textAlign: TextAlign.center));
+        }
           if (!patientSnapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -165,6 +169,10 @@ class _PatientSmartCarePlanPageState extends State<PatientSmartCarePlanPage> {
                 .where('expiresAt', isGreaterThan: Timestamp.now())
                 .snapshots(),
             builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -259,6 +267,10 @@ class _PatientSmartCarePlanPageState extends State<PatientSmartCarePlanPage> {
                                 .where('planId', isEqualTo: doc.id)
                                 .snapshots(),
                             builder: (context, planSnapshot) {
+        if (planSnapshot.hasError) {
+          debugPrint("Error: ${planSnapshot.error}");
+          return Center(child: Text("Error: \n${planSnapshot.error}", textAlign: TextAlign.center));
+        }
                               final isActivated =
                                   planSnapshot.hasData &&
                                   planSnapshot.data!.docs.isNotEmpty;

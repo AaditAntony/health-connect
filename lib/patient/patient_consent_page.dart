@@ -17,6 +17,10 @@ class PatientConsentPage extends StatelessWidget {
             .where('status', isEqualTo: 'pending')
             .snapshots(),
         builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -88,6 +92,10 @@ class _ConsentCard extends StatelessWidget {
         _getHospitalName(toHospitalId),
       ]),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
         if (!snapshot.hasData) {
           return const Card(
             child: Padding(

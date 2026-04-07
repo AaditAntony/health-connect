@@ -138,6 +138,10 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                         .where('approved', isEqualTo: true)
                         .snapshots(),
                     builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
                       if (!snapshot.hasData) {
                         return const LinearProgressIndicator();
                       }

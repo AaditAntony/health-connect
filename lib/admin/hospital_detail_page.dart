@@ -19,6 +19,10 @@ class HospitalDetailPage extends StatelessWidget {
               .doc(hospitalId)
               .snapshots(),
           builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
             if (!snapshot.hasData || snapshot.data!.data() == null) {
               return const Center(child: CircularProgressIndicator());
             }

@@ -81,6 +81,10 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
                   .where('approved', isEqualTo: true)
                   .snapshots(),
               builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
                 if (!snapshot.hasData) return const CircularProgressIndicator();
                 final docs = snapshot.data!.docs;
                 if (docs.isEmpty) return const Text("No doctors available.");
