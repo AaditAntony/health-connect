@@ -7,7 +7,9 @@ import 'package:health_connect/web/admin_login_page.dart';
 
 import 'overview_tab.dart';
 import 'approved_hospitals_tab.dart';
-// We will create approved_doctors_tab or combine it.
+import 'hospital_analytics_tab.dart';
+import 'doctor_analytics_tab.dart';
+import 'system_stats_tab.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -32,6 +34,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     OverviewTab(),
     PendingRequestsTab(),
     ApprovedHospitalsTab(),
+    HospitalAnalyticsTab(),
+    DoctorAnalyticsTab(),
+    SystemStatsTab(),
     AdminPaymentsPage(),
   ];
 
@@ -39,6 +44,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
     "Overview",
     "Pending Requests",
     "Approved Entities",
+    "Hospital Analytics",
+    "Doctor Analytics",
+    "System Performance",
     "Payments",
   ];
 
@@ -120,7 +128,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
           _buildDrawerItem(0, Icons.dashboard, "Overview"),
           _buildDrawerItem(1, Icons.pending_actions, "Pending Requests"),
           _buildDrawerItem(2, Icons.verified_user, "Approved Entities"),
-          _buildDrawerItem(3, Icons.payments, "Payments"),
+          const Divider(),
+          _buildDrawerItem(3, Icons.analytics, "Hospital Analytics"),
+          _buildDrawerItem(4, Icons.people_outline, "Doctor Analytics"),
+          _buildDrawerItem(5, Icons.query_stats, "System Performance"),
+          const Divider(),
+          _buildDrawerItem(6, Icons.payments, "Payments"),
         ],
       ),
     );
