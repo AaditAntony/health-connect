@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 class OverviewTab extends StatelessWidget {
   const OverviewTab({super.key});
@@ -30,6 +32,18 @@ class OverviewTab extends StatelessWidget {
               _ApprovedHospitalsCard(),
             ],
           ),
+
+          const SizedBox(height: 32),
+
+          // ================= ANALYTICS GRAPHS =================
+          const Text(
+            "System Performance Analytics",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          _RevenueTrendChart(),
+          const SizedBox(height: 16),
+          _SystemDistributionPie(),
 
           const SizedBox(height: 32),
 
@@ -270,6 +284,180 @@ class _ActivityItem extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+// ================= ANALYTICS WIDGETS =================
+
+class _RevenueTrendChart extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<FlSpot>>(
+      future: _fetchRevenueTrend(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+        
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("7-Day Revenue Trend", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 24),
+                SizedBox(
+                  height: 200,
+                  child: LineChart(
+                    LineChartData(
+                      gridData: FlGridData(show: false),
+                      titlesData: FlTitlesData(
+                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              final date = DateTime.now().subtract(Duration(days: 6 - value.toInt()));
+                              return Text(DateFormat('E').format(date), style: const TextStyle(fontSize: 10, color: Colors.grey));
+                            },
+                          ),
+                        ),
+                      ),
+                      borderData: FlBorderData(show: false),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: snapshot.data!,
+                          isCurved: true,
+                          color: const Color(0xFF7C3AED),
+                          barWidth: 4,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(show: true),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: const Color(0xFF7C3AED).withOpacity(0.1),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<List<FlSpot>> _fetchRevenueTrend() async {
+    final Map<int, double> dailyRevenue = {};
+    for (int i = 0; i < 7; i++) dailyRevenue[i] = 0.0;
+
+    final now = DateTime.now();
+    final sevenDaysAgo = now.subtract(const Duration(days: 7));
+
+    // Scans
+    final scanSnap = await FirebaseFirestore.instance
+        .collection('scans')
+        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(sevenDaysAgo))
+        .get();
+    
+    for (var doc in scanSnap.docs) {
+      final date = (doc.data()['timestamp'] as Timestamp).toDate();
+      final dayIndex = 6 - now.difference(date).inDays;
+      if (dayIndex >= 0 && dayIndex < 7) {
+        dailyRevenue[dayIndex] = (dailyRevenue[dayIndex] ?? 0) + (doc.data()['cost'] ?? 0.0);
+      }
+    }
+
+    // Treatments
+    final treatSnap = await FirebaseFirestore.instance
+        .collection('treatments')
+        .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(sevenDaysAgo))
+        .get();
+
+    for (var doc in treatSnap.docs) {
+      final date = (doc.data()['timestamp'] as Timestamp).toDate();
+      final dayIndex = 6 - now.difference(date).inDays;
+      if (dayIndex >= 0 && dayIndex < 7) {
+        dailyRevenue[dayIndex] = (dailyRevenue[dayIndex] ?? 0) + (doc.data()['cost'] ?? 0.0);
+      }
+    }
+
+    return List.generate(7, (i) => FlSpot(i.toDouble(), dailyRevenue[i]!));
+  }
+}
+
+class _SystemDistributionPie extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<PieChartSectionData>>(
+      future: _fetchDistribution(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("User Distribution", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const SizedBox(height: 8),
+                      _legendItem(Colors.blue, "Hospitals"),
+                      _legendItem(Colors.green, "Doctors"),
+                      _legendItem(Colors.purple, "Patients"),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 150,
+                  height: 150,
+                  child: PieChart(
+                    PieChartData(
+                      sections: snapshot.data!,
+                      centerSpaceRadius: 40,
+                      sectionsSpace: 2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _legendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 8),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      ],
+    );
+  }
+
+  Future<List<PieChartSectionData>> _fetchDistribution() async {
+    final hospCount = (await FirebaseFirestore.instance.collection('accounts').where('role', isEqualTo: 'hospital').get()).docs.length;
+    final docCount = (await FirebaseFirestore.instance.collection('accounts').where('role', isEqualTo: 'doctor').get()).docs.length;
+    final patCount = (await FirebaseFirestore.instance.collection('patients').get()).docs.length;
+
+    final total = (hospCount + docCount + patCount).toDouble();
+    if (total == 0) return [];
+
+    return [
+      PieChartSectionData(color: Colors.blue, value: hospCount.toDouble(), radius: 50, showTitle: false),
+      PieChartSectionData(color: Colors.green, value: docCount.toDouble(), radius: 50, showTitle: false),
+      PieChartSectionData(color: Colors.purple, value: patCount.toDouble(), radius: 50, showTitle: false),
+    ];
   }
 }
 // the admin done
