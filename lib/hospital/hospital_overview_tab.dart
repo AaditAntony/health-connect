@@ -114,6 +114,10 @@ class _StatCard extends StatelessWidget {
         child: StreamBuilder<QuerySnapshot>(
           stream: stream,
           builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
             final count =
             snapshot.hasData ? snapshot.data!.docs.length : 0;
 
@@ -179,6 +183,10 @@ class _ApprovalStatusCard extends StatelessWidget {
               .doc(hospitalId)
               .snapshots(),
           builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
             final approved =
                 snapshot.hasData && snapshot.data!['approved'] == true;
 
@@ -249,6 +257,10 @@ class _HospitalInfoCard extends StatelessWidget {
               .doc(hospitalId)
               .snapshots(),
           builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
             if (!snapshot.hasData) {
               return const SizedBox(height: 100);
             }

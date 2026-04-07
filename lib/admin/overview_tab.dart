@@ -179,6 +179,10 @@ class _StatCard extends StatelessWidget {
         child: StreamBuilder<QuerySnapshot>(
           stream: stream,
           builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
             final count =
             snapshot.hasData ? snapshot.data!.docs.length : 0;
 

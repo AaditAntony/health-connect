@@ -21,6 +21,10 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Scaffold(body: Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center)));
+        }
         if (!snapshot.hasData) {
           if (kIsWeb) {
             return const WebLoginChoicePage();
@@ -44,6 +48,10 @@ class AuthWrapper extends StatelessWidget {
           .doc(user.uid)
           .get(),
       builder: (context, patientSnapshot) {
+        if (patientSnapshot.hasError) {
+          debugPrint("Error: ${patientSnapshot.error}");
+          return Scaffold(body: Center(child: Text("Error: \n${patientSnapshot.error}", textAlign: TextAlign.center)));
+        }
         if (patientSnapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -66,6 +74,10 @@ class AuthWrapper extends StatelessWidget {
               .doc(user.uid)
               .get(),
           builder: (context, accountSnapshot) {
+        if (accountSnapshot.hasError) {
+          debugPrint("Error: ${accountSnapshot.error}");
+          return Scaffold(body: Center(child: Text("Error: \n${accountSnapshot.error}", textAlign: TextAlign.center)));
+        }
             if (accountSnapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),

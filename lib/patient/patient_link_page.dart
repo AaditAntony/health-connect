@@ -129,14 +129,14 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
                       ),
                     ),
                     const SizedBox(height: 6),
-        
+
                     const Text(
                       "Securely connect your hospital records to view your medical history.",
                       style: TextStyle(color: Colors.black54, fontSize: 14),
                     ),
-        
+
                     const SizedBox(height: 22),
-        
+
                     // -------- RADIO GROUP --------
                     Container(
                       decoration: BoxDecoration(
@@ -166,9 +166,9 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
                         ),
                       ),
                     ),
-        
+
                     const SizedBox(height: 18),
-        
+
                     // -------- INPUT FIELD --------
                     if (method == LinkMethod.phone)
                       TextField(
@@ -190,7 +190,7 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
                           ),
                         ),
                       ),
-        
+
                     if (method == LinkMethod.patientId)
                       TextField(
                         controller: patientIdController,
@@ -211,9 +211,9 @@ class _PatientLinkPageState extends State<PatientLinkPage> {
                           ),
                         ),
                       ),
-        
+
                     const SizedBox(height: 26),
-        
+
                     // -------- ACTION BUTTON --------
                     SizedBox(
                       width: double.infinity,

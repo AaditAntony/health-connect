@@ -25,6 +25,10 @@ class SharedPatientRecordsPage extends StatelessWidget {
             .where('status', isEqualTo: 'approved')
             .snapshots(),
         builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -94,6 +98,10 @@ class _SharedPatientCard extends StatelessWidget {
           .doc(patientId)
           .get(),
       builder: (context, patientSnapshot) {
+        if (patientSnapshot.hasError) {
+          debugPrint("Error: ${patientSnapshot.error}");
+          return Center(child: Text("Error: \n${patientSnapshot.error}", textAlign: TextAlign.center));
+        }
         if (!patientSnapshot.hasData) {
           return const Card(
             child: Padding(
@@ -189,6 +197,10 @@ class _SharedPatientCard extends StatelessWidget {
                       .where('hospitalId', isEqualTo: fromHospitalId)
                       .snapshots(),
                   builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
                     }

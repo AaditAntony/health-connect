@@ -30,6 +30,10 @@ class PatientRecordsTab extends StatelessWidget {
                 .where('hospitalId', isEqualTo: hospitalId)
                 .snapshots(),
             builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -194,6 +198,10 @@ class _PatientCard extends StatelessWidget {
                     .limit(1)
                     .snapshots(),
                 builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Text(
                       "No treatment records yet",

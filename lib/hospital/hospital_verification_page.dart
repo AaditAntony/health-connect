@@ -26,6 +26,10 @@ class HospitalVerificationPage extends StatelessWidget {
                   .doc(hospitalId)
                   .snapshots(),
               builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          debugPrint("Error: ${snapshot.error}");
+          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
+        }
                 if (!snapshot.hasData) {
                   return const Padding(
                     padding: EdgeInsets.all(40),
