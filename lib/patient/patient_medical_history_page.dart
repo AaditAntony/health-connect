@@ -152,9 +152,12 @@ class PatientMedicalHistoryPage extends StatelessWidget {
         DateTime? lastVisit;
         for (var list in grouped.values) {
           for (var record in list) {
-            final date = (record['createdAt'] as Timestamp).toDate();
-            if (lastVisit == null || date.isAfter(lastVisit!)) {
-              lastVisit = date;
+            final dynamic createdAt = record['createdAt'];
+            if (createdAt != null && createdAt is Timestamp) {
+              final date = createdAt.toDate();
+              if (lastVisit == null || date.isAfter(lastVisit!)) {
+                lastVisit = date;
+              }
             }
           }
         }
@@ -206,8 +209,12 @@ class PatientMedicalHistoryPage extends StatelessWidget {
             ...grouped.entries.map((entry) {
               final records = entry.value;
               records.sort((a, b) {
-                final t1 = (a['createdAt'] as Timestamp).toDate();
-                final t2 = (b['createdAt'] as Timestamp).toDate();
+                final t1 = a['createdAt'] is Timestamp 
+                    ? (a['createdAt'] as Timestamp).toDate() 
+                    : DateTime.now();
+                final t2 = b['createdAt'] is Timestamp 
+                    ? (b['createdAt'] as Timestamp).toDate() 
+                    : DateTime.now();
                 return t2.compareTo(t1);
               });
 
@@ -234,7 +241,10 @@ class PatientMedicalHistoryPage extends StatelessWidget {
                     ),
                   ),
                   ...records.map((record) {
-                    final date = (record['createdAt'] as Timestamp).toDate().toLocal().toString().split('.')[0];
+                    final dynamic createdAt = record['createdAt'];
+                    final date = (createdAt != null && createdAt is Timestamp) 
+                        ? createdAt.toDate().toLocal().toString().split('.')[0]
+                        : "Pending...";
                     final imageBase64 = record['reportImageBase64'];
 
                     return Card(
