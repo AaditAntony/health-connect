@@ -15,6 +15,7 @@ class _AddScanPageState extends State<AddScanPage> {
   final _formKey = GlobalKey<FormState>();
   final _scanInfoController = TextEditingController();
   final _observationsController = TextEditingController();
+  final _costController = TextEditingController();
 
   String scanType = "X-Ray";
   bool isSubmitting = false;
@@ -51,6 +52,7 @@ class _AddScanPageState extends State<AddScanPage> {
         'scanType': scanType,
         'scanInfo': _scanInfoController.text.trim(),
         'observations': _observationsController.text.trim(),
+        'cost': double.tryParse(_costController.text.trim()) ?? 0.0,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
@@ -121,6 +123,22 @@ class _AddScanPageState extends State<AddScanPage> {
                 maxLines: 5,
                 decoration: InputDecoration(
                   hintText: "Enter your observations and findings from the scan result.",
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                validator: (v) => v!.isEmpty ? "Required" : null,
+              ),
+              const SizedBox(height: 24),
+
+              const Text("Scan Cost (\u20B9)", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _costController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: "Enter amount (e.g. 1500)",
+                  prefixIcon: const Icon(Icons.currency_rupee, size: 18),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

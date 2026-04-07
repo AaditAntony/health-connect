@@ -16,6 +16,7 @@ class _AddTreatmentPageState extends State<AddTreatmentPage> {
   final _diagnosisController = TextEditingController();
   final _treatmentPlanController = TextEditingController();
   final _medicationsController = TextEditingController();
+  final _costController = TextEditingController();
 
   bool isSubmitting = false;
 
@@ -41,6 +42,7 @@ class _AddTreatmentPageState extends State<AddTreatmentPage> {
         'diagnosis': _diagnosisController.text.trim(),
         'treatmentPlan': _treatmentPlanController.text.trim(),
         'medications': _medicationsController.text.trim(),
+        'cost': double.tryParse(_costController.text.trim()) ?? 0.0,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
@@ -113,6 +115,22 @@ class _AddTreatmentPageState extends State<AddTreatmentPage> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   hintText: "List prescribed medications",
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                validator: (v) => v!.isEmpty ? "Required" : null,
+              ),
+              const SizedBox(height: 24),
+
+              const Text("Treatment Cost (\u20B9)", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _costController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: "Enter amount (e.g. 500)",
+                  prefixIcon: const Icon(Icons.currency_rupee, size: 18),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
