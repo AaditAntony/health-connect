@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'hospital_deep_analytics_page.dart';
 
 class HospitalAnalyticsTab extends StatelessWidget {
   const HospitalAnalyticsTab({super.key});
@@ -35,84 +36,97 @@ class HospitalAnalyticsTab extends StatelessWidget {
               builder: (context, metricSnapshot) {
                 final metrics = metricSnapshot.data ?? {'revenue': 0.0, 'scans': 0, 'treatments': 0};
                 
-                return Card(
-                  elevation: 2,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.business, color: Color(0xFF7C3AED)),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                hospitalName,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade50,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                "\u20B9${metrics['revenue']}",
-                                style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => HospitalDeepAnalyticsPage(
+                          hospitalId: hospitalId,
+                          hospitalName: hospitalName,
                         ),
-                        const Divider(height: 32),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            _MetricItem(
-                              label: "Total Scans",
-                              value: metrics['scans'].toString(),
-                              icon: Icons.biotech,
-                            ),
-                            _MetricItem(
-                              label: "Treatments",
-                              value: metrics['treatments'].toString(),
-                              icon: Icons.medical_services,
-                            ),
-                            _MetricItem(
-                              label: "Avg. Ticket",
-                              value: metrics['treatments'] + metrics['scans'] > 0 
-                                ? "\u20B9${(metrics['revenue'] / (metrics['treatments'] + metrics['scans'])).toStringAsFixed(0)}" 
-                                : "\u20B90",
-                              icon: Icons.analytics,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        const Text("Service Mix", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
-                        const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: LinearProgressIndicator(
-                            value: metrics['treatments'] + metrics['scans'] > 0 
-                              ? metrics['treatments'] / (metrics['treatments'] + metrics['scans']) 
-                              : 0.5,
-                            backgroundColor: Colors.blue.shade100,
-                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
-                            minHeight: 10,
+                      ),
+                    );
+                  },
+                  child: Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.business, color: Color(0xFF7C3AED)),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  hospitalName,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  "\u20B9${metrics['revenue']}",
+                                  style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text("Imaging / Scans", style: TextStyle(fontSize: 10, color: Colors.blue)),
-                            Text("Treatments", style: TextStyle(fontSize: 10, color: Colors.orange)),
-                          ],
-                        ),
-                      ],
+                          const Divider(height: 32),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _MetricItem(
+                                label: "Total Scans",
+                                value: metrics['scans'].toString(),
+                                icon: Icons.biotech,
+                              ),
+                              _MetricItem(
+                                label: "Treatments",
+                                value: metrics['treatments'].toString(),
+                                icon: Icons.medical_services,
+                              ),
+                              _MetricItem(
+                                label: "Avg. Ticket",
+                                value: metrics['treatments'] + metrics['scans'] > 0 
+                                  ? "\u20B9${(metrics['revenue'] / (metrics['treatments'] + metrics['scans'])).toStringAsFixed(0)}" 
+                                  : "\u20B90",
+                                icon: Icons.analytics,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          const Text("Service Mix", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: LinearProgressIndicator(
+                              value: metrics['treatments'] + metrics['scans'] > 0 
+                                ? metrics['treatments'] / (metrics['treatments'] + metrics['scans']) 
+                                : 0.5,
+                              backgroundColor: Colors.blue.shade100,
+                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                              minHeight: 10,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text("Imaging / Scans", style: TextStyle(fontSize: 10, color: Colors.blue)),
+                              Text("Treatments", style: TextStyle(fontSize: 10, color: Colors.orange)),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

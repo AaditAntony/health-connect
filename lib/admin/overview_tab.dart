@@ -364,10 +364,13 @@ class _RevenueTrendChart extends StatelessWidget {
         .get();
     
     for (var doc in scanSnap.docs) {
-      final date = (doc.data()['timestamp'] as Timestamp).toDate();
-      final dayIndex = 6 - now.difference(date).inDays;
-      if (dayIndex >= 0 && dayIndex < 7) {
-        dailyRevenue[dayIndex] = (dailyRevenue[dayIndex] ?? 0) + (doc.data()['cost'] ?? 0.0);
+      final timestamp = doc.data()['timestamp'] ?? doc.data()['createdAt'];
+      if (timestamp != null && timestamp is Timestamp) {
+        final date = timestamp.toDate();
+        final dayIndex = 6 - now.difference(date).inDays;
+        if (dayIndex >= 0 && dayIndex < 7) {
+          dailyRevenue[dayIndex] = (dailyRevenue[dayIndex] ?? 0) + (doc.data()['cost'] ?? 0.0);
+        }
       }
     }
 
@@ -378,10 +381,13 @@ class _RevenueTrendChart extends StatelessWidget {
         .get();
 
     for (var doc in treatSnap.docs) {
-      final date = (doc.data()['timestamp'] as Timestamp).toDate();
-      final dayIndex = 6 - now.difference(date).inDays;
-      if (dayIndex >= 0 && dayIndex < 7) {
-        dailyRevenue[dayIndex] = (dailyRevenue[dayIndex] ?? 0) + (doc.data()['cost'] ?? 0.0);
+      final timestamp = doc.data()['timestamp'] ?? doc.data()['createdAt'];
+      if (timestamp != null && timestamp is Timestamp) {
+        final date = timestamp.toDate();
+        final dayIndex = 6 - now.difference(date).inDays;
+        if (dayIndex >= 0 && dayIndex < 7) {
+          dailyRevenue[dayIndex] = (dailyRevenue[dayIndex] ?? 0) + (doc.data()['cost'] ?? 0.0);
+        }
       }
     }
 

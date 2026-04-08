@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'doctor_deep_analytics_page.dart';
 
 class DoctorAnalyticsTab extends StatelessWidget {
   const DoctorAnalyticsTab({super.key});
@@ -40,24 +41,39 @@ class DoctorAnalyticsTab extends StatelessWidget {
                   elevation: 2,
                   margin: const EdgeInsets.only(bottom: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blue.shade50,
-                      child: const Icon(Icons.person, color: Colors.blue),
-                    ),
-                    title: Text(doctorName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text("$department | ${metrics['clinicalCount']} Records"),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "\u20B9${metrics['revenue']}",
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DoctorDeepAnalyticsPage(
+                            doctorId: doctorId,
+                            doctorName: doctorName,
+                            department: department,
+                          ),
                         ),
-                        const Text("Revenue", style: TextStyle(fontSize: 10, color: Colors.grey)),
-                      ],
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blue.shade50,
+                        child: const Icon(Icons.person, color: Colors.blue),
+                      ),
+                      title: Text(doctorName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text("$department | ${metrics['clinicalCount']} Records"),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "\u20B9${metrics['revenue']}",
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                          ),
+                          const Text("Revenue", style: TextStyle(fontSize: 10, color: Colors.grey)),
+                        ],
+                      ),
                     ),
                   ),
                 );
