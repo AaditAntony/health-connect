@@ -261,19 +261,19 @@ class HospitalDetailPage extends StatelessWidget {
     );
   }
 
-  void _confirmAction(BuildContext context, String title, String msg, Color color, Future<void> Function() action) {
+  void _confirmAction(BuildContext pageContext, String title, String msg, Color color, Future<void> Function() action) {
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: pageContext,
+      builder: (dialogContext) => AlertDialog(
         title: Text(title),
         content: Text(msg),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text("Cancel")),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context); // Close dialog
-              await action();
-              if (context.mounted) Navigator.pop(context); // Back to list
+              Navigator.pop(dialogContext); // Close the dialog
+              await action();              // Run approve/reject
+              if (pageContext.mounted) Navigator.pop(pageContext); // Navigate back to the list
             },
             style: ElevatedButton.styleFrom(backgroundColor: color),
             child: Text(title),
