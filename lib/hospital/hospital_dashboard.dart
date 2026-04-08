@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health_connect/hospital/add_patient_page.dart';
 import 'package:health_connect/hospital/consultation_requests_tab.dart';
 import 'package:health_connect/hospital/patient_records_tab_wrapper.dart';
 import 'package:health_connect/hospital/shared_patient_records_page.dart';
 import 'package:health_connect/hospital/smart_care_plan_page.dart';
 import 'package:health_connect/web/hospital_login_page.dart';
-// import 'add_patient_page.dart';
 import 'hospital_overview_tab.dart';
-// import 'data_requests_tab.dart';
 import 'test_appointments_tab.dart';
 
 class HospitalDashboard extends StatefulWidget {
@@ -26,11 +25,10 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HospitalLoginPage()));
   }
 
-  // We are pruning some of the older redundant tabs to streamline the responsive UI.
-  // Consultation Requests added to the top of the workflow.
   final List<Widget> _pages = const [
     HospitalOverviewTab(),
     ConsultationRequestsTab(),
+    AddPatientPage(),          // Register a new patient manually
     PatientRecordsTabWrapper(),
     TestAppointmentsTab(),
     SharedPatientRecordsPage(),
@@ -112,10 +110,11 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
           ),
           _buildDrawerItem(0, Icons.dashboard, "Overview"),
           _buildDrawerItem(1, Icons.assignment_turned_in, "Consultation Requests"),
-          _buildDrawerItem(2, Icons.folder_shared, "Patient Records"),
-          _buildDrawerItem(3, Icons.biotech, "Test Appointments"),
-          _buildDrawerItem(4, Icons.share, "Shared Records"),
-          _buildDrawerItem(5, Icons.lightbulb, "Smart Care Plan"),
+          _buildDrawerItem(2, Icons.person_add, "Add Patient"),
+          _buildDrawerItem(3, Icons.folder_shared, "Patient Records"),
+          _buildDrawerItem(4, Icons.biotech, "Test Appointments"),
+          _buildDrawerItem(5, Icons.share, "Shared Records"),
+          _buildDrawerItem(6, Icons.lightbulb, "Smart Care Plan"),
         ],
       ),
     );
