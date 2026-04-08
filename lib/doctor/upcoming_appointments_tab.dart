@@ -14,8 +14,8 @@ class UpcomingAppointmentsTab extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('appointments')
-          .where('targetId', isEqualTo: currentUserId)
-          .where('type', isEqualTo: 'Consultation')
+          .where('requestedDoctorId', isEqualTo: currentUserId)
+          .where('status', isEqualTo: 'approved')
           .orderBy('timestamp', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -30,7 +30,16 @@ class UpcomingAppointmentsTab extends StatelessWidget {
         final docs = snapshot.data!.docs;
 
         if (docs.isEmpty) {
-          return const Center(child: Text("No upcoming appointments."));
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.event_busy, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text("No confirmed consultations yet.", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              ],
+            ),
+          );
         }
 
         return ListView.builder(
@@ -39,123 +48,112 @@ class UpcomingAppointmentsTab extends StatelessWidget {
           itemBuilder: (context, index) {
             final data = docs[index].data() as Map<String, dynamic>;
             final appId = docs[index].id;
-            final status = data['status'] ?? 'pending';
-
-            Color statusColor = Colors.orange;
-            if (status == 'approved') statusColor = Colors.green;
-            if (status == 'rejected') statusColor = Colors.red;
+            final patient = data['patientMetadata'] ?? {};
+            final hospitalPatientId = data['hospitalPatientId'];
 
             return Card(
               elevation: 2,
               margin: const EdgeInsets.only(bottom: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Patient ID: ${data['patientId']}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                patient['name'] ?? "Unknown Patient",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Hospital ID: $hospitalPatientId",
+                                style: TextStyle(
+                                  color: const Color(0xFF7C3AED),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.15),
+                            color: Colors.green.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.green.withOpacity(0.5)),
                           ),
-                          child: Text(
-                            status.toUpperCase(),
-                            style: TextStyle(
-                              color: statusColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                          child: const Text(
+                            "CONFIRMED",
+                            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 11),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const Divider(height: 32),
                     Row(
                       children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: Colors.grey,
+                        const Icon(Icons.info_outline, size: 18, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Reason: ${data['reason'] ?? 'N/A'}",
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(data['date'] ?? ""),
                         const SizedBox(width: 16),
-                        const Icon(
-                          Icons.access_time,
-                          size: 16,
-                          color: Colors.grey,
-                        ),
+                        const Icon(Icons.access_time, size: 16, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(data['time'] ?? ""),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    if (status == 'pending')
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () => _updateStatus(appId, 'rejected'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.red,
-                            ),
-                            child: const Text("Reject"),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: () => _updateStatus(appId, 'approved'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                            ),
-                            child: const Text("Approve"),
-                          ),
-                        ],
-                      ),
-                    if (status == 'approved')
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => WritePrescriptionPage(
-                                  appointmentId: appId,
-                                  patientId: data['patientId'],
-                                ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => WritePrescriptionPage(
+                                appointmentId: appId,
+                                patientId: hospitalPatientId, // 🔑 Using Hospital-Specific Patient ID
                               ),
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.edit_note,
-                            color: Colors.white,
-                          ),
-                          label: const Text(
-                            "Write Prescription",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7C3AED),
-                          ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit_note, color: Colors.white),
+                        label: const Text(
+                          "Consult & Write Prescription",
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7C3AED),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -164,11 +162,5 @@ class UpcomingAppointmentsTab extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> _updateStatus(String id, String newStatus) async {
-    await FirebaseFirestore.instance.collection('appointments').doc(id).update({
-      'status': newStatus,
-    });
   }
 }

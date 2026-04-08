@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health_connect/hospital/consultation_requests_tab.dart';
 import 'package:health_connect/hospital/patient_records_tab_wrapper.dart';
 import 'package:health_connect/hospital/shared_patient_records_page.dart';
 import 'package:health_connect/hospital/smart_care_plan_page.dart';
@@ -26,10 +27,10 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
   }
 
   // We are pruning some of the older redundant tabs to streamline the responsive UI.
-  // DataRequests Tab can be added back if needed, but for the new flow we prioritize 
-  // Overview, Records, Test Appointments, Smart Care.
+  // Consultation Requests added to the top of the workflow.
   final List<Widget> _pages = const [
     HospitalOverviewTab(),
+    ConsultationRequestsTab(),
     PatientRecordsTabWrapper(),
     TestAppointmentsTab(),
     SharedPatientRecordsPage(),
@@ -110,10 +111,11 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
             ),
           ),
           _buildDrawerItem(0, Icons.dashboard, "Overview"),
-          _buildDrawerItem(1, Icons.folder_shared, "Patient Records"),
-          _buildDrawerItem(2, Icons.biotech, "Test Appointments"),
-          _buildDrawerItem(3, Icons.share, "Shared Records"),
-          _buildDrawerItem(4, Icons.lightbulb, "Smart Care Plan"),
+          _buildDrawerItem(1, Icons.assignment_turned_in, "Consultation Requests"),
+          _buildDrawerItem(2, Icons.folder_shared, "Patient Records"),
+          _buildDrawerItem(3, Icons.biotech, "Test Appointments"),
+          _buildDrawerItem(4, Icons.share, "Shared Records"),
+          _buildDrawerItem(5, Icons.lightbulb, "Smart Care Plan"),
         ],
       ),
     );
