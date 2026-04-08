@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +21,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   String? selectedHospitalName;
   String selectedDepartment = "General Medicine";
 
+  PlatformFile? profileImage;
+  PlatformFile? certificateImage;
+
   bool isSubmitting = false;
 
   final List<String> departments = [
@@ -32,10 +37,35 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     "Radiology"
   ];
 
+  Future<void> _pickFile(Function(PlatformFile) onPicked) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result != null) {
+      final file = result.files.first;
+      if (file.size > 300 * 1024) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("File size must be under 300 KB")),
+        );
+        return;
+      }
+      onPicked(file);
+    }
+  }
+
+  String _toBase64(PlatformFile file) {
+    return base64Encode(file.bytes!);
+  }
+
   Future<void> _submitProfile() async {
-    if (!_formKey.currentState!.validate() || selectedHospitalId == null) {
+    if (!_formKey.currentState!.validate() || 
+        selectedHospitalId == null || 
+        profileImage == null || 
+        certificateImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields and select a hospital")),
+        const SnackBar(content: Text("Please fill all fields and upload required documents")),
       );
       return;
     }
@@ -53,8 +83,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         'department': selectedDepartment,
         'hospitalId': selectedHospitalId,
         'hospitalName': selectedHospitalName,
+        'profileImageBase64': _toBase64(profileImage!),
+        'certificateBase64': _toBase64(certificateImage!),
         'profileSubmitted': true,
-        'approved': false, // Requires admin approval
+        'approved': false,
       });
 
       if (!mounted) return;
@@ -94,118 +126,37 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                "Professional Information",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
+              const Text("Professional Information", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              const Text(
-                "Please fill in your details to connect with your hospital.",
-                style: TextStyle(color: Colors.grey),
-              ),
+              const Text("Fill in your details and upload your credentials.", style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 32),
 
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: "Full Name (e.g. Dr. John Doe)",
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.person),
-                ),
-                validator: (v) => v!.isEmpty ? "Enter your name" : null,
-              ),
+              _buildTextField(_nameController, "Full Name (e.g. Dr. John Doe)", Icons.person),
               const SizedBox(height: 20),
 
               Row(
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _ageController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: "Age",
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      validator: (v) => v!.isEmpty ? "Required" : null,
-                    ),
-                  ),
+                  Expanded(child: _buildTextField(_ageController, "Age", Icons.cake, isNum: true)),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _experienceController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: "Exp (Years)",
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      validator: (v) => v!.isEmpty ? "Required" : null,
-                    ),
-                  ),
+                  Expanded(child: _buildTextField(_experienceController, "Exp (Years)", Icons.work, isNum: true)),
                 ],
               ),
               const SizedBox(height: 20),
 
-              DropdownButtonFormField<String>(
-                value: selectedDepartment,
-                decoration: InputDecoration(
-                  labelText: "Department",
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(Icons.medical_services),
-                ),
-                items: departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                onChanged: (v) => setState(() => selectedDepartment = v!),
-              ),
+              _buildDropdown(),
               const SizedBox(height: 20),
 
-              const Text("Select Your Hospital", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('accounts')
-                    .where('role', isEqualTo: 'hospital')
-                    .where('approved', isEqualTo: true)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) return Text("Error: ${snapshot.error}");
-                  if (!snapshot.hasData) return const LinearProgressIndicator();
-                  
-                  final hospitals = snapshot.data!.docs;
+              _buildHospitalSelect(),
+              const SizedBox(height: 32),
 
-                  return DropdownButtonFormField<String>(
-                    value: selectedHospitalId,
-                    decoration: InputDecoration(
-                      hintText: "Choose Hospital",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      prefixIcon: const Icon(Icons.business),
-                    ),
-                    items: hospitals.map((h) {
-                      final data = h.data() as Map<String, dynamic>;
-                      return DropdownMenuItem(
-                        value: h.id,
-                        child: Text(data['hospitalName'] ?? "Unnamed"),
-                      );
-                    }).toList(),
-                    onChanged: (v) {
-                      setState(() {
-                        selectedHospitalId = v;
-                        final selectedDoc = hospitals.firstWhere((doc) => doc.id == v);
-                        final data = selectedDoc.data() as Map<String, dynamic>;
-                        selectedHospitalName = data['hospitalName'];
-                      });
-                    },
-                  );
-                },
-              ),
+              const Text("Verification Documents", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              const Text("Required for platform approval (Max 300KB each)", style: TextStyle(color: Colors.grey, fontSize: 13)),
+              const SizedBox(height: 16),
+
+              _buildImagePicker("Official Profile Photo", profileImage, (file) => setState(() => profileImage = file)),
+              const SizedBox(height: 16),
+              _buildImagePicker("Medical Registration Certificate", certificateImage, (file) => setState(() => certificateImage = file)),
               
               const SizedBox(height: 48),
 
@@ -217,14 +168,109 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        "Submit Profile",
-                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text("Submit Profile for Approval", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController ctrl, String label, IconData icon, {bool isNum = false}) {
+    return TextFormField(
+      controller: ctrl,
+      keyboardType: isNum ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        prefixIcon: Icon(icon, color: const Color(0xFF7C3AED)),
+      ),
+      validator: (v) => v!.isEmpty ? "Required" : null,
+    );
+  }
+
+  Widget _buildDropdown() {
+    return DropdownButtonFormField<String>(
+      value: selectedDepartment,
+      decoration: InputDecoration(
+        labelText: "Department",
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        prefixIcon: const Icon(Icons.medical_services, color: Color(0xFF7C3AED)),
+      ),
+      items: departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+      onChanged: (v) => setState(() => selectedDepartment = v!),
+    );
+  }
+
+  Widget _buildHospitalSelect() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('accounts')
+          .where('role', isEqualTo: 'hospital')
+          .where('approved', isEqualTo: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        final hospitals = snapshot.data?.docs ?? [];
+        return DropdownButtonFormField<String>(
+          value: selectedHospitalId,
+          decoration: InputDecoration(
+            hintText: "Choose Working Hospital",
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            prefixIcon: const Icon(Icons.business, color: Color(0xFF7C3AED)),
+          ),
+          items: hospitals.map((h) {
+            final data = h.data() as Map<String, dynamic>;
+            return DropdownMenuItem(value: h.id, child: Text(data['hospitalName'] ?? "Unnamed"));
+          }).toList(),
+          onChanged: (v) {
+            setState(() {
+              selectedHospitalId = v;
+              final selectedDoc = hospitals.firstWhere((doc) => doc.id == v);
+              selectedHospitalName = (selectedDoc.data() as Map<String, dynamic>)['hospitalName'];
+            });
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildImagePicker(String title, PlatformFile? file, Function(PlatformFile) onPicked) {
+    return InkWell(
+      onTap: () => _pickFile(onPicked),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: file != null ? Colors.green : Colors.grey.shade300, width: 2),
+        ),
+        child: Row(
+          children: [
+            Icon(file != null ? Icons.check_circle : Icons.cloud_upload_outlined, color: file != null ? Colors.green : Colors.grey),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(file != null ? file.name : "Tap to upload image", style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                ],
+              ),
+            ),
+            if (file != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.memory(file.bytes!, width: 40, height: 40, fit: BoxFit.cover),
+              ),
+          ],
         ),
       ),
     );

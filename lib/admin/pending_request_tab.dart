@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'hospital_detail_page.dart';
+import 'doctor_detail_page.dart';
 
 class PendingRequestsTab extends StatelessWidget {
   const PendingRequestsTab({super.key});
@@ -83,11 +84,13 @@ class PendingRequestsTab extends StatelessWidget {
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 onTap: () {
-                  // Navigate to detail page for verification
+                  // Navigate to the correct detail page based on role
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HospitalDetailPage(hospitalId: id),
+                      builder: (context) => role == 'hospital'
+                          ? HospitalDetailPage(hospitalId: id)
+                          : DoctorDetailPage(doctorId: id),
                     ),
                   );
                 },
