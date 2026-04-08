@@ -142,15 +142,38 @@ class PatientAppointmentsTab extends StatelessWidget {
                   ),
                 ),
                 title: Text(
-                  data['targetName'] ?? "Unknown Entity",
+                  "${data['targetName'] ?? 'Unknown Hospital'}",
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 4),
-                    Text(data['date'] ?? ""),
-                    Text(data['time'] ?? ""),
+                    if (data['requestedDoctorName'] != null)
+                      Text(
+                        "Dr: ${data['requestedDoctorName']} (${data['department']})",
+                        style: const TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.w600),
+                      ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(data['date'] ?? ""),
+                        const SizedBox(width: 12),
+                        const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Text(data['time'] ?? ""),
+                      ],
+                    ),
+                    if (status == 'rejected' && data['hospitalRejectReason'] != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          "Note: ${data['hospitalRejectReason']}",
+                          style: const TextStyle(color: Colors.red, fontSize: 12, fontStyle: FontStyle.italic),
+                        ),
+                      ),
                   ],
                 ),
                 trailing: Container(
