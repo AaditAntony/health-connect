@@ -51,14 +51,12 @@ class PendingRequestsTab extends StatelessWidget {
 
         final docs = snapshot.data!.docs;
 
-        // Note: For hospitals, we normally also checked profileSubmitted == true.
-        // Let's filter that locally to keep the query simple.
         final filteredDocs = docs.where((doc) {
           final data = doc.data() as Map<String, dynamic>;
           if (role == 'hospital' || role == 'doctor') {
             return data['profileSubmitted'] == true;
           }
-          return true; // Other roles pending immediately
+          return true;
         }).toList();
 
         if (filteredDocs.isEmpty) {
@@ -78,14 +76,28 @@ class PendingRequestsTab extends StatelessWidget {
             final id = filteredDocs[index].id;
 
             return Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+              elevation: 4,
+              shadowColor: Colors.black12,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                leading: CircleAvatar(
-                  backgroundColor: const Color(0xFFEDE9FE),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                onTap: () {
+                  // Navigate to detail page for verification
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HospitalDetailPage(hospitalId: id),
+                    ),
+                  );
+                },
+                leading: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEDE9FE),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Icon(
                     role == 'hospital' ? Icons.local_hospital : Icons.person,
                     color: const Color(0xFF7C3AED),
@@ -95,50 +107,28 @@ class PendingRequestsTab extends StatelessWidget {
                   role == 'hospital'
                       ? (data['hospitalName'] ?? "Unnamed Hospital")
                       : (data['doctorName'] ?? data['email'] ?? "Unknown Doctor"),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                subtitle: Text(role == 'hospital'
-                    ? (data['district'] ?? "No District")
-                    : "Doctor Applicant"),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.check_circle, color: Colors.green),
-                      onPressed: () => _approve(context, id, role),
-                      tooltip: "Approve",
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.cancel, color: Colors.red),
-                      onPressed: () => _reject(context, id, role),
-                      tooltip: "Reject",
+                    const SizedBox(height: 4),
+                    Text(role == 'hospital'
+                        ? (data['district'] ?? "No District")
+                        : "Specialization: ${data['department'] ?? 'N/A'}"),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Click to view details and verify",
+                      style: TextStyle(color: Color(0xFF7C3AED), fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
               ),
             );
           },
         );
       },
-    );
-  }
-
-  Future<void> _approve(BuildContext context, String id, String role) async {
-    await FirebaseFirestore.instance
-        .collection('accounts')
-        .doc(id)
-        .update({"approved": true});
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${role.toUpperCase()} Approved")),
-    );
-  }
-
-  Future<void> _reject(BuildContext context, String id, String role) async {
-    await FirebaseFirestore.instance.collection('accounts').doc(id).delete();
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${role.toUpperCase()} Rejected")),
     );
   }
 }
