@@ -131,8 +131,9 @@ class PdfExportUtility {
   static Future<void> generatePaymentReceipt(Map<String, dynamic> data) async {
     final pdf = pw.Document();
     final now = DateTime.now();
+    final timestamp = data['timestamp'] as Timestamp? ?? data['createdAt'] as Timestamp?;
     final dateString = DateFormat('yyyy-MM-dd HH:mm').format(
-      (data['createdAt'] as Timestamp?)?.toDate() ?? now,
+      timestamp?.toDate() ?? now,
     );
 
     pdf.addPage(

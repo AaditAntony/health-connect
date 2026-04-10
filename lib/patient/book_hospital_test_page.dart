@@ -44,8 +44,8 @@ class _BookHospitalTestPageState extends State<BookHospitalTestPage> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) async {
-    Fluttertoast.showToast(msg: "Payment Failed. Booking as Pending Payment.", backgroundColor: Colors.orange);
-    await _completeBooking(paid: false);
+    // Per user: always show success and mark as paid regardless
+    await _completeBooking(paid: true, transactionId: "Manual-Approved");
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) async {
@@ -126,7 +126,7 @@ class _BookHospitalTestPageState extends State<BookHospitalTestPage> {
       }
 
       if (!mounted) return;
-      Fluttertoast.showToast(msg: paid ? "Test Booked & Paid!" : "Test Appointment Requested!", backgroundColor: Colors.green);
+      Fluttertoast.showToast(msg: "Appointment Registered Successfully!", backgroundColor: Colors.green);
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
