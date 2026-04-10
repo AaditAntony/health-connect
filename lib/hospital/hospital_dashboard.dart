@@ -9,6 +9,7 @@ import 'package:health_connect/web/hospital_login_page.dart';
 import 'hospital_overview_tab.dart';
 import 'registration_requests_tab.dart';
 import 'test_appointments_tab.dart';
+import 'hospital_fees_page.dart';
 
 class HospitalDashboard extends StatefulWidget {
   const HospitalDashboard({super.key});
@@ -34,7 +35,8 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
     PatientRecordsTabWrapper(),
     TestAppointmentsTab(),
     SharedPatientRecordsPage(),
-    SmartCarePlanPage()
+    SmartCarePlanPage(),
+    HospitalFeesPage(),
   ];
 
   @override
@@ -118,6 +120,7 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
           _buildDrawerItem(5, Icons.biotech, "Test Appointments"),
           _buildDrawerItem(6, Icons.share, "Shared Records"),
           _buildDrawerItem(7, Icons.lightbulb, "Smart Care Plan"),
+          _buildDrawerItem(8, Icons.payments, "Manage Fees"),
         ],
       ),
     );

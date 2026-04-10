@@ -127,4 +127,126 @@ class PdfExportUtility {
       await Printing.sharePdf(bytes: bytes, filename: 'HealthReport_$dateString.pdf');
     }
   }
+
+  static Future<void> generatePaymentReceipt(Map<String, dynamic> data) async {
+    final pdf = pw.Document();
+    final now = DateTime.now();
+    final dateString = DateFormat('yyyy-MM-dd HH:mm').format(
+      (data['createdAt'] as Timestamp?)?.toDate() ?? now,
+    );
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(40),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // Header
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text('Health Connect', style: pw.TextStyle(color: PdfColors.deepPurple, fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Official Payment Receipt', style: const pw.TextStyle(fontSize: 12, color: PdfColors.grey700)),
+                    ],
+                  ),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(10),
+                    decoration: pw.BoxDecoration(color: PdfColors.green50, borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8))),
+                    child: pw.Text('PAID', style: pw.TextStyle(color: PdfColors.green700, fontWeight: pw.FontWeight.bold)),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 40),
+              pw.Divider(color: PdfColors.grey300),
+              pw.SizedBox(height: 20),
+
+              // Transaction Info
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text('BILL TO:', style: pw.TextStyle(color: PdfColors.grey600, fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                      pw.SizedBox(height: 4),
+                      pw.Text('Patient ID: ${data['patientId']}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text('RECEIPT DETAILS:', style: pw.TextStyle(color: PdfColors.grey600, fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                      pw.SizedBox(height: 4),
+                      pw.Text('Date: $dateString'),
+                      pw.Text('TXN: ${data['transactionId'] ?? "N/A"}'),
+                    ],
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 40),
+
+              // Service Details Table
+              pw.Table(
+                border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
+                children: [
+                  pw.TableRow(
+                    decoration: const pw.BoxDecoration(color: PdfColors.grey100),
+                    children: [
+                      pw.Padding(padding: const pw.EdgeInsets.all(10), child: pw.Text('Description', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                      pw.Padding(padding: const pw.EdgeInsets.all(10), child: pw.Text('Provider', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                      pw.Padding(padding: const pw.EdgeInsets.all(10), child: pw.Text('Amount', style: pw.TextStyle(fontWeight: pw.FontWeight.bold), textAlign: pw.TextAlign.right)),
+                    ],
+                  ),
+                  pw.TableRow(
+                    children: [
+                      pw.Padding(padding: const pw.EdgeInsets.all(10), child: pw.Text('${data['serviceType']}${data['testType'] != null ? " (${data['testType']})" : ""}')),
+                      pw.Padding(padding: const pw.EdgeInsets.all(10), child: pw.Text(data['targetName'] ?? "Health Connect")),
+                      pw.Padding(padding: const pw.EdgeInsets.all(10), child: pw.Text('INR ${data['amount']}.00', textAlign: pw.TextAlign.right)),
+                    ],
+                  ),
+                ],
+              ),
+
+              pw.SizedBox(height: 20),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.end,
+                children: [
+                   pw.Column(
+                     crossAxisAlignment: pw.CrossAxisAlignment.end,
+                     children: [
+                       pw.Text('Total Amount Paid', style: pw.TextStyle(color: PdfColors.grey600, fontSize: 12)),
+                       pw.Text('INR ${data['amount']}.00', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.deepPurple)),
+                     ],
+                   ),
+                ],
+              ),
+
+              pw.Spacer(),
+              pw.Divider(color: PdfColors.grey300),
+              pw.SizedBox(height: 10),
+              pw.Center(
+                child: pw.Text('Thank you for choosing Health Connect', style: const pw.TextStyle(color: PdfColors.grey600, fontSize: 10)),
+              ),
+              pw.Center(
+                child: pw.Text('This is a computer-generated receipt and requires no signature.', style: const pw.TextStyle(color: PdfColors.grey500, fontSize: 8)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    final bytes = await pdf.save();
+    if (kIsWeb) {
+      await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => bytes);
+    } else {
+      final dateSlug = DateFormat('yyyyMMdd_HHmm').format(now);
+      await Printing.sharePdf(bytes: bytes, filename: 'Receipt_$dateSlug.pdf');
+    }
+  }
 }
