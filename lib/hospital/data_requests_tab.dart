@@ -146,7 +146,10 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                         return const LinearProgressIndicator();
                       }
 
-                      final hospitals = snapshot.data!.docs;
+                      final currentUid = FirebaseAuth.instance.currentUser!.uid;
+                      final hospitals = snapshot.data!.docs
+                          .where((doc) => doc.id != currentUid)
+                          .toList();
 
                       return DropdownButtonFormField<String>(
                         value: selectedHospitalId,
@@ -221,12 +224,18 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Generated OTP",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    Row(
+                      children: const [
+                        Icon(Icons.check_circle, color: Color(0xFF7C3AED), size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          "Generated OTP",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 12),
                     Center(

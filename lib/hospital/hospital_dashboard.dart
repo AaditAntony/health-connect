@@ -6,6 +6,8 @@ import 'package:health_connect/hospital/patient_records_tab_wrapper.dart';
 import 'package:health_connect/hospital/shared_patient_records_page.dart';
 import 'package:health_connect/hospital/smart_care_plan_page.dart';
 import 'package:health_connect/web/hospital_login_page.dart';
+import 'package:health_connect/hospital/data_requests_tab.dart';
+import 'package:health_connect/hospital/transfer_requests_tab.dart';
 import 'hospital_overview_tab.dart';
 import 'registration_requests_tab.dart';
 import 'test_appointments_tab.dart';
@@ -35,6 +37,8 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
     PatientRecordsTabWrapper(),
     TestAppointmentsTab(),
     SharedPatientRecordsPage(),
+    DataRequestsTab(),         // Request data from another hospital
+    TransferRequestsTab(),     // Approved/reject incoming requests
     SmartCarePlanPage(),
     HospitalFeesPage(),
   ];
@@ -119,8 +123,10 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
           _buildDrawerItem(4, Icons.folder_shared, "Patient Records"),
           _buildDrawerItem(5, Icons.biotech, "Test Appointments"),
           _buildDrawerItem(6, Icons.share, "Shared Records"),
-          _buildDrawerItem(7, Icons.lightbulb, "Smart Care Plan"),
-          _buildDrawerItem(8, Icons.payments, "Manage Fees"),
+          _buildDrawerItem(7, Icons.compare_arrows, "Request Transfer"),
+          _buildDrawerItem(8, Icons.move_to_inbox, "Incoming Transfers"),
+          _buildDrawerItem(9, Icons.lightbulb, "Smart Care Plan"),
+          _buildDrawerItem(10, Icons.payments, "Manage Fees"),
         ],
       ),
     );
