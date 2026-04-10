@@ -15,8 +15,6 @@ class PatientOverviewTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildRecentReceipts(context),
-          const SizedBox(height: 16),
           // ================= WELCOME HEADER =================
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,86 +187,6 @@ class PatientOverviewTab extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildRecentReceipts(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('payments')
-          .where('patientId', isEqualTo: patientId)
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return const SizedBox.shrink();
-
-        final data = snapshot.data!.docs.first.data() as Map<String, dynamic>;
-        final date = (data['createdAt'] as Timestamp?)?.toDate().toLocal().toString().split(' ')[0] ?? "Today";
-
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF7C3AED), Color(0xFFC084FC)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF7C3AED).withOpacity(0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              )
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.receipt_long, color: Colors.white, size: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Latest Receipt Available",
-                      style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "${data['serviceType'] ?? 'Medical Service'}",
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "₹ ${data['amount']} Paid on $date",
-                      style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => PdfExportUtility.generatePaymentReceipt(data),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF7C3AED),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  elevation: 0,
-                ),
-                child: const Text("Download PDF", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
