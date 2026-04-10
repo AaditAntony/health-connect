@@ -29,8 +29,7 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
       // Listen to appointments assigned to this doctor
       stream: FirebaseFirestore.instance
           .collection('appointments')
-          .where('targetId', isEqualTo: currentUserId)
-          .orderBy('timestamp', descending: true)
+          .where('requestedDoctorId', isEqualTo: currentUserId)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -48,11 +47,21 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
 
         final docs = snapshot.data!.docs;
 
+        // In-memory sorting by timestamp descending
+        final sortedDocs = docs.toList();
+        sortedDocs.sort((a, b) {
+          final t1 = a['timestamp'] as Timestamp?;
+          final t2 = b['timestamp'] as Timestamp?;
+          if (t1 == null) return 1;
+          if (t2 == null) return -1;
+          return t2.compareTo(t1);
+        });
+
         // Deduplicate patients using their patientId
         // Also keep track of the most recent appointment date for that patient.
         final Map<String, Map<String, dynamic>> uniquePatientsMap = {};
 
-        for (var doc in docs) {
+        for (var doc in sortedDocs) {
           final data = doc.data() as Map<String, dynamic>;
           final patientId = data['patientId'] as String?;
           final date = data['date'] ?? 'Unknown Date';
@@ -86,7 +95,7 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
             final pId = patientData['patientId'];
             final lastAppt = patientData['lastAppointment'];
             return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance.collection('patient_users').doc(pId).get(),
+              future: FirebaseFirestore.instance.collection('patients').doc(pId).get(),
               builder: (context, patientSnapshot) {
                 final patientInfo = patientSnapshot.data?.data() as Map<String, dynamic>?;
                 final name = patientInfo?['name'] ?? "Patient: $pId";

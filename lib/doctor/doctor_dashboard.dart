@@ -88,15 +88,6 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: const Icon(Icons.local_hospital_outlined),
-              title: const Text("Hospital Directory"),
-              subtitle: const Text("All hospital patients"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const HospitalPatientsPage()));
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.calendar_month_outlined),
               title: const Text("Work Schedule"),
               onTap: () {
