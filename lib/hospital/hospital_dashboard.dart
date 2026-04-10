@@ -7,6 +7,7 @@ import 'package:health_connect/hospital/shared_patient_records_page.dart';
 import 'package:health_connect/hospital/smart_care_plan_page.dart';
 import 'package:health_connect/web/hospital_login_page.dart';
 import 'hospital_overview_tab.dart';
+import 'registration_requests_tab.dart';
 import 'test_appointments_tab.dart';
 
 class HospitalDashboard extends StatefulWidget {
@@ -28,6 +29,7 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
   final List<Widget> _pages = const [
     HospitalOverviewTab(),
     ConsultationRequestsTab(),
+    RegistrationRequestsTab(),
     AddPatientPage(),          // Register a new patient manually
     PatientRecordsTabWrapper(),
     TestAppointmentsTab(),
@@ -110,11 +112,12 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
           ),
           _buildDrawerItem(0, Icons.dashboard, "Overview"),
           _buildDrawerItem(1, Icons.assignment_turned_in, "Consultation Requests"),
-          _buildDrawerItem(2, Icons.person_add, "Add Patient"),
-          _buildDrawerItem(3, Icons.folder_shared, "Patient Records"),
-          _buildDrawerItem(4, Icons.biotech, "Test Appointments"),
-          _buildDrawerItem(5, Icons.share, "Shared Records"),
-          _buildDrawerItem(6, Icons.lightbulb, "Smart Care Plan"),
+          _buildDrawerItem(2, Icons.how_to_reg, "Registration Requests"),
+          _buildDrawerItem(3, Icons.person_add, "Add Patient"),
+          _buildDrawerItem(4, Icons.folder_shared, "Patient Records"),
+          _buildDrawerItem(5, Icons.biotech, "Test Appointments"),
+          _buildDrawerItem(6, Icons.share, "Shared Records"),
+          _buildDrawerItem(7, Icons.lightbulb, "Smart Care Plan"),
         ],
       ),
     );
