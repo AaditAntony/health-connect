@@ -12,6 +12,8 @@ import 'hospital_overview_tab.dart';
 import 'registration_requests_tab.dart';
 import 'test_appointments_tab.dart';
 import 'hospital_fees_page.dart';
+import 'hospital_doctors_tab.dart';
+import 'hospital_profile_tab.dart';
 
 class HospitalDashboard extends StatefulWidget {
   const HospitalDashboard({super.key});
@@ -29,27 +31,51 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HospitalLoginPage()));
   }
 
-  final List<Widget> _pages = const [
-    HospitalOverviewTab(),
-    ConsultationRequestsTab(),
-    RegistrationRequestsTab(),
-    AddPatientPage(),          // Register a new patient manually
-    PatientRecordsTabWrapper(),
-    TestAppointmentsTab(),
-    SharedPatientRecordsPage(),
-    DataRequestsTab(),         // Request data from another hospital
-    TransferRequestsTab(),     // Approved/reject incoming requests
-    SmartCarePlanPage(),
-    HospitalFeesPage(),
+  final List<Widget> _pages = [
+    const HospitalOverviewTab(),
+    const HospitalDoctorsTab(hospitalId: ""),
+    const ConsultationRequestsTab(),
+    const RegistrationRequestsTab(),
+    const AddPatientPage(),
+    const PatientRecordsTabWrapper(),
+    const TestAppointmentsTab(),
+    const SharedPatientRecordsPage(),
+    const DataRequestsTab(),
+    const TransferRequestsTab(),
+    const SmartCarePlanPage(),
+    const HospitalFeesPage(),
+    const HospitalProfileTab(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final hospitalId = FirebaseAuth.instance.currentUser?.uid ?? "";
+    
+    // Dynamically update the pages that need hospitalId
+    final List<Widget> displayPages = [
+      const HospitalOverviewTab(),
+      HospitalDoctorsTab(hospitalId: hospitalId),
+      const ConsultationRequestsTab(),
+      const RegistrationRequestsTab(),
+      const AddPatientPage(),
+      const PatientRecordsTabWrapper(),
+      const TestAppointmentsTab(),
+      const SharedPatientRecordsPage(),
+      const DataRequestsTab(),
+      const TransferRequestsTab(),
+      const SmartCarePlanPage(),
+      const HospitalFeesPage(),
+      const HospitalProfileTab(),
+    ];
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: _buildAppBar(),
       drawer: _buildDrawer(),
-      body: _pages[_selectedIndex],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: displayPages[_selectedIndex],
+      ),
     );
   }
 
@@ -117,16 +143,18 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
             ),
           ),
           _buildDrawerItem(0, Icons.dashboard, "Overview"),
-          _buildDrawerItem(1, Icons.assignment_turned_in, "Consultation Requests"),
-          _buildDrawerItem(2, Icons.how_to_reg, "Registration Requests"),
-          _buildDrawerItem(3, Icons.person_add, "Add Patient"),
-          _buildDrawerItem(4, Icons.folder_shared, "Patient Records"),
-          _buildDrawerItem(5, Icons.biotech, "Test Appointments"),
-          _buildDrawerItem(6, Icons.share, "Shared Records"),
-          _buildDrawerItem(7, Icons.compare_arrows, "Request Transfer"),
-          _buildDrawerItem(8, Icons.move_to_inbox, "Incoming Transfers"),
-          _buildDrawerItem(9, Icons.lightbulb, "Smart Care Plan"),
-          _buildDrawerItem(10, Icons.payments, "Manage Fees"),
+          _buildDrawerItem(1, Icons.medical_services, "Doctors List"),
+          _buildDrawerItem(2, Icons.assignment_turned_in, "Consultation Requests"),
+          _buildDrawerItem(3, Icons.how_to_reg, "Registration Requests"),
+          _buildDrawerItem(4, Icons.person_add, "Add Patient"),
+          _buildDrawerItem(5, Icons.folder_shared, "Patient Records"),
+          _buildDrawerItem(6, Icons.biotech, "Test Appointments"),
+          _buildDrawerItem(7, Icons.share, "Shared Records"),
+          _buildDrawerItem(8, Icons.compare_arrows, "Request Transfer"),
+          _buildDrawerItem(9, Icons.move_to_inbox, "Incoming Transfers"),
+          _buildDrawerItem(10, Icons.lightbulb, "Smart Care Plan"),
+          _buildDrawerItem(11, Icons.payments, "Manage Fees"),
+          _buildDrawerItem(12, Icons.settings_applications, "Hospital Profile"),
         ],
       ),
     );
