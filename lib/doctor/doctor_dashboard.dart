@@ -10,6 +10,7 @@ import 'doctor_patients_tab.dart';
 import 'hospital_patients_page.dart';
 import 'doctor_schedule_page.dart';
 import 'doctor_analytics_page.dart';
+import 'doctor_profile_tab.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -122,12 +123,19 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
+            icon: Icon(Icons.calendar_today_outlined),
+            activeIcon: Icon(Icons.calendar_today),
             label: "Appointments",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people),
+            icon: Icon(Icons.people_outline),
+            activeIcon: Icon(Icons.people),
             label: "Patients",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: "Profile",
           ),
         ],
       ),
@@ -135,10 +143,15 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   }
 
   Widget _buildBody() {
-    if (_selectedIndex == 0) {
-      return const UpcomingAppointmentsTab();
-    } else {
-      return const DoctorPatientsTab();
+    switch (_selectedIndex) {
+      case 0:
+        return const UpcomingAppointmentsTab();
+      case 1:
+        return const DoctorPatientsTab();
+      case 2:
+        return const DoctorProfileTab();
+      default:
+        return const UpcomingAppointmentsTab();
     }
   }
 }
