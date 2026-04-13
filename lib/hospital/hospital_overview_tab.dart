@@ -35,16 +35,22 @@ class HospitalOverviewTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth > 900) {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 2, child: _PatientTrendChart(hospitalId: hospitalId)),
+                    Expanded(
+                      flex: 2,
+                      child: _PatientTrendChart(hospitalId: hospitalId),
+                    ),
                     const SizedBox(width: 24),
-                    Expanded(flex: 1, child: _ServiceMixChart(hospitalId: hospitalId)),
+                    Expanded(
+                      flex: 1,
+                      child: _ServiceMixChart(hospitalId: hospitalId),
+                    ),
                   ],
                 );
               } else {
@@ -138,13 +144,6 @@ class HospitalOverviewTab extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,15 +198,9 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
+        //  borderRadius: BorderRadius.circular(20),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: StreamBuilder<QuerySnapshot>(
         stream: stream,
@@ -264,23 +257,31 @@ class _ApprovalStatusCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance.collection('accounts').doc(hospitalId).snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('accounts')
+            .doc(hospitalId)
+            .snapshots(),
         builder: (context, snapshot) {
-          final isApproved = snapshot.hasData && (snapshot.data!.data() as Map?)?['approved'] == true;
+          final isApproved =
+              snapshot.hasData &&
+              (snapshot.data!.data() as Map?)?['approved'] == true;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: (isApproved ? Colors.green : Colors.orange).withOpacity(0.1),
+                  color: (isApproved ? Colors.green : Colors.orange)
+                      .withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  isApproved ? Icons.verified_user_rounded : Icons.pending_rounded,
+                  isApproved
+                      ? Icons.verified_user_rounded
+                      : Icons.pending_rounded,
                   color: isApproved ? Colors.green : Colors.orange,
                   size: 22,
                 ),
@@ -288,11 +289,18 @@ class _ApprovalStatusCard extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 isApproved ? "Verified" : "Pending",
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
               const Text(
                 "SYSTEM STATUS",
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8)),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF94A3B8),
+                ),
               ),
             ],
           );
@@ -321,7 +329,14 @@ class _PatientTrendChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("PATIENT REGISTRATION TREND (LAST 7 DAYS)", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF64748B))),
+          const Text(
+            "PATIENT REGISTRATION TREND (LAST 7 DAYS)",
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF64748B),
+            ),
+          ),
           const SizedBox(height: 24),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
@@ -330,8 +345,9 @@ class _PatientTrendChart extends StatelessWidget {
                   .where('hospitalId', isEqualTo: hospitalId)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-                
+                if (!snapshot.hasData)
+                  return const Center(child: CircularProgressIndicator());
+
                 // Logic: Count patients per day for last 7 days
                 final now = DateTime.now();
                 Map<String, int> dailyCounts = {};
@@ -352,21 +368,43 @@ class _PatientTrendChart extends StatelessWidget {
 
                 final sortedKeys = dailyCounts.keys.toList().reversed.toList();
                 final spots = List.generate(sortedKeys.length, (i) {
-                  return FlSpot(i.toDouble(), dailyCounts[sortedKeys[i]]!.toDouble());
+                  return FlSpot(
+                    i.toDouble(),
+                    dailyCounts[sortedKeys[i]]!.toDouble(),
+                  );
                 });
 
                 return LineChart(
                   LineChartData(
-                    gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (v) => FlLine(color: Colors.grey.shade50, strokeWidth: 1)),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      getDrawingHorizontalLine: (v) =>
+                          FlLine(color: Colors.grey.shade50, strokeWidth: 1),
+                    ),
                     titlesData: FlTitlesData(
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (v, m) {
-                            if (v.toInt() >= 0 && v.toInt() < sortedKeys.length) {
-                              return Padding(padding: const EdgeInsets.only(top: 8), child: Text(sortedKeys[v.toInt()], style: const TextStyle(fontSize: 9, color: Colors.grey)));
+                            if (v.toInt() >= 0 &&
+                                v.toInt() < sortedKeys.length) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  sortedKeys[v.toInt()],
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              );
                             }
                             return const SizedBox();
                           },
@@ -378,10 +416,22 @@ class _PatientTrendChart extends StatelessWidget {
                       LineChartBarData(
                         spots: spots,
                         isCurved: true,
-                        gradient: const LinearGradient(colors: [Color(0xFF6366F1), Color(0xFFA855F7)]),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0891B2), Color(0xFF0D9488)],
+                        ),
                         barWidth: 4,
                         dotData: const FlDotData(show: true),
-                        belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [const Color(0xFF6366F1).withOpacity(0.1), const Color(0xFF6366F1).withOpacity(0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+                        belowBarData: BarAreaData(
+                          show: true,
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFF0891B2).withOpacity(0.1),
+                              const Color(0xFF0891B2).withOpacity(0),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -412,22 +462,42 @@ class _ServiceMixChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("SERVICE DISTRIBUTION", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFF64748B))),
+          const Text(
+            "SERVICE DISTRIBUTION",
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF64748B),
+            ),
+          ),
           const SizedBox(height: 32),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('treatments').where('hospitalId', isEqualTo: hospitalId).snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('treatments')
+                  .where('hospitalId', isEqualTo: hospitalId)
+                  .snapshots(),
               builder: (context, treatSnapshot) {
                 return StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance.collection('scans').where('hospitalId', isEqualTo: hospitalId).snapshots(),
+                  stream: FirebaseFirestore.instance
+                      .collection('scans')
+                      .where('hospitalId', isEqualTo: hospitalId)
+                      .snapshots(),
                   builder: (context, scanSnapshot) {
-                    if (!treatSnapshot.hasData || !scanSnapshot.hasData) return const Center(child: CircularProgressIndicator());
-                    
+                    if (!treatSnapshot.hasData || !scanSnapshot.hasData)
+                      return const Center(child: CircularProgressIndicator());
+
                     final treats = treatSnapshot.data!.docs.length.toDouble();
                     final scans = scanSnapshot.data!.docs.length.toDouble();
                     final total = treats + scans;
 
-                    if (total == 0) return const Center(child: Text("No Data", style: TextStyle(color: Colors.grey)));
+                    if (total == 0)
+                      return const Center(
+                        child: Text(
+                          "No Data",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      );
 
                     return Stack(
                       alignment: Alignment.center,
@@ -435,8 +505,18 @@ class _ServiceMixChart extends StatelessWidget {
                         PieChart(
                           PieChartData(
                             sections: [
-                              PieChartSectionData(color: const Color(0xFF10B981), value: treats, radius: 15, showTitle: false),
-                              PieChartSectionData(color: const Color(0xFF3B82F6), value: scans, radius: 15, showTitle: false),
+                              PieChartSectionData(
+                                color: const Color(0xFF10B981),
+                                value: treats,
+                                radius: 15,
+                                showTitle: false,
+                              ),
+                              PieChartSectionData(
+                                color: const Color(0xFF0891B2),
+                                value: scans,
+                                radius: 15,
+                                showTitle: false,
+                              ),
                             ],
                             centerSpaceRadius: 50,
                           ),
@@ -444,13 +524,26 @@ class _ServiceMixChart extends StatelessWidget {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(total.toInt().toString(), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-                            const Text("TOTAL", style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.grey)),
+                            Text(
+                              total.toInt().toString(),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const Text(
+                              "TOTAL",
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     );
-                  }
+                  },
                 );
               },
             ),
@@ -458,7 +551,7 @@ class _ServiceMixChart extends StatelessWidget {
           const SizedBox(height: 24),
           _indicator(const Color(0xFF10B981), "Treatments"),
           const SizedBox(height: 8),
-          _indicator(const Color(0xFF3B82F6), "Special Scans"),
+          _indicator(const Color(0xFF0891B2), "Special Scans"),
         ],
       ),
     );
@@ -467,9 +560,20 @@ class _ServiceMixChart extends StatelessWidget {
   Widget _indicator(Color color, String label) {
     return Row(
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 8),
-        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B))),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF64748B),
+          ),
+        ),
       ],
     );
   }

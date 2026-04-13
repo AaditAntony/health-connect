@@ -11,6 +11,7 @@ class TestAppointmentsTab extends StatelessWidget {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('appointments')
@@ -49,9 +50,13 @@ class TestAppointmentsTab extends StatelessWidget {
               if (status == 'completed') statusColor = Colors.blue;
 
               return Card(
-                elevation: 2,
+                elevation: 0,
+                color: Colors.white,
                 margin: const EdgeInsets.only(bottom: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -62,7 +67,7 @@ class TestAppointmentsTab extends StatelessWidget {
                         children: [
                           Text(
                             "Patient ID: ${data['patientId']}",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -128,7 +133,7 @@ class TestAppointmentsTab extends StatelessWidget {
                             },
                             icon: const Icon(Icons.upload_file, color: Colors.white),
                             label: const Text("Upload Test Results", style: TextStyle(color: Colors.white)),
-                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7C3AED)),
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0891B2)),
                           ),
                         )
                     ],

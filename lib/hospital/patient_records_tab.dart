@@ -20,6 +20,7 @@ class PatientRecordsTab extends StatelessWidget {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
           ),
         ),
         const SizedBox(height: 16),
@@ -99,9 +100,11 @@ class _PatientCard extends StatelessWidget {
     return SizedBox(
       width: 360,
       child: Card(
-        elevation: 2,
+        elevation: 0,
+        color: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFE2E8F0)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -115,12 +118,12 @@ class _PatientCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEDE9FE),
+                      color: const Color(0xFFCFFAFE),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.person,
-                      color: Color(0xFF7C3AED),
+                      color: Color(0xFF0891B2),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -165,10 +168,10 @@ class _PatientCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
+                  color: const Color(0xFFCFFAFE),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Colors.purple.shade100,
+                    color: const Color(0xFF0891B2).withOpacity(0.3),
                   ),
                 ),
                 child: Row(
@@ -176,7 +179,7 @@ class _PatientCard extends StatelessWidget {
                     const Icon(
                       Icons.badge,
                       size: 16,
-                      color: Color(0xFF7C3AED),
+                      color: Color(0xFF0891B2),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
@@ -185,13 +188,13 @@ class _PatientCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF7C3AED),
+                          color: Color(0xFF0891B2),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.copy, size: 16, color: Color(0xFF7C3AED)),
+                      icon: const Icon(Icons.copy, size: 16, color: Color(0xFF0891B2)),
                       onPressed: () => _copyToClipboard(context, patientId, "Patient ID"),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -295,7 +298,7 @@ class _PatientCard extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: const Color(0xFF0891B2),
                   ),
                 ),
               ),
@@ -317,7 +320,7 @@ class _PatientCard extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: const Color(0xFF0891B2),
                   ),
                 ),
               ),
@@ -339,7 +342,7 @@ class _PatientCard extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey,
+                    backgroundColor: const Color(0xFF64748B),
                   ),
                 ),
               ),

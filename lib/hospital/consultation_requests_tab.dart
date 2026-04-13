@@ -16,7 +16,7 @@ class ConsultationRequestsTab extends StatelessWidget {
           padding: EdgeInsets.all(24.0),
           child: Text(
             "Consultation Requests",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
           ),
         ),
         Expanded(
@@ -46,8 +46,13 @@ class ConsultationRequestsTab extends StatelessWidget {
                   final patient = data['patientMetadata'] ?? {};
 
                   return Card(
+                    elevation: 0,
+                    color: Colors.white,
                     margin: const EdgeInsets.only(bottom: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
@@ -75,7 +80,7 @@ class ConsultationRequestsTab extends StatelessWidget {
                           const Divider(height: 32),
                           Row(
                             children: [
-                              const Icon(Icons.person_search, color: Color(0xFF7C3AED), size: 20),
+                              const Icon(Icons.person_search, color: Color(0xFF0891B2), size: 20),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -125,7 +130,7 @@ class ConsultationRequestsTab extends StatelessWidget {
                                 ElevatedButton(
                                   onPressed: () => _approveRequest(context, req.id, hospitalId, patient),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF7C3AED),
+                                    backgroundColor: const Color(0xFF0891B2),
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

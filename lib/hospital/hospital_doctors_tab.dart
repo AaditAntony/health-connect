@@ -85,13 +85,13 @@ class HospitalDoctorsTab extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF7C3AED).withOpacity(0.1),
+            color: const Color(0xFF0891B2).withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             "$count Doctors Active",
             style: const TextStyle(
-              color: Color(0xFF7C3AED),
+              color: Color(0xFF0891B2),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -137,7 +137,7 @@ class _DoctorCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey.shade200),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -187,7 +187,7 @@ class _DoctorCard extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: const Color(0xFF0891B2),
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     minimumSize: const Size(0, 32),

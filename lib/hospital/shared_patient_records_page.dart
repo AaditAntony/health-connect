@@ -11,11 +11,11 @@ class SharedPatientRecordsPage extends StatelessWidget {
     final hospitalId = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text("Shared Patient Records"),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -119,10 +119,12 @@ class _SharedPatientCard extends StatelessWidget {
         patientSnapshot.data!.data() as Map<String, dynamic>;
 
         return Card(
-          elevation: 4,
+          elevation: 0,
+          color: Colors.white,
           margin: const EdgeInsets.only(bottom: 24),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xFFE2E8F0)),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -133,14 +135,14 @@ class _SharedPatientCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3E8FF),
+                    color: const Color(0xFFCFFAFE),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.person,
-                        color: Color(0xFF7C3AED),
+                        color: Color(0xFF0891B2),
                         size: 36,
                       ),
                       const SizedBox(width: 14),
@@ -165,7 +167,7 @@ class _SharedPatientCard extends StatelessWidget {
                             Text(
                               "Patient ID: $patientId",
                               style: const TextStyle(
-                                color: Color(0xFF7C3AED),
+                                color: Color(0xFF0891B2),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                               ),
@@ -228,7 +230,7 @@ class _SharedPatientCard extends StatelessWidget {
                             color: Colors.grey.shade50,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: Colors.grey.shade200,
+                              color: const Color(0xFFE2E8F0),
                             ),
                           ),
                           child: Column(
@@ -308,7 +310,7 @@ class _SharedPatientCard extends StatelessWidget {
         text,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
-          color: Color(0xFF7C3AED),
+          color: Color(0xFF0891B2),
         ),
       ),
     );

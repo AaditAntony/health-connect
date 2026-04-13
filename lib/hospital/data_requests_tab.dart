@@ -92,6 +92,7 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
             ),
           ),
           const SizedBox(height: 6),
@@ -104,9 +105,11 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
 
           // ================= FORM CARD =================
           Card(
-            elevation: 3,
+            elevation: 0,
+            color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -120,7 +123,7 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                       hintText: "Enter Patient ID from bill",
                       prefixIcon: const Icon(
                         Icons.badge,
-                        color: Color(0xFF7C3AED),
+                        color: Color(0xFF0891B2),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -157,7 +160,7 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                           labelText: "Select Target Hospital",
                           prefixIcon: const Icon(
                             Icons.local_hospital,
-                            color: Color(0xFF7C3AED),
+                            color: Color(0xFF0891B2),
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -197,7 +200,7 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                        const Color(0xFF7C3AED),
+                        const Color(0xFF0891B2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -214,8 +217,8 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
           // ================= OTP DISPLAY =================
           if (generatedOtp != null)
             Card(
-              elevation: 3,
-              color: const Color(0xFFF3E8FF),
+              elevation: 0,
+              color: const Color(0xFFCFFAFE),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -226,7 +229,7 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                   children: [
                     Row(
                       children: const [
-                        Icon(Icons.check_circle, color: Color(0xFF7C3AED), size: 18),
+                        Icon(Icons.check_circle, color: Color(0xFF0891B2), size: 18),
                         SizedBox(width: 8),
                         Text(
                           "Generated OTP",
@@ -245,7 +248,7 @@ class _DataRequestsTabState extends State<DataRequestsTab> {
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 3,
-                          color: Color(0xFF7C3AED),
+                          color: Color(0xFF0891B2),
                         ),
                       ),
                     ),

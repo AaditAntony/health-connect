@@ -51,20 +51,22 @@ class _AddPatientPageState extends State<AddPatientPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text("Add Patient"),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
       ),
       body: Center(
         child: SizedBox(
           width: 520,
           child: Card(
-            elevation: 2,
+            elevation: 0,
+            color: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -73,7 +75,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                 children: [
                   const Text(
                     "Patient Information",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                   ),
                   const SizedBox(height: 20),
 
@@ -145,7 +147,7 @@ class _AddPatientPageState extends State<AddPatientPage> {
                     child: ElevatedButton(
                       onPressed: submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF7C3AED),
+                        backgroundColor: const Color(0xFF0891B2),
                       ),
                       child: Text(
                         "Save Patient",

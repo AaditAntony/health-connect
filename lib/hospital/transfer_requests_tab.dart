@@ -18,6 +18,7 @@ class TransferRequestsTab extends StatelessWidget {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
+            color: Color(0xFF0F172A),
           ),
         ),
         const SizedBox(height: 6),
@@ -128,10 +129,12 @@ class _RequestCard extends StatelessWidget {
     final sealBase64 = data['sealSignBase64'];
 
     return Card(
-      elevation: 3,
+      elevation: 0,
+      color: Colors.white,
       margin: const EdgeInsets.only(bottom: 20),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -150,6 +153,7 @@ class _RequestCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
                       ),
                     ),
                     Text(
@@ -226,7 +230,7 @@ class _RequestCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF7C3AED),
+                          color: Color(0xFF0891B2),
                         ),
                       ),
                     ],
@@ -257,7 +261,7 @@ class _RequestCard extends StatelessWidget {
                     style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: const Color(0xFF0891B2),
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

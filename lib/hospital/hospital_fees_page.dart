@@ -70,7 +70,7 @@ class _HospitalFeesPageState extends State<HospitalFeesPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -80,7 +80,7 @@ class _HospitalFeesPageState extends State<HospitalFeesPage> {
             children: [
               const Text(
                 "Manage Service Fees",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -112,7 +112,7 @@ class _HospitalFeesPageState extends State<HospitalFeesPage> {
                 child: ElevatedButton(
                   onPressed: isSaving ? null : _saveFees,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: const Color(0xFF0891B2),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: isSaving
@@ -137,8 +137,12 @@ class _HospitalFeesPageState extends State<HospitalFeesPage> {
     required IconData icon,
   }) {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -149,17 +153,17 @@ class _HospitalFeesPageState extends State<HospitalFeesPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF7C3AED).withOpacity(0.1),
+                    color: const Color(0xFF0891B2).withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: const Color(0xFF7C3AED)),
+                  child: Icon(icon, color: const Color(0xFF0891B2)),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
                       Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 13)),
                     ],
                   ),
