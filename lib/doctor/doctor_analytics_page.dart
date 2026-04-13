@@ -7,93 +7,91 @@ class DoctorAnalyticsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return const Scaffold(body: Center(child: Text("Not Logged In")));
+    if (user == null) return const Center(child: Text("Not Logged In"));
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        title: const Text("Performance Analytics"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Overview Statistics",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            
-            // Stats Row
-            Row(
-              children: [
-                _buildStatCard("Total\nPatients", "128", Icons.people, Colors.blue),
-                const SizedBox(width: 16),
-                _buildStatCard("Monthly\nAppointments", "42", Icons.calendar_month, Colors.purple),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                _buildStatCard("Average\nRating", "4.8", Icons.star, Colors.orange),
-                const SizedBox(width: 16),
-                _buildStatCard("Completed\nTreatments", "96", Icons.check_circle, Colors.green),
-              ],
-            ),
-            
-            const SizedBox(height: 40),
-            const Text(
-              "Activity Breakdown",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            
-            // Mock Chart or List
-            _buildActivityItem("Consultations", 0.75, Colors.blue),
-            _buildActivityItem("Surgeries", 0.15, Colors.red),
-            _buildActivityItem("Follow-ups", 0.40, Colors.green),
-            _buildActivityItem("Emergency Cases", 0.10, Colors.orange),
-            
-            const SizedBox(height: 40),
-            
-            // Tips Area
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF7C3AED).withOpacity(0.05),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF7C3AED).withOpacity(0.1)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.lightbulb, color: Color(0xFF7C3AED)),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "Efficiency Tip",
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF7C3AED)),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "Your peak activity is between 10 AM and 2 PM. Consider scheduling breaks after 3 PM.",
-                          style: TextStyle(color: Colors.black87, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Performance Analytics",
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
         ),
-      ),
+        const SizedBox(height: 8),
+        const Text(
+          "Overview format of your monthly performance.",
+          style: TextStyle(color: Colors.grey),
+        ),
+        const SizedBox(height: 24),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _buildStatCard("Total\nPatients", "128", Icons.people, const Color(0xFF0D9488)),
+                    const SizedBox(width: 16),
+                    _buildStatCard("Monthly\nAppointments", "42", Icons.calendar_month, Colors.purple),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _buildStatCard("Average\nRating", "4.8", Icons.star, Colors.orange),
+                    const SizedBox(width: 16),
+                    _buildStatCard("Completed\nTreatments", "96", Icons.check_circle, Colors.green),
+                  ],
+                ),
+                
+                const SizedBox(height: 40),
+                const Text(
+                  "Activity Breakdown",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                ),
+                const SizedBox(height: 24),
+                
+                _buildActivityItem("Consultations", 0.75, const Color(0xFF0D9488)),
+                _buildActivityItem("Surgeries", 0.15, Colors.red),
+                _buildActivityItem("Follow-ups", 0.40, Colors.green),
+                _buildActivityItem("Emergency Cases", 0.10, Colors.orange),
+                
+                const SizedBox(height: 40),
+                
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0D9488).withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF0D9488).withOpacity(0.1)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lightbulb, color: Color(0xFF0D9488)),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              "Efficiency Tip",
+                              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0D9488)),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "Your peak activity is between 10 AM and 2 PM. Consider scheduling breaks after 3 PM.",
+                              style: TextStyle(color: Colors.black87, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -103,14 +101,8 @@ class DoctorAnalyticsPage extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +118,7 @@ class DoctorAnalyticsPage extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               value,
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
             ),
             const SizedBox(height: 4),
             Text(
@@ -148,7 +140,7 @@ class DoctorAnalyticsPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+              Text(label, style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF0F172A))),
               Text("${(percentage * 100).toInt()}%", style: const TextStyle(color: Colors.grey)),
             ],
           ),

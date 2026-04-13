@@ -142,7 +142,7 @@ class _AddTreatmentPageState extends State<AddTreatmentPage> {
               ElevatedButton(
                 onPressed: isSubmitting ? null : _submitTreatment,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED),
+                  backgroundColor: const Color(0xFF0D9488),
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

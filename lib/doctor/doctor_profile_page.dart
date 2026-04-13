@@ -170,7 +170,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               ElevatedButton(
                 onPressed: isSubmitting ? null : _submitProfile,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED),
+                  backgroundColor: const Color(0xFF0D9488),
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -194,7 +194,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        prefixIcon: Icon(icon, color: const Color(0xFF7C3AED)),
+        prefixIcon: Icon(icon, color: const Color(0xFF0D9488)),
       ),
       validator: (v) => v!.isEmpty ? "Required" : null,
     );
@@ -208,7 +208,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        prefixIcon: const Icon(Icons.medical_services, color: Color(0xFF7C3AED)),
+        prefixIcon: const Icon(Icons.medical_services, color: Color(0xFF0D9488)),
       ),
       items: departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
       onChanged: (v) => setState(() => selectedDepartment = v!),
@@ -231,7 +231,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            prefixIcon: const Icon(Icons.business, color: Color(0xFF7C3AED)),
+            prefixIcon: const Icon(Icons.business, color: Color(0xFF0D9488)),
           ),
           items: hospitals.map((h) {
             final data = h.data() as Map<String, dynamic>;

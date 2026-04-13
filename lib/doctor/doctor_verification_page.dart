@@ -30,7 +30,7 @@ class DoctorVerificationPage extends StatelessWidget {
                 child: const Icon(
                   Icons.pending_actions_rounded,
                   size: 80,
-                  color: Color(0xFF7C3AED),
+                  color: Color(0xFF0D9488),
                 ),
               ),
               const SizedBox(height: 40),

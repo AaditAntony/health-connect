@@ -99,14 +99,14 @@ class _DoctorProfileTabState extends State<DoctorProfileTab> {
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+          colors: [Color(0xFF0D9488), Color(0xFF0F766E)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF7C3AED).withOpacity(0.3),
+            color: const Color(0xFF0D9488).withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           )
@@ -223,7 +223,7 @@ class _DoctorProfileTabState extends State<DoctorProfileTab> {
                 child: ElevatedButton(
                   onPressed: _updateProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: const Color(0xFF0D9488),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   child: const Text("Save Changes", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -247,12 +247,12 @@ class _DoctorProfileTabState extends State<DoctorProfileTab> {
           enabled: _isEditing,
           keyboardType: isNum ? TextInputType.number : TextInputType.text,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, size: 18, color: const Color(0xFF7C3AED)),
+            prefixIcon: Icon(icon, size: 18, color: const Color(0xFF0D9488)),
             filled: true,
             fillColor: _isEditing ? Colors.white : const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: _isEditing ? const BorderSide(color: Color(0xFF7C3AED), width: 2) : BorderSide.none,
+              borderSide: _isEditing ? const BorderSide(color: Color(0xFF0D9488), width: 2) : BorderSide.none,
             ),
           ),
           validator: (v) => v!.isEmpty ? "Required" : null,
@@ -272,12 +272,12 @@ class _DoctorProfileTabState extends State<DoctorProfileTab> {
           onChanged: _isEditing ? (v) => setState(() => _department = v) : null,
           items: _departments.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.medical_services_outlined, size: 18, color: Color(0xFF7C3AED)),
+            prefixIcon: const Icon(Icons.medical_services_outlined, size: 18, color: Color(0xFF0D9488)),
             filled: true,
             fillColor: _isEditing ? Colors.white : const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: _isEditing ? const BorderSide(color: Color(0xFF7C3AED), width: 2) : BorderSide.none,
+              borderSide: _isEditing ? const BorderSide(color: Color(0xFF0D9488), width: 2) : BorderSide.none,
             ),
           ),
         ),

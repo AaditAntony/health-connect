@@ -108,7 +108,7 @@ class _DoctorAuthPageState extends State<DoctorAuthPage> {
                           child: const Icon(
                             Icons.medical_information,
                             size: 36,
-                            color: Color(0xFF7C3AED),
+                            color: Color(0xFF0D9488),
                           ),
                         ),
                       ),
@@ -174,7 +174,7 @@ class _DoctorAuthPageState extends State<DoctorAuthPage> {
                         child: ElevatedButton(
                           onPressed: loading ? null : submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7C3AED),
+                            backgroundColor: const Color(0xFF0D9488),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -203,7 +203,7 @@ class _DoctorAuthPageState extends State<DoctorAuthPage> {
                           isLogin
                               ? "New to the platform? Apply here"
                               : "Already have an account? Login",
-                          style: const TextStyle(color: Color(0xFF7C3AED)),
+                          style: const TextStyle(color: Color(0xFF0D9488)),
                         ),
                       ),
                       
