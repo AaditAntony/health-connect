@@ -38,9 +38,10 @@ class DoctorAnalyticsTab extends StatelessWidget {
                 final metrics = metricSnapshot.data ?? {'revenue': 0.0, 'clinicalCount': 0};
                 
                 return Card(
-                  elevation: 2,
+                  elevation: 0,
+                  color: Colors.white,
                   margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFFE2E8F0))),
                   child: InkWell(
                     onTap: () {
                       Navigator.push(
@@ -54,24 +55,24 @@ class DoctorAnalyticsTab extends StatelessWidget {
                         ),
                       );
                     },
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       leading: CircleAvatar(
-                        backgroundColor: Colors.blue.shade50,
-                        child: const Icon(Icons.person, color: Colors.blue),
+                        backgroundColor: const Color(0xFFEEF2FF),
+                        child: const Icon(Icons.person, color: Color(0xFF4F46E5)),
                       ),
-                      title: Text(doctorName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text("$department | ${metrics['clinicalCount']} Records"),
+                      title: Text(doctorName, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                      subtitle: Text("$department | ${metrics['clinicalCount']} Records", style: const TextStyle(color: Color(0xFF64748B))),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
                             "\u20B9${metrics['revenue']}",
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF059669)),
                           ),
-                          const Text("Revenue", style: TextStyle(fontSize: 10, color: Colors.grey)),
+                          const Text("Revenue", style: TextStyle(fontSize: 10, color: Color(0xFF64748B))),
                         ],
                       ),
                     ),

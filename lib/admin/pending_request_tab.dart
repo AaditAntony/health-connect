@@ -13,9 +13,9 @@ class PendingRequestsTab extends StatelessWidget {
       child: Column(
         children: [
           const TabBar(
-            labelColor: Color(0xFF7C3AED),
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Color(0xFF7C3AED),
+            labelColor: Color(0xFF4F46E5),
+            unselectedLabelColor: Color(0xFF64748B),
+            indicatorColor: Color(0xFF4F46E5),
             tabs: [
               Tab(text: "Hospitals"),
               Tab(text: "Doctors"),
@@ -77,10 +77,13 @@ class PendingRequestsTab extends StatelessWidget {
             final id = filteredDocs[index].id;
 
             return Card(
-              elevation: 4,
-              shadowColor: Colors.black12,
+              elevation: 0,
+              color: Colors.white,
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 onTap: () {
@@ -98,19 +101,19 @@ class PendingRequestsTab extends StatelessWidget {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEDE9FE),
+                    color: const Color(0xFFEEF2FF),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     role == 'hospital' ? Icons.local_hospital : Icons.person,
-                    color: const Color(0xFF7C3AED),
+                    color: const Color(0xFF4F46E5),
                   ),
                 ),
                 title: Text(
                   role == 'hospital'
                       ? (data['hospitalName'] ?? "Unnamed Hospital")
                       : (data['doctorName'] ?? data['email'] ?? "Unknown Doctor"),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +125,7 @@ class PendingRequestsTab extends StatelessWidget {
                     const SizedBox(height: 4),
                     const Text(
                       "Click to view details and verify",
-                      style: TextStyle(color: Color(0xFF7C3AED), fontSize: 12, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: Color(0xFF4F46E5), fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),

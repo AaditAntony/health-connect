@@ -24,7 +24,7 @@ class _HospitalDeepAnalyticsPageState extends State<HospitalDeepAnalyticsPage> {
       appBar: AppBar(
         title: Text(widget.hospitalName, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
       ),
       body: FutureBuilder<Map<String, dynamic>>(

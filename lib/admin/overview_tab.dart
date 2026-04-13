@@ -17,6 +17,7 @@ class OverviewTab extends StatelessWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
             ),
           ),
           const SizedBox(height: 20),
@@ -38,7 +39,7 @@ class OverviewTab extends StatelessWidget {
           // ================= ANALYTICS GRAPHS =================
           const Text(
             "System Performance Analytics",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
           ),
           const SizedBox(height: 16),
           _RevenueTrendChart(),
@@ -63,26 +64,27 @@ class OverviewTab extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
                     ),
                   ),
                   SizedBox(height: 16),
 
                   _ActivityItem(
-                    color: Colors.green,
+                    color: Color(0xFF059669),
                     title: "New hospital registration request",
                     subtitle: "2 hours ago",
                   ),
-                  Divider(),
+                  Divider(color: Color(0xFFE2E8F0)),
 
                   _ActivityItem(
-                    color: Colors.blue,
+                    color: Color(0xFF2563EB),
                     title: "Hospital approved",
                     subtitle: "5 hours ago",
                   ),
-                  Divider(),
+                  Divider(color: Color(0xFFE2E8F0)),
 
                   _ActivityItem(
-                    color: Colors.purple,
+                    color: Color(0xFF4F46E5),
                     title: "Patient record updated",
                     subtitle: "1 day ago",
                   ),
@@ -106,7 +108,7 @@ class _TotalHospitalsCard extends StatelessWidget {
     return _StatCard(
       title: "Total Hospitals",
       icon: Icons.local_hospital,
-      color: Colors.blue,
+      color: const Color(0xFF2563EB),
       stream: FirebaseFirestore.instance
           .collection('accounts')
           .where('role', isEqualTo: 'hospital')
@@ -123,7 +125,7 @@ class _ApprovedHospitalsCard extends StatelessWidget {
     return _StatCard(
       title: "Approved Hospitals",
       icon: Icons.verified,
-      color: Colors.green,
+      color: const Color(0xFF059669),
       stream: FirebaseFirestore.instance
           .collection('accounts')
           .where('role', isEqualTo: 'hospital')
@@ -141,7 +143,7 @@ class _PendingApprovalsCard extends StatelessWidget {
     return _StatCard(
       title: "Pending Approvals",
       icon: Icons.pending_actions,
-      color: Colors.orange,
+      color: const Color(0xFFD97706),
       stream: FirebaseFirestore.instance
           .collection('accounts')
           .where('role', isEqualTo: 'hospital')
@@ -160,7 +162,7 @@ class _TotalPatientsCard extends StatelessWidget {
     return _StatCard(
       title: "Total Patients",
       icon: Icons.people,
-      color: Colors.purple,
+      color: const Color(0xFF4F46E5),
       stream: FirebaseFirestore.instance.collection('patients').snapshots(),
     );
   }
@@ -186,9 +188,11 @@ class _StatCard extends StatelessWidget {
     return SizedBox(
       width: 260,
       child: Card(
-        elevation: 2,
+        elevation: 0,
+        color: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFE2E8F0)),
         ),
         child: StreamBuilder<QuerySnapshot>(
           stream: stream,
@@ -220,13 +224,14 @@ class _StatCard extends StatelessWidget {
                       Text(
                         count.toString(),
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: Color(0xFF0F172A),
                         ),
                       ),
                       Text(
                         title,
-                        style: const TextStyle(color: Colors.grey),
+                        style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -329,13 +334,13 @@ class _RevenueTrendChart extends StatelessWidget {
                         LineChartBarData(
                           spots: snapshot.data!,
                           isCurved: true,
-                          color: const Color(0xFF7C3AED),
+                          color: const Color(0xFF4F46E5),
                           barWidth: 4,
                           isStrokeCapRound: true,
                           dotData: FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: const Color(0xFF7C3AED).withOpacity(0.1),
+                            color: const Color(0xFF4F46E5).withOpacity(0.1),
                           ),
                         ),
                       ],
@@ -416,9 +421,9 @@ class _SystemDistributionPie extends StatelessWidget {
                     children: [
                       const Text("User Distribution", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 8),
-                      _legendItem(Colors.blue, "Hospitals"),
-                      _legendItem(Colors.green, "Doctors"),
-                      _legendItem(Colors.purple, "Patients"),
+                      _legendItem(const Color(0xFF2563EB), "Hospitals"),
+                      _legendItem(const Color(0xFF059669), "Doctors"),
+                      _legendItem(const Color(0xFF4F46E5), "Patients"),
                     ],
                   ),
                 ),
@@ -446,7 +451,7 @@ class _SystemDistributionPie extends StatelessWidget {
       children: [
         Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 8),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
       ],
     );
   }
@@ -460,9 +465,9 @@ class _SystemDistributionPie extends StatelessWidget {
     if (total == 0) return [];
 
     return [
-      PieChartSectionData(color: Colors.blue, value: hospCount.toDouble(), radius: 50, showTitle: false),
-      PieChartSectionData(color: Colors.green, value: docCount.toDouble(), radius: 50, showTitle: false),
-      PieChartSectionData(color: Colors.purple, value: patCount.toDouble(), radius: 50, showTitle: false),
+      PieChartSectionData(color: const Color(0xFF2563EB), value: hospCount.toDouble(), radius: 50, showTitle: false),
+      PieChartSectionData(color: const Color(0xFF059669), value: docCount.toDouble(), radius: 50, showTitle: false),
+      PieChartSectionData(color: const Color(0xFF4F46E5), value: patCount.toDouble(), radius: 50, showTitle: false),
     ];
   }
 }

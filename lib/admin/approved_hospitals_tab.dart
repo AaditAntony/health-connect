@@ -12,9 +12,9 @@ class ApprovedHospitalsTab extends StatelessWidget {
       child: Column(
         children: [
           const TabBar(
-            labelColor: Color(0xFF7C3AED),
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Color(0xFF7C3AED),
+            labelColor: Color(0xFF4F46E5),
+            unselectedLabelColor: Color(0xFF64748B),
+            indicatorColor: Color(0xFF4F46E5),
             tabs: [
               Tab(text: "Hospitals"),
               Tab(text: "Doctors"),
@@ -68,24 +68,27 @@ class ApprovedHospitalsTab extends StatelessWidget {
             final id = docs[index].id;
 
             return Card(
-              elevation: 2,
+              elevation: 0,
+              color: Colors.white,
               margin: const EdgeInsets.symmetric(vertical: 8),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              ),
               child: ListTile(
                 contentPadding: const EdgeInsets.all(16),
                 leading: CircleAvatar(
-                  backgroundColor: const Color(0xFFEDE9FE),
+                  backgroundColor: const Color(0xFFEEF2FF),
                   child: Icon(
                     role == 'hospital' ? Icons.local_hospital : Icons.person,
-                    color: const Color(0xFF7C3AED),
+                    color: const Color(0xFF4F46E5),
                   ),
                 ),
                 title: Text(
                   role == 'hospital'
                       ? (data['hospitalName'] ?? "Unnamed Hospital")
                       : (data['name'] ?? data['email'] ?? "Unknown Doctor"),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                 ),
                 subtitle: Text(role == 'hospital'
                     ? "District: ${data['district'] ?? '-'}"
@@ -118,13 +121,13 @@ class _ApprovedBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.15),
+        color: const Color(0xFF059669).withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Text(
         "Approved",
         style: TextStyle(
-          color: Colors.green,
+          color: Color(0xFF059669),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
