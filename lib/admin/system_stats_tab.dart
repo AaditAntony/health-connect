@@ -14,7 +14,7 @@ class SystemStatsTab extends StatelessWidget {
         children: [
           const Text(
             "System Performance",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
           ),
           const SizedBox(height: 24),
           
@@ -32,7 +32,7 @@ class SystemStatsTab extends StatelessWidget {
                   _SummaryBox(
                     title: "Total System Revenue",
                     value: "\u20B9${stats['totalRevenue']}",
-                    color: Colors.green,
+                    color: const Color(0xFF059669),
                     icon: Icons.account_balance_wallet,
                   ),
                   const SizedBox(height: 24),
@@ -44,7 +44,7 @@ class SystemStatsTab extends StatelessWidget {
                         child: _StatMiniCard(
                           title: "Total Scans",
                           value: stats['scanCount'].toString(),
-                          color: Colors.blue,
+                          color: const Color(0xFF2563EB),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -52,7 +52,7 @@ class SystemStatsTab extends StatelessWidget {
                         child: _StatMiniCard(
                           title: "Treatments",
                           value: stats['treatmentCount'].toString(),
-                          color: Colors.orange,
+                          color: const Color(0xFFD97706),
                         ),
                       ),
                     ],
@@ -69,7 +69,7 @@ class SystemStatsTab extends StatelessWidget {
                   // --- SCAN TYPES BREAKDOWN ---
                   const Text(
                     "Service Utilization (Scan Popularity)",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                   ),
                   const SizedBox(height: 16),
                   _UtilizationBarChart(scanTypes: stats['scanTypes'] ?? {}),
@@ -128,8 +128,9 @@ class _UtilizationBarChart extends StatelessWidget {
     final displayKeys = sortedKeys.take(5).toList();
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFFE2E8F0))),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: SizedBox(
@@ -167,7 +168,7 @@ class _UtilizationBarChart extends StatelessWidget {
                   barRods: [
                     BarChartRodData(
                       toY: scanTypes[displayKeys[i]]!.toDouble(),
-                      color: const Color(0xFF7C3AED),
+                      color: const Color(0xFF4F46E5),
                       width: 16,
                       borderRadius: BorderRadius.circular(4),
                     ),
@@ -193,13 +194,14 @@ class _RevenueSplitPie extends StatelessWidget {
     if (total == 0) return const SizedBox();
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFFE2E8F0))),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const Text("Revenue Composition", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("Revenue Composition", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
             const SizedBox(height: 24),
             Row(
               children: [
@@ -207,9 +209,9 @@ class _RevenueSplitPie extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _legendRow(Colors.blue, "Scans", "\u20B9${scanRevenue.toStringAsFixed(0)}"),
+                      _legendRow(const Color(0xFF2563EB), "Scans", "\u20B9${scanRevenue.toStringAsFixed(0)}"),
                       const SizedBox(height: 12),
-                      _legendRow(Colors.orange, "Treatments", "\u20B9${treatRevenue.toStringAsFixed(0)}"),
+                      _legendRow(const Color(0xFFD97706), "Treatments", "\u20B9${treatRevenue.toStringAsFixed(0)}"),
                     ],
                   ),
                 ),
@@ -219,8 +221,8 @@ class _RevenueSplitPie extends StatelessWidget {
                   child: PieChart(
                     PieChartData(
                       sections: [
-                        PieChartSectionData(color: Colors.blue, value: scanRevenue, radius: 40, showTitle: false),
-                        PieChartSectionData(color: Colors.orange, value: treatRevenue, radius: 40, showTitle: false),
+                        PieChartSectionData(color: const Color(0xFF2563EB), value: scanRevenue, radius: 40, showTitle: false),
+                        PieChartSectionData(color: const Color(0xFFD97706), value: treatRevenue, radius: 40, showTitle: false),
                       ],
                       centerSpaceRadius: 30,
                     ),
@@ -247,7 +249,7 @@ class _RevenueSplitPie extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20),
-          child: Text(value, style: const TextStyle(color: Colors.grey)),
+          child: Text(value, style: const TextStyle(color: Color(0xFF64748B))),
         ),
       ],
     );
@@ -305,13 +307,13 @@ class _StatMiniCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.1)),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           Text(value, style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.bold)),
         ],

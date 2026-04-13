@@ -53,7 +53,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: _buildAppBar(),
       drawer: _buildDrawer(),
       body: _pages[_selectedIndex],
@@ -67,22 +67,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
       titleSpacing: 0,
       title: Row(
         children: const [
-          Icon(Icons.shield_outlined, color: Color(0xFF7C3AED)),
+          Icon(Icons.shield_outlined, color: Color(0xFF4F46E5)),
           SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Admin Dashboard",
+                "Command Center",
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Color(0xFF0F172A),
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
               ),
               Text(
                 "System Admin",
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
               ),
             ],
           ),
@@ -91,49 +91,99 @@ class _AdminDashboardState extends State<AdminDashboard> {
       actions: [
         IconButton(
           tooltip: "Logout",
-          icon: const Icon(Icons.logout, color: Colors.black),
+          icon: const Icon(Icons.logout, color: Color(0xFF0F172A)),
           onPressed: logout,
         ),
         const SizedBox(width: 8),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(1.0),
+        child: Container(
+          color: const Color(0xFFE2E8F0),
+          height: 1.0,
+        ),
+      ),
     );
   }
 
   Widget _buildDrawer() {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      backgroundColor: Colors.white,
+      child: Column(
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Color(0xFF7C3AED),
+          Container(
+            padding: const EdgeInsets.only(top: 60, bottom: 20, left: 16, right: 16),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1E1B4B),
+              border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Row(
               children: [
-                Icon(Icons.admin_panel_settings, color: Colors.white, size: 40),
-                SizedBox(height: 10),
-                Text(
-                  "Admin Panel",
-                  style: TextStyle(
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    borderRadius: BorderRadius.circular(12),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/admin_logo.png'),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Command Center",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "Health Connect Admin",
+                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          _buildDrawerItem(0, Icons.dashboard, "Overview"),
-          _buildDrawerItem(1, Icons.pending_actions, "Pending Requests"),
-          _buildDrawerItem(2, Icons.verified_user, "Approved Entities"),
-          const Divider(),
-          _buildDrawerItem(3, Icons.analytics, "Hospital Analytics"),
-          _buildDrawerItem(4, Icons.people_outline, "Doctor Analytics"),
-          _buildDrawerItem(5, Icons.query_stats, "System Performance"),
-          const Divider(),
-          _buildDrawerItem(6, Icons.payments, "Payments"),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                _buildDrawerItem(0, Icons.dashboard_rounded, "Overview"),
+                _buildDrawerItem(1, Icons.pending_actions_rounded, "Pending Requests"),
+                _buildDrawerItem(2, Icons.verified_user_rounded, "Approved Entities"),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Divider(color: Color(0xFFE2E8F0)),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(left: 16, bottom: 8),
+                  child: Text("ANALYTICS", style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                ),
+                _buildDrawerItem(3, Icons.analytics_rounded, "Hospital Analytics"),
+                _buildDrawerItem(4, Icons.people_outline_rounded, "Doctor Analytics"),
+                _buildDrawerItem(5, Icons.query_stats_rounded, "System Performance"),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Divider(color: Color(0xFFE2E8F0)),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(left: 16, bottom: 8),
+                  child: Text("MANAGEMENT", style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                ),
+                _buildDrawerItem(6, Icons.account_balance_wallet_rounded, "Payments"),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -141,23 +191,29 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildDrawerItem(int index, IconData icon, String title) {
     bool isSelected = _selectedIndex == index;
-    return ListTile(
-      leading: Icon(icon, color: isSelected ? const Color(0xFF7C3AED) : Colors.grey),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isSelected ? const Color(0xFF7C3AED) : Colors.black87,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        leading: Icon(icon, color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF64748B)),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: isSelected ? const Color(0xFF4F46E5) : const Color(0xFF334155),
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 14,
+          ),
         ),
+        selected: isSelected,
+        selectedTileColor: const Color(0xFFEEF2FF),
+        tileColor: Colors.transparent,
+        onTap: () {
+          setState(() {
+            _selectedIndex = index;
+          });
+          Navigator.pop(context); // Close drawer
+        },
       ),
-      selected: isSelected,
-      selectedTileColor: const Color(0xFF7C3AED).withOpacity(0.1),
-      onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
-        Navigator.pop(context); // Close drawer
-      },
     );
   }
 }

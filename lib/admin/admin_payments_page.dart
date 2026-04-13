@@ -40,14 +40,14 @@ class AdminPaymentsPage extends StatelessWidget {
                   _statCard(
                     title: "Total Revenue",
                     value: "₹ ${totalRevenue.toInt()}",
-                    color: Colors.green,
+                    color: const Color(0xFF059669),
                     icon: Icons.currency_rupee,
                   ),
                   const SizedBox(width: 16),
                   _statCard(
                     title: "Transactions",
                     value: totalTransactions.toString(),
-                    color: Colors.blue,
+                    color: const Color(0xFF2563EB),
                     icon: Icons.receipt_long,
                   ),
                 ],
@@ -90,10 +90,12 @@ class AdminPaymentsPage extends StatelessWidget {
                   final data = payments[index].data() as Map<String, dynamic>;
 
                   return Card(
-                    elevation: 3,
+                    elevation: 0,
+                    color: Colors.white,
                     margin: const EdgeInsets.only(bottom: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -104,12 +106,12 @@ class AdminPaymentsPage extends StatelessWidget {
                             width: 45,
                             height: 45,
                             decoration: const BoxDecoration(
-                              color: Color(0xFFEDE9FE),
+                              color: Color(0xFFEEF2FF),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.payments,
-                              color: Color(0xFF7C3AED),
+                              color: Color(0xFF4F46E5),
                             ),
                           ),
 
@@ -125,12 +127,13 @@ class AdminPaymentsPage extends StatelessWidget {
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0F172A),
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text("Patient: ${data['patientId']}"),
-                                Text("Hospital: ${data['hospitalId']}"),
-                                Text("Plan: ${data['planId']}"),
+                                Text("Patient: ${data['patientId']}", style: const TextStyle(color: Color(0xFF64748B))),
+                                Text("Hospital: ${data['hospitalId']}", style: const TextStyle(color: Color(0xFF64748B))),
+                                Text("Plan: ${data['planId']}", style: const TextStyle(color: Color(0xFF64748B))),
                               ],
                             ),
                           ),
@@ -142,13 +145,13 @@ class AdminPaymentsPage extends StatelessWidget {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green.shade50,
+                              color: const Color(0xFF059669).withOpacity(0.15),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               data['status'],
                               style: const TextStyle(
-                                color: Colors.green,
+                                color: Color(0xFF059669),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -179,7 +182,7 @@ class AdminPaymentsPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +198,7 @@ class AdminPaymentsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(title, style: const TextStyle(color: Colors.grey)),
+            Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

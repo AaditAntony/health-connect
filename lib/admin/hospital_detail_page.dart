@@ -11,11 +11,11 @@ class HospitalDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text("Verification Hub"),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
         centerTitle: true,
       ),
@@ -61,9 +61,7 @@ class HospitalDetailPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +95,7 @@ class HospitalDetailPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 16, color: Color(0xFF7C3AED)),
+                    const Icon(Icons.location_on, size: 16, color: Color(0xFF4F46E5)),
                     const SizedBox(width: 4),
                     Text(data['district'] ?? "No District", style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
                   ],
@@ -108,12 +106,12 @@ class HospitalDetailPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEDE9FE),
+                    color: const Color(0xFFEEF2FF),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     "ESTD: ${data['establishedYear'] ?? 'N/A'}",
-                    style: const TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold, fontSize: 12),
+                    style: const TextStyle(color: Color(0xFF4F46E5), fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 ),
               ],
@@ -128,7 +126,7 @@ class HospitalDetailPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Legal Documentation", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text("Legal Documentation", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
         const SizedBox(height: 16),
         _buildDocCard(context, "Registration Certificate", data['certificateBase64']),
         const SizedBox(height: 16),
@@ -152,7 +150,7 @@ class HospitalDetailPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
               if (b64 != null)
                 const Icon(Icons.verified_user, color: Colors.green, size: 20),
             ],
@@ -226,13 +224,13 @@ class HospitalDetailPage extends StatelessWidget {
       children: [
         Expanded(
           child: ElevatedButton(
-            onPressed: () => _confirmAction(context, "Reject", "Are you sure you want to reject and delete this hospital application?", Colors.red, () async {
+            onPressed: () => _confirmAction(context, "Reject", "Are you sure you want to reject and delete this hospital application?", const Color(0xFFE11D48), () async {
                await FirebaseFirestore.instance.collection('accounts').doc(hospitalId).delete();
             }),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
+              foregroundColor: const Color(0xFFE11D48),
+              side: const BorderSide(color: Color(0xFFE11D48)),
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
@@ -243,16 +241,16 @@ class HospitalDetailPage extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
-            onPressed: () => _confirmAction(context, "Approve", "Do you want to grant this hospital full access to the platform?", const Color(0xFF7C3AED), () async {
+            onPressed: () => _confirmAction(context, "Approve", "Do you want to grant this hospital full access to the platform?", const Color(0xFF4F46E5), () async {
                await FirebaseFirestore.instance.collection('accounts').doc(hospitalId).update({"approved": true});
             }),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7C3AED),
+              backgroundColor: const Color(0xFF4F46E5),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 4,
-              shadowColor: const Color(0xFF7C3AED).withOpacity(0.3),
+              shadowColor: const Color(0xFF4F46E5).withOpacity(0.3),
             ),
             child: const Text("Approve Hospital", style: TextStyle(fontWeight: FontWeight.bold)),
           ),

@@ -49,9 +49,10 @@ class HospitalAnalyticsTab extends StatelessWidget {
                     );
                   },
                   child: Card(
-                    elevation: 2,
+                    elevation: 0,
+                    color: Colors.white,
                     margin: const EdgeInsets.only(bottom: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFFE2E8F0))),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -59,23 +60,23 @@ class HospitalAnalyticsTab extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.business, color: Color(0xFF7C3AED)),
+                              const Icon(Icons.business, color: Color(0xFF4F46E5)),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   hospitalName,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF0F172A)),
                                 ),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
+                                  color: const Color(0xFF059669).withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
                                   "\u20B9${metrics['revenue']}",
-                                  style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(color: Color(0xFF059669), fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
@@ -104,7 +105,7 @@ class HospitalAnalyticsTab extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          const Text("Service Mix", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                          const Text("Service Mix", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B))),
                           const SizedBox(height: 8),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
@@ -112,8 +113,8 @@ class HospitalAnalyticsTab extends StatelessWidget {
                               value: metrics['treatments'] + metrics['scans'] > 0 
                                 ? metrics['treatments'] / (metrics['treatments'] + metrics['scans']) 
                                 : 0.5,
-                              backgroundColor: Colors.blue.shade100,
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
+                              backgroundColor: const Color(0xFF2563EB).withOpacity(0.2),
+                              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFD97706)),
                               minHeight: 10,
                             ),
                           ),
@@ -121,8 +122,8 @@ class HospitalAnalyticsTab extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const [
-                              Text("Imaging / Scans", style: TextStyle(fontSize: 10, color: Colors.blue)),
-                              Text("Treatments", style: TextStyle(fontSize: 10, color: Colors.orange)),
+                              Text("Imaging / Scans", style: TextStyle(fontSize: 10, color: Color(0xFF2563EB))),
+                              Text("Treatments", style: TextStyle(fontSize: 10, color: Color(0xFFD97706))),
                             ],
                           ),
                         ],
@@ -182,10 +183,10 @@ class _MetricItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, size: 20, color: Colors.grey),
+        Icon(icon, size: 20, color: const Color(0xFF64748B)),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+        Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
       ],
     );
   }

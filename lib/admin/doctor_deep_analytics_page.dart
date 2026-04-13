@@ -26,7 +26,7 @@ class _DoctorDeepAnalyticsPageState extends State<DoctorDeepAnalyticsPage> {
       appBar: AppBar(
         title: Text(widget.doctorName, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
       ),
       body: FutureBuilder<Map<String, dynamic>>(
