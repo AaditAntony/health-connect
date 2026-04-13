@@ -106,7 +106,7 @@ class _WritePrescriptionPageState extends State<WritePrescriptionPage> {
             ElevatedButton(
               onPressed: isSubmitting ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7C3AED),
+                backgroundColor: const Color(0xFF0D9488),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),

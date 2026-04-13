@@ -99,8 +99,8 @@ class _HospitalPatientsPageState extends State<HospitalPatientsPage> {
                     children: [
                       ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: const Color(0xFF7C3AED).withOpacity(0.1),
-                          child: const Icon(Icons.person, color: Color(0xFF7C3AED)),
+                          backgroundColor: const Color(0xFF0D9488).withOpacity(0.1),
+                          child: const Icon(Icons.person, color: Color(0xFF0D9488)),
                         ),
                         title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text("Patient ID: $pId"),
@@ -133,10 +133,10 @@ class _HospitalPatientsPageState extends State<HospitalPatientsPage> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.history, color: Color(0xFF7C3AED)),
+                          icon: const Icon(Icons.history, color: Color(0xFF0D9488)),
                           label: const Text(
                             "View Full Medical History",
-                            style: TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Color(0xFF0D9488), fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

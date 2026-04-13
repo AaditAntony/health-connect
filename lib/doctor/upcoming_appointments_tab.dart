@@ -52,10 +52,11 @@ class UpcomingAppointmentsTab extends StatelessWidget {
             final hospitalPatientId = data['hospitalPatientId'];
 
             return Card(
-              elevation: 2,
+              elevation: 0,
               margin: const EdgeInsets.only(bottom: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -80,7 +81,7 @@ class UpcomingAppointmentsTab extends StatelessWidget {
                               Text(
                                 "Hospital ID: $hospitalPatientId",
                                 style: TextStyle(
-                                  color: const Color(0xFF7C3AED),
+                                  color: const Color(0xFF0D9488),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
                                 ),
@@ -148,7 +149,7 @@ class UpcomingAppointmentsTab extends StatelessWidget {
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7C3AED),
+                          backgroundColor: const Color(0xFF0D9488),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),

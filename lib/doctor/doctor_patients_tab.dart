@@ -102,17 +102,18 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
                 final phone = patientInfo?['phone'] ?? "N/A";
 
                 return Card(
-                  elevation: 2,
+                  elevation: 0,
                   margin: const EdgeInsets.only(bottom: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   child: ExpansionTile(
                     tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     leading: CircleAvatar(
-                      backgroundColor: const Color(0xFF7C3AED).withOpacity(0.1),
+                      backgroundColor: const Color(0xFF0D9488).withOpacity(0.1),
                       radius: 24,
-                      child: const Icon(Icons.person, color: Color(0xFF7C3AED), size: 28),
+                      child: const Icon(Icons.person, color: Color(0xFF0D9488), size: 28),
                     ),
                     title: Text(
                       name,
@@ -164,8 +165,8 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
                                 label: const Text("Treatment"),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF7C3AED),
-                                  side: const BorderSide(color: Color(0xFF7C3AED)),
+                                  foregroundColor: const Color(0xFF0D9488),
+                                  side: const BorderSide(color: Color(0xFF0D9488)),
                                   elevation: 0,
                                 ),
                               ),
@@ -185,8 +186,8 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
                                 label: const Text("Add Scan"),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  foregroundColor: const Color(0xFF7C3AED),
-                                  side: const BorderSide(color: Color(0xFF7C3AED)),
+                                  foregroundColor: const Color(0xFF0D9488),
+                                  side: const BorderSide(color: Color(0xFF0D9488)),
                                   elevation: 0,
                                 ),
                               ),
@@ -210,7 +211,7 @@ class _DoctorPatientsTabState extends State<DoctorPatientsTab> {
                             icon: const Icon(Icons.history, size: 18),
                             label: const Text("View Full Medical History"),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7C3AED),
+                              backgroundColor: const Color(0xFF0D9488),
                               foregroundColor: Colors.white,
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(vertical: 12),

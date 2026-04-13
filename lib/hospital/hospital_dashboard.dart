@@ -28,7 +28,10 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
     if (!mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HospitalLoginPage()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HospitalLoginPage()),
+    );
   }
 
   final List<Widget> _pages = [
@@ -50,7 +53,7 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
   @override
   Widget build(BuildContext context) {
     final hospitalId = FirebaseAuth.instance.currentUser?.uid ?? "";
-    
+
     // Dynamically update the pages that need hospitalId
     final List<Widget> displayPages = [
       const HospitalOverviewTab(),
@@ -171,7 +174,11 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
               children: [
                 _buildSidebarItem(0, Icons.dashboard, "Overview"),
                 _buildSidebarItem(1, Icons.medical_services, "Doctors List"),
-                _buildSidebarItem(2, Icons.assignment_turned_in, "Consultation Requests"),
+                _buildSidebarItem(
+                  2,
+                  Icons.assignment_turned_in,
+                  "Consultation Requests",
+                ),
                 _buildSidebarItem(3, Icons.how_to_reg, "Registration Requests"),
                 _buildSidebarItem(4, Icons.person_add, "Add Patient"),
                 _buildSidebarItem(5, Icons.folder_shared, "Patient Records"),
@@ -181,7 +188,11 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
                 _buildSidebarItem(9, Icons.move_to_inbox, "Incoming Transfers"),
                 _buildSidebarItem(10, Icons.lightbulb, "Smart Care Plan"),
                 _buildSidebarItem(11, Icons.payments, "Manage Fees"),
-                _buildSidebarItem(12, Icons.settings_applications, "Hospital Profile"),
+                _buildSidebarItem(
+                  12,
+                  Icons.settings_applications,
+                  "Hospital Profile",
+                ),
               ],
             ),
           ),
@@ -200,15 +211,25 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0891B2).withOpacity(0.15) : Colors.transparent,
+          color: isSelected
+              ? const Color(0xFF0891B2).withOpacity(0.15)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF0891B2).withOpacity(0.5) : Colors.transparent,
+            color: isSelected
+                ? const Color(0xFF0891B2).withOpacity(0.5)
+                : Colors.transparent,
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, color: isSelected ? const Color(0xFF0891B2) : const Color(0xFF94A3B8), size: 22),
+            Icon(
+              icon,
+              color: isSelected
+                  ? const Color(0xFF0891B2)
+                  : const Color(0xFF94A3B8),
+              size: 22,
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
