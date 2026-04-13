@@ -114,7 +114,7 @@ class _HospitalProfileTabState extends State<HospitalProfileTab> {
             children: [
               Text(
                 data['hospitalName'] ?? "Unnamed Hospital",
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
               ),
               const SizedBox(height: 4),
               Row(
@@ -136,7 +136,7 @@ class _HospitalProfileTabState extends State<HospitalProfileTab> {
           icon: Icon(_isEditing ? Icons.close : Icons.edit),
           label: Text(_isEditing ? "Cancel" : "Edit Profile"),
           style: ElevatedButton.styleFrom(
-            backgroundColor: _isEditing ? Colors.red : const Color(0xFF7C3AED),
+            backgroundColor: _isEditing ? Colors.red : const Color(0xFF0891B2),
             foregroundColor: Colors.white,
           ),
         ),
@@ -150,14 +150,14 @@ class _HospitalProfileTabState extends State<HospitalProfileTab> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 10))],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Basic Information", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text("Basic Information", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
             const SizedBox(height: 24),
             _buildField(_nameController, "Hospital Display Name", "e.g. City General Hospital"),
             const SizedBox(height: 16),
@@ -178,7 +178,7 @@ class _HospitalProfileTabState extends State<HospitalProfileTab> {
                 child: ElevatedButton(
                   onPressed: _updateProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7C3AED),
+                    backgroundColor: const Color(0xFF0891B2),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text("Save Updated Profile", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -205,7 +205,7 @@ class _HospitalProfileTabState extends State<HospitalProfileTab> {
             hintText: hint,
             filled: true,
             fillColor: _isEditing ? Colors.white : Colors.grey.shade50,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: _isEditing ? const BorderSide(color: Color(0xFF7C3AED)) : BorderSide.none),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: _isEditing ? const BorderSide(color: Color(0xFF0891B2)) : BorderSide.none),
           ),
           validator: (v) => v!.isEmpty ? "This field is required" : null,
         ),
@@ -226,7 +226,7 @@ class _HospitalProfileTabState extends State<HospitalProfileTab> {
           decoration: InputDecoration(
             filled: true,
             fillColor: _isEditing ? Colors.white : Colors.grey.shade50,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: _isEditing ? const BorderSide(color: Color(0xFF7C3AED)) : BorderSide.none),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: _isEditing ? const BorderSide(color: Color(0xFF0891B2)) : BorderSide.none),
           ),
         ),
       ],

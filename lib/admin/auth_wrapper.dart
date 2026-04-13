@@ -62,6 +62,7 @@ class AuthWrapper extends StatelessWidget {
 
         // If user is a patient, route them to patient flow
         if (patientSnapshot.hasData && patientSnapshot.data!.exists) {
+          if (kIsWeb) return _blockedPage("Patient access is restricted to the mobile app.");
           return const PatientDashboard();
         }
 
@@ -89,6 +90,10 @@ class AuthWrapper extends StatelessWidget {
             if (accountSnapshot.hasData && accountSnapshot.data!.exists) {
               final data = accountSnapshot.data!.data() as Map<String, dynamic>;
               final role = data['role'];
+
+              if (!kIsWeb && (role == 'admin' || role == 'hospital' || role == 'doctor')) {
+                return _blockedPage("${role[0].toUpperCase()}${role.substring(1)} access is restricted to the Web platform.");
+              }
 
               // ---------- ADMIN ----------
               if (role == 'admin') {
@@ -123,6 +128,7 @@ class AuthWrapper extends StatelessWidget {
             }
 
             // If not in `accounts`, they must be a Patient needing to link their ID.
+            if (kIsWeb) return _blockedPage("Patient registration is restricted to the mobile app.");
             return const PatientLinkPage();
           },
         );

@@ -48,9 +48,13 @@ class RegistrationRequestsTab extends StatelessWidget {
 
   Widget _buildRequestCard(BuildContext context, String requestId, Map<String, dynamic> data) {
     return Card(
-      elevation: 2,
+      elevation: 0,
+      color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -59,10 +63,10 @@ class RegistrationRequestsTab extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: const Color(0xFFEDE9FE),
+                  backgroundColor: const Color(0xFFCFFAFE),
                   child: Text(
                     data['name']?[0]?.toUpperCase() ?? "?",
-                    style: const TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: Color(0xFF0891B2), fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -106,7 +110,7 @@ class RegistrationRequestsTab extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () => _handleApproval(context, requestId, data),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7C3AED),
+                      backgroundColor: const Color(0xFF0891B2),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -125,8 +129,8 @@ class RegistrationRequestsTab extends StatelessWidget {
   Widget _statusBadge(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: const Color(0xFFF3E8FF), borderRadius: BorderRadius.circular(8)),
-      child: Text(text, style: const TextStyle(color: Color(0xFF7C3AED), fontSize: 10, fontWeight: FontWeight.bold)),
+      decoration: BoxDecoration(color: const Color(0xFFCFFAFE), borderRadius: BorderRadius.circular(8)),
+      child: Text(text, style: const TextStyle(color: Color(0xFF0891B2), fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }
 

@@ -69,114 +69,160 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      appBar: _buildAppBar(),
-      drawer: _buildDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: displayPages[_selectedIndex],
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: Colors.white,
-      titleSpacing: 0,
-      title: Row(
-        children: const [
-          Icon(Icons.local_hospital, color: Color(0xFF7C3AED)),
-          SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Hospital Dashboard",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              Text(
-                "Hospital Panel",
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        IconButton(
-          tooltip: "Logout",
-          icon: const Icon(Icons.logout, color: Colors.black),
-          onPressed: logout,
-        ),
-        const SizedBox(width: 8),
-      ],
-    );
-  }
-
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: Row(
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFF7C3AED)),
+          _buildSidebar(),
+          Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.local_hospital, color: Colors.white, size: 40),
-                SizedBox(height: 10),
-                Text(
-                  "Hospital Panel",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                _buildAppBar(),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: displayPages[_selectedIndex],
                   ),
                 ),
               ],
             ),
           ),
-          _buildDrawerItem(0, Icons.dashboard, "Overview"),
-          _buildDrawerItem(1, Icons.medical_services, "Doctors List"),
-          _buildDrawerItem(2, Icons.assignment_turned_in, "Consultation Requests"),
-          _buildDrawerItem(3, Icons.how_to_reg, "Registration Requests"),
-          _buildDrawerItem(4, Icons.person_add, "Add Patient"),
-          _buildDrawerItem(5, Icons.folder_shared, "Patient Records"),
-          _buildDrawerItem(6, Icons.biotech, "Test Appointments"),
-          _buildDrawerItem(7, Icons.share, "Shared Records"),
-          _buildDrawerItem(8, Icons.compare_arrows, "Request Transfer"),
-          _buildDrawerItem(9, Icons.move_to_inbox, "Incoming Transfers"),
-          _buildDrawerItem(10, Icons.lightbulb, "Smart Care Plan"),
-          _buildDrawerItem(11, Icons.payments, "Manage Fees"),
-          _buildDrawerItem(12, Icons.settings_applications, "Hospital Profile"),
         ],
       ),
     );
   }
 
-  Widget _buildDrawerItem(int index, IconData icon, String title) {
-    bool isSelected = _selectedIndex == index;
-    return ListTile(
-      leading: Icon(icon, color: isSelected ? const Color(0xFF7C3AED) : Colors.grey),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: isSelected ? const Color(0xFF7C3AED) : Colors.black87,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
+  Widget _buildAppBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
       ),
-      selected: isSelected,
-      selectedTileColor: const Color(0xFF7C3AED).withOpacity(0.1),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.local_hospital, color: Color(0xFF0891B2), size: 28),
+              SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Hospital Dashboard",
+                    style: TextStyle(
+                      color: Color(0xFF0F172A),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    "Command Center",
+                    style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          IconButton(
+            tooltip: "Logout",
+            icon: const Icon(Icons.logout, color: Color(0xFFE11D48)),
+            onPressed: logout,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebar() {
+    return Container(
+      width: 280,
+      color: const Color(0xFF0F172A),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+            width: double.infinity,
+            color: const Color(0xFF0891B2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Icon(Icons.local_hospital, color: Colors.white, size: 40),
+                SizedBox(height: 12),
+                Text(
+                  "Hospital Panel",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  "Web Interface",
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              children: [
+                _buildSidebarItem(0, Icons.dashboard, "Overview"),
+                _buildSidebarItem(1, Icons.medical_services, "Doctors List"),
+                _buildSidebarItem(2, Icons.assignment_turned_in, "Consultation Requests"),
+                _buildSidebarItem(3, Icons.how_to_reg, "Registration Requests"),
+                _buildSidebarItem(4, Icons.person_add, "Add Patient"),
+                _buildSidebarItem(5, Icons.folder_shared, "Patient Records"),
+                _buildSidebarItem(6, Icons.biotech, "Test Appointments"),
+                _buildSidebarItem(7, Icons.share, "Shared Records"),
+                _buildSidebarItem(8, Icons.compare_arrows, "Request Transfer"),
+                _buildSidebarItem(9, Icons.move_to_inbox, "Incoming Transfers"),
+                _buildSidebarItem(10, Icons.lightbulb, "Smart Care Plan"),
+                _buildSidebarItem(11, Icons.payments, "Manage Fees"),
+                _buildSidebarItem(12, Icons.settings_applications, "Hospital Profile"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebarItem(int index, IconData icon, String title) {
+    bool isSelected = _selectedIndex == index;
+    return InkWell(
       onTap: () {
         setState(() => _selectedIndex = index);
-        Navigator.pop(context); // Close drawer
       },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0891B2).withOpacity(0.15) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF0891B2).withOpacity(0.5) : Colors.transparent,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isSelected ? const Color(0xFF0891B2) : const Color(0xFF94A3B8), size: 22),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

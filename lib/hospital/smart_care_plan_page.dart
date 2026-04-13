@@ -131,11 +131,11 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: const Text("SmartCarePlan"),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -144,9 +144,11 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
           child: SizedBox(
             width: 700,
             child: Card(
-              elevation: 4,
+              elevation: 0,
+              color: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(28),
@@ -165,8 +167,8 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                               shape: BoxShape.circle,
                               gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFF7C3AED),
-                                  Color(0xFF5B21B6),
+                                  Color(0xFF0891B2),
+                                  Color(0xFF0D9488),
                                 ],
                               ),
                             ),
@@ -182,6 +184,7 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -258,7 +261,7 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                             "Doctor ${i + 1}",
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF7C3AED),
+                              color: Color(0xFF0891B2),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -289,7 +292,7 @@ class _SmartCarePlanPageState extends State<SmartCarePlanPage> {
                       child: ElevatedButton(
                         onPressed: loading ? null : savePlan,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF7C3AED),
+                          backgroundColor: const Color(0xFF0891B2),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
