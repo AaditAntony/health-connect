@@ -176,20 +176,21 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text("Book Consultation"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        title: const Text("Book Consultation", style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text("Select a Doctor", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 12),
+            const Text("CHOOSE A SPECIALIST", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+            const SizedBox(height: 16),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('accounts')
@@ -197,11 +198,11 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
                   .where('approved', isEqualTo: true)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.hasError) return Center(child: Text("Error: ${snapshot.error}"));
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                if (snapshot.hasError) return const Center(child: Text("Connection error"));
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED)));
                 
                 final docs = snapshot.data!.docs;
-                if (docs.isEmpty) return const Text("No doctors available.");
+                if (docs.isEmpty) return const Center(child: Text("No specialists available currently."));
 
                 return ListView.separated(
                   shrinkWrap: true,
@@ -226,28 +227,27 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF7C3AED).withOpacity(0.05) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF7C3AED) : Colors.transparent,
-                            width: 2,
+                            color: isSelected ? const Color(0xFF7C3AED) : const Color(0xFFE2E8F0),
+                            width: isSelected ? 2 : 1,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
                         ),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: const Color(0xFFEDE9FE),
-                              child: Text(
-                                (data['doctorName'] ?? "D")[0].toUpperCase(),
-                                style: const TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold),
+                            Container(
+                              height: 60,
+                              width: 60,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF5F3FF),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  (data['doctorName'] ?? "D")[0].toUpperCase(),
+                                  style: const TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.bold, fontSize: 20),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -256,23 +256,23 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    data['doctorName'] ?? "Dr. Unknown",
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    data['doctorName'] ?? "Dr. Specialist",
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "${data['department']} | ${data['experience']} Years Exp",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                    "${data['department']} • ${data['experience']} Yrs Exp",
+                                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(Icons.business, size: 14, color: Colors.grey),
+                                      const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF94A3B8)),
                                       const SizedBox(width: 4),
                                       Expanded(
                                         child: Text(
-                                          data['hospitalName'] ?? "General Hospital",
-                                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                          data['hospitalName'] ?? "Facility",
+                                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -283,7 +283,7 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
                               ),
                             ),
                             if (isSelected)
-                              const Icon(Icons.check_circle, color: Color(0xFF7C3AED))
+                              const Icon(Icons.check_circle_rounded, color: Color(0xFF7C3AED), size: 24)
                           ],
                         ),
                       ),
@@ -292,42 +292,32 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
                 );
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-            const Text("Reason for Consultation", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 8),
+            const Text("CONSULTATION DETAILS", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+            const SizedBox(height: 16),
             TextField(
               controller: _reasonController,
               maxLines: 3,
+              style: const TextStyle(fontSize: 15),
               decoration: InputDecoration(
-                hintText: "Explain your health issue or specify if it is an emergency...",
+                hintText: "Briefly describe your health concern...",
+                hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF7C3AED), width: 2)),
               ),
             ),
             const SizedBox(height: 24),
 
-            const Text("Select Date & Time", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 12),
+            const Text("SCHEDULE PREFERENCE", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.calendar_today, color: Color(0xFF7C3AED)),
-                    label: Text(selectedDate == null
-                        ? "Pick Date"
-                        : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"),
-                    onPressed: () async {
+                  child: InkWell(
+                    onTap: () async {
                       final val = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now().add(const Duration(days: 1)),
@@ -336,43 +326,80 @@ class _BookConsultationPageState extends State<BookConsultationPage> {
                       );
                       if (val != null) setState(() => selectedDate = val);
                     },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.calendar_today_rounded, color: Color(0xFF7C3AED), size: 20),
+                          const SizedBox(height: 8),
+                          Text(
+                            selectedDate == null
+                                ? "Select Date"
+                                : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.access_time, color: Color(0xFF7C3AED)),
-                    label: Text(selectedTime == null ? "Pick Time" : selectedTime!.format(context)),
-                    onPressed: () async {
+                  child: InkWell(
+                    onTap: () async {
                       final val = await showTimePicker(
                         context: context,
                         initialTime: const TimeOfDay(hour: 10, minute: 0),
                       );
                       if (val != null) setState(() => selectedTime = val);
                     },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.access_time_rounded, color: Color(0xFF7C3AED), size: 20),
+                          const SizedBox(height: 8),
+                          Text(
+                            selectedTime == null ? "Select Time" : selectedTime!.format(context),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
             
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: isSubmitting ? null : _submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7C3AED),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 48),
+            SizedBox(
+              height: 56,
+              child: ElevatedButton(
+                onPressed: isSubmitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7C3AED),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: isSubmitting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("PROCEED TO CHECKOUT", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               ),
-              child: isSubmitting
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Request Appointment & Pay", style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

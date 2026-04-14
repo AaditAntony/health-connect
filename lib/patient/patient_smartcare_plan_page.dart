@@ -141,10 +141,13 @@ class _PatientSmartCarePlanPageState extends State<PatientSmartCarePlanPage> {
     final authUid = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text("SmartCare Plans"),
-        backgroundColor: const Color(0xFF7C3AED),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        title: const Text("SmartCare Plans", style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
       body: FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
@@ -152,13 +155,8 @@ class _PatientSmartCarePlanPageState extends State<PatientSmartCarePlanPage> {
             .doc(authUid)
             .get(),
         builder: (context, patientSnapshot) {
-        if (patientSnapshot.hasError) {
-          debugPrint("Error: ${patientSnapshot.error}");
-          return Center(child: Text("Error: \n${patientSnapshot.error}", textAlign: TextAlign.center));
-        }
-          if (!patientSnapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          if (patientSnapshot.hasError) return const Center(child: Text("Connection error"));
+          if (!patientSnapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED)));
 
           final patientId = patientSnapshot.data!['patientId'];
 
@@ -169,151 +167,142 @@ class _PatientSmartCarePlanPageState extends State<PatientSmartCarePlanPage> {
                 .where('expiresAt', isGreaterThan: Timestamp.now())
                 .snapshots(),
             builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          debugPrint("Error: ${snapshot.error}");
-          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
-        }
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
+              if (snapshot.hasError) return const Center(child: Text("Connection error"));
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED)));
 
               final plans = snapshot.data!.docs;
 
               if (plans.isEmpty) {
-                return const Center(child: Text("No plans available"));
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.layers_clear_rounded, size: 64, color: Colors.grey.shade200),
+                      const SizedBox(height: 16),
+                      const Text("No plans currently available", style: TextStyle(color: Colors.grey, fontSize: 16)),
+                    ],
+                  ),
+                );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
+              return ListView.separated(
+                padding: const EdgeInsets.all(24),
                 itemCount: plans.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final doc = plans[index];
                   final data = doc.data() as Map<String, dynamic>;
                   final doctors = data['doctors'] ?? [];
 
-                  return Card(
-                    elevation: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: const [
-                              Icon(
-                                Icons.workspace_premium,
-                                color: Color(0xFF7C3AED),
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                "SmartCarePlan",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          Text(
-                            "₹ ${data['amount']} / Month",
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF7C3AED),
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(color: const Color(0xFFF5F3FF), borderRadius: BorderRadius.circular(10)),
+                              child: const Icon(Icons.workspace_premium_rounded, color: Color(0xFF7C3AED), size: 18),
                             ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          Text(data['description'] ?? ""),
-
-                          const Divider(height: 24),
-
-                          ...doctors.map<Widget>((doc) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle,
-                                    size: 18,
-                                    color: Color(0xFF7C3AED),
+                            const SizedBox(width: 12),
+                            const Text("PREMIUM BENEFIT", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF7C3AED))),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "SmartCare Membership",
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          data['description'] ?? "Exclusive healthcare benefits and specialist consultations.",
+                          style: const TextStyle(color: Color(0xFF64748B), height: 1.5, fontSize: 14),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text("₹${data['amount']}", style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                            const SizedBox(width: 4),
+                            const Text("/ month", style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500)),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Divider(height: 1),
+                        const SizedBox(height: 24),
+                        const Text("INCLUDED IN THIS PLAN", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+                        const SizedBox(height: 16),
+                        ...doctors.map<Widget>((doc) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(color: Color(0xFFECFDF5), shape: BoxShape.circle),
+                                  child: const Icon(Icons.check, size: 12, color: Color(0xFF10B981)),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    "${doc['name']}",
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      "${doc['name']} • ${doc['department']}",
+                                ),
+                                Text(
+                                  "${doc['department']}",
+                                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        const SizedBox(height: 24),
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('patient_plans')
+                              .where('patientId', isEqualTo: patientId)
+                              .where('planId', isEqualTo: doc.id)
+                              .snapshots(),
+                          builder: (context, planSnapshot) {
+                            if (planSnapshot.hasError) return const SizedBox();
+                            final isActivated = planSnapshot.hasData && planSnapshot.data!.docs.isNotEmpty;
+
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 54,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isActivated ? const Color(0xFF10B981) : const Color(0xFF7C3AED),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                                onPressed: isActivated ? null : () => _openCheckout(doc.id, data),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(isActivated ? Icons.check_circle_rounded : Icons.bolt_rounded, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      isActivated ? "PLAN ACTIVE" : "ACTIVATE NOW",
+                                      style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
-                          }).toList(),
-
-                          const SizedBox(height: 20),
-
-                          // ================= BUTTON WITH STATUS =================
-                          StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('patient_plans')
-                                .where('patientId', isEqualTo: patientId)
-                                .where('planId', isEqualTo: doc.id)
-                                .snapshots(),
-                            builder: (context, planSnapshot) {
-        if (planSnapshot.hasError) {
-          debugPrint("Error: ${planSnapshot.error}");
-          return Center(child: Text("Error: \n${planSnapshot.error}", textAlign: TextAlign.center));
-        }
-                              final isActivated =
-                                  planSnapshot.hasData &&
-                                  planSnapshot.data!.docs.isNotEmpty;
-
-                              return SizedBox(
-                                width: double.infinity,
-                                height: 45,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isActivated
-                                        ? Colors.green
-                                        : const Color(0xFF7C3AED),
-                                  ),
-                                  onPressed: isActivated
-                                      ? null
-                                      : () => _openCheckout(doc.id, data),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        isActivated
-                                            ? Icons.check_circle
-                                            : Icons.lock_open,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        isActivated
-                                            ? "Activated"
-                                            : "Activate Plan",
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+                          },
+                        ),
+                      ],
                     ),
                   );
                 },

@@ -130,20 +130,23 @@ class _PatientMedicalHistoryPageState extends State<PatientMedicalHistoryPage> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF2F5F9),
+        backgroundColor: const Color(0xFFF8FAFC),
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF0F172A),
-          title: const Text("Medical History", style: TextStyle(fontWeight: FontWeight.bold)),
-          bottom: const TabBar(
-            labelColor: Color(0xFF0F172A),
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Color(0xFF7C3AED),
-            tabs: [
-              Tab(text: "Hospital Records"),
-              Tab(text: "Doctor Prescriptions"),
-              Tab(text: "Scan Reports"),
+          title: const Text("Medical Records", style: TextStyle(fontWeight: FontWeight.bold)),
+          bottom: TabBar(
+            labelColor: const Color(0xFF7C3AED),
+            unselectedLabelColor: const Color(0xFF64748B),
+            indicatorColor: const Color(0xFF7C3AED),
+            indicatorWeight: 3,
+            labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+            tabs: const [
+              Tab(text: "Hospital"),
+              Tab(text: "Prescriptions"),
+              Tab(text: "Scans"),
             ],
           ),
         ),
@@ -166,42 +169,67 @@ class _PatientMedicalHistoryPageState extends State<PatientMedicalHistoryPage> {
           .orderBy('timestamp', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.hasError) return Center(child: Text("Error: ${snapshot.error}"));
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (snapshot.hasError) return const Center(child: Text("Connection error"));
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED)));
         final docs = snapshot.data!.docs;
 
-        if (docs.isEmpty) return const Center(child: Text("No doctor prescriptions found", style: TextStyle(color: Colors.grey)));
+        if (docs.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.description_outlined, size: 64, color: Colors.grey.shade200),
+                const SizedBox(height: 16),
+                const Text("No prescriptions found", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              ],
+            ),
+          );
+        }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
+        return ListView.separated(
+          padding: const EdgeInsets.all(24),
           itemCount: docs.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             final data = docs[index].data() as Map<String, dynamic>;
             final dateStr = data['timestamp'] != null 
                 ? (data['timestamp'] as Timestamp).toDate().toLocal().toString().split(' ')[0]
                 : 'Unknown Date';
 
-            return Card(
-              elevation: 2,
-              margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.medical_information, color: Color(0xFF7C3AED)),
-                        const SizedBox(width: 8),
-                        Text("Prescription on $dateStr", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _detailBox(title: "Medicines", value: data['medicines'] ?? "-", color: const Color(0xFFF3F0FF), accent: const Color(0xFF7C3AED)),
-                    _detailBox(title: "Recommended Activities", value: data['activities'] ?? "-", color: const Color(0xFFECFDF5), accent: const Color(0xFF16A34A)),
-                  ],
-                ),
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: const Color(0xFFF5F3FF), borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(Icons.medical_information_rounded, color: Color(0xFF7C3AED), size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Digital Prescription", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
+                            Text(dateStr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _detailBox(title: "Medications", value: data['medicines'] ?? "-", accent: const Color(0xFF7C3AED)),
+                  const SizedBox(height: 12),
+                  _detailBox(title: "Recommended Activities", value: data['activities'] ?? "-", accent: const Color(0xFF10B981)),
+                ],
               ),
             );
           },
@@ -217,11 +245,22 @@ class _PatientMedicalHistoryPageState extends State<PatientMedicalHistoryPage> {
           .where('patientId', isEqualTo: widget.patientId)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.hasError) return Center(child: Text("Error: ${snapshot.error}"));
-        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        if (snapshot.hasError) return const Center(child: Text("Connection error"));
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED)));
 
         final docs = snapshot.data!.docs;
-        if (docs.isEmpty) return const Center(child: Text("No medical records found", style: TextStyle(color: Colors.grey)));
+        if (docs.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.assignment_outlined, size: 64, color: Colors.grey.shade200),
+                const SizedBox(height: 16),
+                const Text("No hospital records", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              ],
+            ),
+          );
+        }
 
         final Map<String, List<Map<String, dynamic>>> grouped = {};
         for (var doc in docs) {
@@ -230,32 +269,26 @@ class _PatientMedicalHistoryPageState extends State<PatientMedicalHistoryPage> {
           grouped[data['hospitalId']]!.add(data);
         }
 
-        DateTime? lastVisit;
-        for (var list in grouped.values) {
-          for (var record in list) {
-            final dynamic dtField = record['timestamp'] ?? record['createdAt'];
-            if (dtField is Timestamp && (lastVisit == null || dtField.toDate().isAfter(lastVisit!))) {
-              lastVisit = dtField.toDate();
-            }
-          }
-        }
-
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           children: [
-            const Text("Patient Overview", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12, runSpacing: 12,
+            const Text("AT A GLANCE", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+            const SizedBox(height: 16),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.6,
               children: [
-                _summaryCard(title: "Patient ID", value: widget.patientId, color: const Color(0xFF0284C7), icon: Icons.badge),
-                _summaryCard(title: "Hospitals Visited", value: grouped.length.toString(), color: const Color(0xFF0D9488), icon: Icons.local_hospital),
-                _summaryCard(title: "Total Treatments", value: docs.length.toString(), color: const Color(0xFF16A34A), icon: Icons.medical_services),
-                if (lastVisit != null)
-                  _summaryCard(title: "Last Visit", value: lastVisit!.toLocal().toString().split('.')[0], color: const Color(0xFFD97706), icon: Icons.event),
+                _summaryCard(title: "Hospitals", value: grouped.length.toString(), icon: Icons.local_hospital_rounded, color: const Color(0xFF3B82F6)),
+                _summaryCard(title: "Treatments", value: docs.length.toString(), icon: Icons.medical_services_rounded, color: const Color(0xFF10B981)),
               ],
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 32),
+            const Text("CHRONOLOGICAL LOG", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+            const SizedBox(height: 16),
             ...grouped.entries.map((entry) {
               final records = entry.value;
               records.sort((a, b) {
@@ -267,34 +300,45 @@ class _PatientMedicalHistoryPageState extends State<PatientMedicalHistoryPage> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: double.infinity, margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: const Color(0xFFE0F2FE), borderRadius: BorderRadius.circular(14)),
-                    child: Row(children: const [Icon(Icons.local_hospital, color: Color(0xFF0284C7)), SizedBox(width: 10), Text("Hospital Record", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))]),
-                  ),
                   ...records.map((record) {
                     final dynamic dtField = record['timestamp'] ?? record['createdAt'];
                     final date = (dtField is Timestamp) ? dtField.toDate().toLocal().toString().split('.')[0] : "Pending...";
-                    return Card(
-                      elevation: 1, margin: const EdgeInsets.only(bottom: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(children: [const Icon(Icons.event_note, color: Color(0xFF0284C7)), const SizedBox(width: 8), Text("Visit Date: $date", style: const TextStyle(fontWeight: FontWeight.bold))]),
-                            const SizedBox(height: 16),
-                            _detailBox(title: "Diagnosis", value: record['diagnosis'], color: const Color(0xFFF1F5F9), accent: const Color(0xFF0284C7)),
-                            _detailBox(title: "Treatment Plan", value: record['treatmentPlan'], color: const Color(0xFFECFDF5), accent: const Color(0xFF16A34A)),
-                            if (record['reportImageBase64'] != null)
-                              Padding(padding: const EdgeInsets.only(top: 12), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.memory(base64Decode(record['reportImageBase64']), height: 200, width: double.infinity, fit: BoxFit.cover))),
-                          ],
-                        ),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.event_note_rounded, color: Color(0xFF64748B), size: 18),
+                              const SizedBox(width: 8),
+                              Text(date, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                              const Spacer(),
+                              const Text("Hospital Record", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF3B82F6))),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          _detailBox(title: "Diagnosis", value: record['diagnosis'], accent: const Color(0xFF3B82F6)),
+                          const SizedBox(height: 12),
+                          _detailBox(title: "Treatment Plan", value: record['treatmentPlan'], accent: const Color(0xFF10B981)),
+                          if (record['reportImageBase64'] != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.memory(base64Decode(record['reportImageBase64']), height: 200, width: double.infinity, fit: BoxFit.cover),
+                              ),
+                            ),
+                        ],
                       ),
                     );
                   }).toList(),
-                  const SizedBox(height: 20),
                 ],
               );
             }).toList(),
@@ -309,54 +353,91 @@ class _PatientMedicalHistoryPageState extends State<PatientMedicalHistoryPage> {
       stream: _mergedStream,
       initialData: _latestData,
       builder: (context, snapshot) {
-        if (snapshot.hasError) return Center(child: Text("Error: ${snapshot.error}"));
-        if (!snapshot.hasData && _latestData == null) return const Center(child: CircularProgressIndicator());
+        if (snapshot.hasError) return const Center(child: Text("Connection error"));
+        if (!snapshot.hasData && _latestData == null) return const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED)));
 
         final items = snapshot.data ?? [];
-        if (items.isEmpty) return const Center(child: Text("No scan reports found", style: TextStyle(color: Colors.grey)));
+        if (items.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.biotech_outlined, size: 64, color: Colors.grey.shade200),
+                const SizedBox(height: 16),
+                const Text("No scan reports found", style: TextStyle(color: Colors.grey, fontSize: 16)),
+              ],
+            ),
+          );
+        }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
+        return ListView.separated(
+          padding: const EdgeInsets.all(24),
           itemCount: items.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             final data = items[index];
             final timestamp = data['timestamp'] as Timestamp?;
             final dateStr = timestamp != null ? timestamp.toDate().toLocal().toString().split('.')[0] : "Pending...";
             final isHospital = data['source'] == 'hospital';
 
-            return Card(
-              elevation: 2, margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(isHospital ? Icons.local_hospital : Icons.biotech, color: isHospital ? const Color(0xFF0284C7) : const Color(0xFF7C3AED)),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(data['scanType'] ?? "Scan Result", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(color: (isHospital ? Colors.blue : Colors.purple).withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                          child: Text(isHospital ? "Hospital" : "Clinic", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isHospital ? Colors.blue : Colors.purple)),
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: (isHospital ? const Color(0xFF3B82F6) : const Color(0xFF7C3AED)).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
-                    ),
-                    const Divider(height: 24),
-                    _detailBox(title: isHospital ? "Result" : "Procedure", value: data['scanInfo'] ?? "-", color: isHospital ? const Color(0xFFF1F5F9) : const Color(0xFFF3F0FF), accent: isHospital ? const Color(0xFF0284C7) : const Color(0xFF7C3AED)),
-                    _detailBox(title: "Observations", value: data['observations'] ?? "-", color: const Color(0xFFF8FAFC), accent: const Color(0xFF64748B)),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.event, size: 14, color: Colors.grey), const SizedBox(width: 4), Text(dateStr, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                        const Spacer(),
-                        const Icon(Icons.person, size: 14, color: Colors.grey), const SizedBox(width: 4), Text(data['provider'] ?? "Unknown", style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      ],
-                    ),
-                  ],
-                ),
+                        child: Icon(
+                          isHospital ? Icons.local_hospital_rounded : Icons.biotech_rounded,
+                          color: isHospital ? const Color(0xFF3B82F6) : const Color(0xFF7C3AED),
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(data['scanType'] ?? "Clinical Result", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
+                            Text(dateStr, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _detailBox(
+                    title: isHospital ? "Result Description" : "Procedure Details",
+                    value: data['scanInfo'] ?? "-",
+                    accent: isHospital ? const Color(0xFF3B82F6) : const Color(0xFF7C3AED),
+                  ),
+                  const SizedBox(height: 12),
+                  _detailBox(title: "Medical Observations", value: data['observations'] ?? "-", accent: const Color(0xFF64748B)),
+                  const SizedBox(height: 16),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(Icons.person_pin_rounded, size: 14, color: Color(0xFF94A3B8)),
+                      const SizedBox(width: 6),
+                      Text(
+                        "Provider: ${data['provider'] ?? 'Clinical Facility'}",
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             );
           },
@@ -367,17 +448,47 @@ class _PatientMedicalHistoryPageState extends State<PatientMedicalHistoryPage> {
 
   Widget _summaryCard({required String title, required String value, required Color color, required IconData icon}) {
     return Container(
-      width: 170, padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(14)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, color: color), const SizedBox(height: 10), Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: color)), const SizedBox(height: 4), Text(title, style: const TextStyle(color: Colors.black54, fontSize: 12))]),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 8),
+              Text(title, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13, fontWeight: FontWeight.w500)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: color)),
+        ],
+      ),
     );
   }
 
-  Widget _detailBox({required String title, required String value, required Color color, required Color accent}) {
+  Widget _detailBox({required String title, required String value, required Color accent}) {
     return Container(
-      width: double.infinity, margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12), border: Border(left: BorderSide(color: accent, width: 4))),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: accent)), const SizedBox(height: 6), Text(value)]),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border(left: BorderSide(color: accent, width: 4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: accent, fontSize: 12, letterSpacing: 0.5)),
+          const SizedBox(height: 6),
+          Text(value, style: const TextStyle(color: Color(0xFF0F172A), height: 1.5, fontSize: 14)),
+        ],
+      ),
     );
   }
 }

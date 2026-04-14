@@ -98,13 +98,7 @@ class PatientOverviewTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,14 +112,14 @@ class PatientOverviewTab extends StatelessWidget {
                   Text(
                     "Heart Rate Patterns",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: Color(0xFF0F172A),
                     ),
                   ),
                   Text(
                     "Beats Per Minute (BPM) tracking",
-                    style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                    style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
                   ),
                 ],
               ),
@@ -156,10 +150,10 @@ class PatientOverviewTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Chart Error: Please create composite index in Firestore",
+                          "Chart Error: Composite index required",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: Colors.red.shade900,
                           ),
                         ),
@@ -169,11 +163,10 @@ class PatientOverviewTab extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData)
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED)));
 
                 final docs = snapshot.data!.docs.reversed.toList();
 
-                // Fallback for demo/student project completeness if no data exists
                 if (docs.isEmpty) {
                   return _buildEmptyVitalsChart();
                 }
@@ -208,7 +201,6 @@ class PatientOverviewTab extends StatelessWidget {
   }
 
   Widget _buildEmptyVitalsChart() {
-    // Show a sample/placeholder chart for student demo if no data is found
     final spots = const [
       FlSpot(0, 72),
       FlSpot(1, 68),
@@ -219,23 +211,20 @@ class PatientOverviewTab extends StatelessWidget {
       FlSpot(6, 78),
     ];
     final labels = const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return Opacity(
-      opacity: 0.5,
-      child: Column(
-        children: [
-          Expanded(child: _chartLayout(spots, labels)),
-          const Center(
-            child: Text(
-              "Connect wearable to sync live metrics",
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
-              ),
+    return Column(
+      children: [
+        Expanded(child: Opacity(opacity: 0.3, child: _chartLayout(spots, labels))),
+        const Center(
+          child: Text(
+            "Sync clinical data to view patterns",
+            style: TextStyle(
+              fontSize: 11,
+              color: Color(0xFF64748B),
+              fontStyle: FontStyle.italic,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -246,18 +235,12 @@ class PatientOverviewTab extends StatelessWidget {
           show: true,
           drawVerticalLine: false,
           getDrawingHorizontalLine: (v) =>
-              FlLine(color: Colors.grey.shade100, strokeWidth: 1),
+              FlLine(color: const Color(0xFFF1F5F9), strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -268,7 +251,7 @@ class PatientOverviewTab extends StatelessWidget {
                     child: Text(
                       labels[v.toInt()],
                       style: const TextStyle(
-                        fontSize: 9,
+                        fontSize: 11,
                         color: Color(0xFF94A3B8),
                         fontWeight: FontWeight.bold,
                       ),
@@ -286,16 +269,16 @@ class PatientOverviewTab extends StatelessWidget {
             spots: spots,
             isCurved: true,
             gradient: const LinearGradient(
-              colors: [Color(0xFF7C3AED), Color(0xFFC026D3)],
+              colors: [Color(0xFF7C3AED), Color(0xFF9333EA)],
             ),
-            barWidth: 6,
+            barWidth: 4,
             isStrokeCapRound: true,
-            dotData: const FlDotData(show: true),
+            dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF7C3AED).withOpacity(0.15),
+                  const Color(0xFF7C3AED).withOpacity(0.1),
                   const Color(0xFF7C3AED).withOpacity(0),
                 ],
                 begin: Alignment.topCenter,
@@ -310,22 +293,22 @@ class PatientOverviewTab extends StatelessWidget {
 
   Widget _buildLivePulse() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFFEF4444).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: const [
-          Icon(Icons.monitor_heart, color: Colors.red, size: 14),
+          Icon(Icons.monitor_heart_rounded, color: Color(0xFFEF4444), size: 14),
           SizedBox(width: 6),
           Text(
-            "LIVE PULSE",
+            "LIVE",
             style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.w900,
-              fontSize: 9,
+              color: Color(0xFFEF4444),
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
               letterSpacing: 0.5,
             ),
           ),
@@ -335,50 +318,54 @@ class PatientOverviewTab extends StatelessWidget {
   }
 
   Widget _buildMetricsGrid() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Column(
-            children: [
-              _metricCard(
+        Row(
+          children: [
+            Expanded(
+              child: _metricCard(
                 title: "Blood Pressure",
                 value: "118/76",
                 unit: "mmHg",
-                icon: Icons.favorite,
-                color: Colors.pink,
+                icon: Icons.favorite_rounded,
+                color: const Color(0xFFEC4899),
               ),
-              const SizedBox(height: 16),
-              _metricCard(
-                title: "Hydration Level",
-                value: "85",
-                unit: "% Daily",
-                icon: Icons.water_drop,
-                color: Colors.blue,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            children: [
-              _metricCard(
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _metricCard(
                 title: "Body Weight",
                 value: "71.4",
                 unit: "kg",
-                icon: Icons.monitor_weight,
-                color: Colors.green,
+                icon: Icons.monitor_weight_rounded,
+                color: const Color(0xFF10B981),
               ),
-              const SizedBox(height: 16),
-              _metricCard(
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _metricCard(
+                title: "Hydration",
+                value: "85",
+                unit: "%",
+                icon: Icons.water_drop_rounded,
+                color: const Color(0xFF3B82F6),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _metricCard(
                 title: "Respiratory",
                 value: "18",
                 unit: "bpm",
-                icon: Icons.air,
-                color: Colors.orange,
+                icon: Icons.air_rounded,
+                color: const Color(0xFFF59E0B),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
@@ -386,20 +373,20 @@ class PatientOverviewTab extends StatelessWidget {
 
   void _exportPdf(BuildContext context) async {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Processing Clinical Data...")),
+      const SnackBar(content: Text("Preparing Report...")),
     );
     try {
       await PdfExportUtility.generateAndSaveMedicalReport(patientId);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Clinical Report Downloaded")),
+          const SnackBar(content: Text("Report Saved Successfully")),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Export Error: $e")));
+        ).showSnackBar(SnackBar(content: Text("Export Failed: $e")));
       }
     }
   }
@@ -415,35 +402,30 @@ class PatientOverviewTab extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade50),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color, size: 18),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title.toUpperCase(),
-                style: const TextStyle(
-                  color: Color(0xFF94A3B8),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 9,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF64748B),
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -453,14 +435,14 @@ class PatientOverviewTab extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+                  color: Color(0xFF0F172A),
                 ),
               ),
               const SizedBox(width: 4),
               Text(
                 unit,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   color: Color(0xFF94A3B8),
                   fontWeight: FontWeight.w500,
                 ),

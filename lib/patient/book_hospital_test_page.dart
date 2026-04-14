@@ -139,20 +139,21 @@ class _BookHospitalTestPageState extends State<BookHospitalTestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text("Book Hospital Test"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        title: const Text("Book Diagnostic Test", style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text("Select a Hospital", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            const Text("TEST INFORMATION", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+            const SizedBox(height: 16),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('accounts')
@@ -160,19 +161,21 @@ class _BookHospitalTestPageState extends State<BookHospitalTestPage> {
                   .where('approved', isEqualTo: true)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.hasError) return Center(child: Text("Error: ${snapshot.error}"));
-                if (!snapshot.hasData) return const CircularProgressIndicator();
+                if (snapshot.hasError) return const Center(child: Text("Connection error"));
+                if (!snapshot.hasData) return const CircularProgressIndicator(color: Color(0xFF7C3AED));
                 final docs = snapshot.data!.docs;
-                if (docs.isEmpty) return const Text("No hospitals available.");
+                if (docs.isEmpty) return const Text("No diagnostic centers available.");
 
                 return DropdownButtonFormField<String>(
                   decoration: InputDecoration(
+                    labelText: "Hospital / Diagnostic Center",
+                    labelStyle: const TextStyle(color: Color(0xFF64748B)),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF7C3AED), width: 2)),
                   ),
                   value: selectedHospitalId,
-                  hint: const Text("Choose Hospital"),
                   items: docs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;
                     final name = data['hospitalName'] ?? "Unknown Hospital";
@@ -192,15 +195,15 @@ class _BookHospitalTestPageState extends State<BookHospitalTestPage> {
                 );
               },
             ),
-            const SizedBox(height: 24),
-
-            const Text("Select Test Type", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               decoration: InputDecoration(
+                labelText: "Type of Test",
+                labelStyle: const TextStyle(color: Color(0xFF64748B)),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF7C3AED), width: 2)),
               ),
               value: testType,
               items: ["Blood Test", "X-Ray", "MRI Scan", "CT Scan", "General Checkup"]
@@ -211,25 +214,15 @@ class _BookHospitalTestPageState extends State<BookHospitalTestPage> {
               },
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-            const Text("Select Date & Time", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            const Text("SCHEDULE PREFERENCE", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.1, color: Color(0xFF94A3B8))),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.calendar_today, color: Color(0xFF7C3AED)),
-                    label: Text(selectedDate == null
-                        ? "Pick Date"
-                        : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"),
-                    onPressed: () async {
+                  child: InkWell(
+                    onTap: () async {
                       final val = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now().add(const Duration(days: 1)),
@@ -238,43 +231,80 @@ class _BookHospitalTestPageState extends State<BookHospitalTestPage> {
                       );
                       if (val != null) setState(() => selectedDate = val);
                     },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.calendar_today_rounded, color: Color(0xFF7C3AED), size: 20),
+                          const SizedBox(height: 8),
+                          Text(
+                            selectedDate == null
+                                ? "Select Date"
+                                : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.access_time, color: Color(0xFF7C3AED)),
-                    label: Text(selectedTime == null ? "Pick Time" : selectedTime!.format(context)),
-                    onPressed: () async {
+                  child: InkWell(
+                    onTap: () async {
                       final val = await showTimePicker(
                         context: context,
                         initialTime: const TimeOfDay(hour: 10, minute: 0),
                       );
                       if (val != null) setState(() => selectedTime = val);
                     },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.access_time_rounded, color: Color(0xFF7C3AED), size: 20),
+                          const SizedBox(height: 8),
+                          Text(
+                            selectedTime == null ? "Select Time" : selectedTime!.format(context),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
             
             const Spacer(),
-            ElevatedButton(
-              onPressed: isSubmitting ? null : _submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7C3AED),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            SizedBox(
+              height: 56,
+              child: ElevatedButton(
+                onPressed: isSubmitting ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7C3AED),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: isSubmitting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("CONFIRM & PAY", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5)),
               ),
-              child: isSubmitting
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Request Test & Pay", style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

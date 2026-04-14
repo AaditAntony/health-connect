@@ -9,7 +9,17 @@ class PatientConsentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Data Sharing Consent")),
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        title: const Text(
+          "Data Sharing",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('data_requests')
@@ -17,28 +27,39 @@ class PatientConsentPage extends StatelessWidget {
             .where('status', isEqualTo: 'pending')
             .snapshots(),
         builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          debugPrint("Error: ${snapshot.error}");
-          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
-        }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          if (snapshot.hasError)
+            return const Center(child: Text("Connection error"));
+          if (!snapshot.hasData)
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF7C3AED)),
+            );
 
           final requests = snapshot.data!.docs;
 
           if (requests.isEmpty) {
-            return const Center(
-              child: Text(
-                "No data sharing requests",
-                style: TextStyle(color: Colors.grey),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.security_rounded,
+                    size: 64,
+                    color: Colors.grey.shade200,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No pending data requests",
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                ],
               ),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
+          return ListView.separated(
+            padding: const EdgeInsets.all(24),
             itemCount: requests.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final doc = requests[index];
               final data = doc.data() as Map<String, dynamic>;
@@ -92,15 +113,13 @@ class _ConsentCard extends StatelessWidget {
         _getHospitalName(toHospitalId),
       ]),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          debugPrint("Error: ${snapshot.error}");
-          return Center(child: Text("Error: \n${snapshot.error}", textAlign: TextAlign.center));
-        }
+        if (snapshot.hasError) return const SizedBox();
         if (!snapshot.hasData) {
-          return const Card(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: LinearProgressIndicator(),
+          return Container(
+            height: 100,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
             ),
           );
         }
@@ -108,119 +127,185 @@ class _ConsentCard extends StatelessWidget {
         final fromHospitalName = snapshot.data![0];
         final toHospitalName = snapshot.data![1];
 
-        return Card(
-          elevation: 3,
-          margin: const EdgeInsets.only(bottom: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // -------- TITLE --------
-                const Text(
-                  "Medical Data Transfer Request",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-
-                const SizedBox(height: 12),
-
-                // -------- MESSAGE --------
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(color: Colors.black87, fontSize: 14),
-                    children: [
-                      const TextSpan(text: "Your medical records from "),
-                      TextSpan(
-                        text: fromHospitalName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const TextSpan(text: " are being shared with "),
-                      TextSpan(
-                        text: toHospitalName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const TextSpan(text: "."),
-                    ],
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F3FF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.swap_horiz_rounded,
+                      color: Color(0xFF7C3AED),
+                      size: 20,
+                    ),
                   ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // -------- OTP DISPLAY (NEW) --------
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.purple.shade100),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      "Transfer Request",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.lock, color: Color(0xFF7C3AED)),
-                      const SizedBox(width: 8),
-                      Text(
-                        "OTP: $otp",
+                ],
+              ),
+              const SizedBox(height: 20),
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 14,
+                    height: 1.6,
+                  ),
+                  children: [
+                    const TextSpan(text: "Your records at "),
+                    TextSpan(
+                      text: fromHospitalName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    const TextSpan(text: " will be shared with "),
+                    TextSpan(
+                      text: toHospitalName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0F172A),
+                      ),
+                    ),
+                    const TextSpan(text: " for continuing your clinical care."),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFF1F5F9)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.lock_rounded,
+                      color: Color(0xFF94A3B8),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      "APPROVAL OTP",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF94A3B8),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F3FF),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        otp,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF7C3AED),
-                          letterSpacing: 1.5,
+                          letterSpacing: 2,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 12),
-
-                const Text(
-                  "Please enter the above OTP to approve this data sharing request.",
-                  style: TextStyle(color: Colors.grey),
-                ),
-
-                const SizedBox(height: 20),
-
-                // -------- ACTIONS --------
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                "Verify the transfer by entering the code above.",
+                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Color(0xFFEF4444)),
+                      ),
                       onPressed: () async {
                         await FirebaseFirestore.instance
                             .collection('data_requests')
                             .doc(requestId)
                             .update({"status": "rejected"});
-
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Request rejected")),
                         );
                       },
                       child: const Text(
                         "Reject",
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(
+                          color: Color(0xFFEF4444),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        _showOtpDialog(context, requestId, otp);
-                      },
-                      child: const Text("Proceed"),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7C3AED),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => _showOtpDialog(context, requestId, otp),
+                      child: const Text(
+                        "Review",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
     );
   }
-
-  // ================= OTP DIALOG =================
 
   void _showOtpDialog(
     BuildContext parentContext,
@@ -235,91 +320,127 @@ class _ConsentCard extends StatelessWidget {
       builder: (dialogContext) {
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(28),
           ),
+          backgroundColor: Colors.white,
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // -------- TITLE --------
-                const Text(
-                  "OTP Verification",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF5F3FF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.vpn_key_rounded,
+                    color: Color(0xFF7C3AED),
+                    size: 32,
+                  ),
                 ),
-
+                const SizedBox(height: 24),
+                const Text(
+                  "Approve Transfer",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
                 const SizedBox(height: 12),
-
                 const Text(
-                  "Enter the OTP provided by the hospital to approve data sharing.",
-                  style: TextStyle(color: Colors.grey),
+                  "Enter the 6-digit clinical security code to authorize data sharing.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Color(0xFF64748B), height: 1.5),
                 ),
-
-                const SizedBox(height: 20),
-
-                // -------- OTP INPUT --------
+                const SizedBox(height: 24),
                 TextField(
                   controller: otpController,
                   keyboardType: TextInputType.number,
                   maxLength: 6,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 8,
+                  ),
                   decoration: InputDecoration(
-                    labelText: "OTP",
                     counterText: "",
                     filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                    fillColor: const Color(0xFFF8FAFC),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF7C3AED),
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
-                // -------- ACTIONS --------
+                const SizedBox(height: 32),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop();
-                      },
-                      child: const Text("Cancel"),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF7C3AED),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      onPressed: () async {
-                        if (otpController.text.trim() != correctOtp) {
-                          ScaffoldMessenger.of(parentContext).showSnackBar(
-                            const SnackBar(content: Text("Invalid OTP")),
-                          );
-                          return;
-                        }
-
-                        // -------- UPDATE FIRESTORE --------
-                        await FirebaseFirestore.instance
-                            .collection('data_requests')
-                            .doc(requestId)
-                            .update({"status": "approved"});
-
-                        Navigator.of(dialogContext).pop();
-
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          if (parentContext.mounted) {
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7C3AED),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (otpController.text.trim() != correctOtp) {
                             ScaffoldMessenger.of(parentContext).showSnackBar(
                               const SnackBar(
-                                content: Text("Consent approved successfully"),
+                                content: Text("Invalid security code"),
                               ),
                             );
+                            return;
                           }
-                        });
-                      },
-                      child: const Text(
-                        "Verify",
-                        style: TextStyle(color: Colors.white),
+
+                          await FirebaseFirestore.instance
+                              .collection('data_requests')
+                              .doc(requestId)
+                              .update({"status": "approved"});
+                          Navigator.of(dialogContext).pop();
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            if (parentContext.mounted) {
+                              ScaffoldMessenger.of(parentContext).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Data sharing authorized successfully",
+                                  ),
+                                ),
+                              );
+                            }
+                          });
+                        },
+                        child: const Text(
+                          "Approve",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
@@ -332,4 +453,5 @@ class _ConsentCard extends StatelessWidget {
     );
   }
 }
+
 // done
