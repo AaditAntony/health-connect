@@ -176,8 +176,8 @@ class _HospitalDashboardState extends State<HospitalDashboard> {
                 _buildSidebarItem(1, Icons.medical_services, "Doctors List"),
                 _buildSidebarItem(
                   2,
-                  Icons.assignment_turned_in,
-                  "Consultation Requests",
+                  Icons.calendar_month_outlined,
+                  "Doctor Consultations",
                 ),
                 _buildSidebarItem(3, Icons.how_to_reg, "Registration Requests"),
                 _buildSidebarItem(4, Icons.person_add, "Add Patient"),

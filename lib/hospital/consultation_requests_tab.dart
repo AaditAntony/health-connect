@@ -14,9 +14,19 @@ class ConsultationRequestsTab extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.all(24.0),
-          child: Text(
-            "Consultation Requests",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Doctor Consultations",
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF0F172A), letterSpacing: -0.5),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "Review and approve patient consultation bookings.",
+                style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+              ),
+            ],
           ),
         ),
         Expanded(
