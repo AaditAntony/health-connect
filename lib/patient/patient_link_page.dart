@@ -54,23 +54,28 @@ class _PatientLinkPageState extends State<PatientLinkPage>
 
     try {
       if (method == LinkMethod.phone) {
-        if (phoneController.text.trim().isEmpty) throw "Please enter phone number";
+        if (phoneController.text.trim().isEmpty)
+          throw "Please enter phone number";
         final query = await FirebaseFirestore.instance
             .collection('patients')
             .where('phone', isEqualTo: phoneController.text.trim())
             .get();
-        if (query.docs.isEmpty) throw "No record found with this phone number. Please register as a new patient.";
-        if (query.docs.length > 1) throw "Multiple records found. Try linking by Patient ID instead.";
+        if (query.docs.isEmpty)
+          throw "No record found with this phone number. Please register as a new patient.";
+        if (query.docs.length > 1)
+          throw "Multiple records found. Try linking by Patient ID instead.";
         patientDoc = query.docs.first;
       }
 
       if (method == LinkMethod.patientId) {
-        if (patientIdController.text.trim().isEmpty) throw "Please enter Patient ID";
+        if (patientIdController.text.trim().isEmpty)
+          throw "Please enter Patient ID";
         final doc = await FirebaseFirestore.instance
             .collection('patients')
             .doc(patientIdController.text.trim())
             .get();
-        if (!doc.exists) throw "Invalid Patient ID. Check your hospital bill and try again.";
+        if (!doc.exists)
+          throw "Invalid Patient ID. Check your hospital bill and try again.";
         patientDoc = doc;
       }
 
@@ -88,11 +93,14 @@ class _PatientLinkPageState extends State<PatientLinkPage>
         const SnackBar(content: Text("Medical record linked successfully!")),
       );
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const PatientDashboard()));
+        context,
+        MaterialPageRoute(builder: (_) => const PatientDashboard()),
+      );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
     setState(() => loadingLink = false);
   }
@@ -105,7 +113,12 @@ class _PatientLinkPageState extends State<PatientLinkPage>
         phoneRegController.text.trim().isEmpty ||
         selectedHospitalId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please fill all required fields and select a hospital.")));
+        const SnackBar(
+          content: Text(
+            "Please fill all required fields and select a hospital.",
+          ),
+        ),
+      );
       return;
     }
     setState(() => loadingReg = true);
@@ -122,25 +135,30 @@ class _PatientLinkPageState extends State<PatientLinkPage>
       }
 
       // Submit registration request to chosen hospital
-      await FirebaseFirestore.instance.collection('patient_registration_requests').doc(authUid).set({
-        "authUid": authUid,
-        "name": nameRegController.text.trim(),
-        "age": ageRegController.text.trim(),
-        "gender": genderReg,
-        "bloodGroup": bloodGroupReg,
-        "phone": phoneRegController.text.trim(),
-        "email": emailRegController.text.trim(),
-        "hospitalId": selectedHospitalId,
-        "hospitalName": selectedHospitalName,
-        "requestedAt": Timestamp.now(),
-        "status": "pending",
-      });
+      await FirebaseFirestore.instance
+          .collection('patient_registration_requests')
+          .doc(authUid)
+          .set({
+            "authUid": authUid,
+            "name": nameRegController.text.trim(),
+            "age": ageRegController.text.trim(),
+            "gender": genderReg,
+            "bloodGroup": bloodGroupReg,
+            "phone": phoneRegController.text.trim(),
+            "email": emailRegController.text.trim(),
+            "hospitalId": selectedHospitalId,
+            "hospitalName": selectedHospitalName,
+            "requestedAt": Timestamp.now(),
+            "status": "pending",
+          });
 
       if (!mounted) return;
       _showRegistrationPendingDialog();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
     setState(() => loadingReg = false);
   }
@@ -152,15 +170,21 @@ class _PatientLinkPageState extends State<PatientLinkPage>
       builder: (context) => AlertDialog(
         title: const Text("Registration Submitted"),
         content: const Text(
-            "Your registration request has been sent to the hospital. You will be able to access your dashboard once the hospital approves your record."),
+          "Your registration request has been sent to the hospital. You will be able to access your dashboard once the hospital approves your record.",
+        ),
         actions: [
           ElevatedButton(
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               if (context.mounted) Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF7C3AED)),
-            child: const Text("Sign Out", style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF7C3AED),
+            ),
+            child: const Text(
+              "Sign Out",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -172,32 +196,30 @@ class _PatientLinkPageState extends State<PatientLinkPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F3FF),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF4C1D95),
+        foregroundColor: const Color(0xFF0F172A),
         title: const Text(
-          "Set Up Your Profile",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          "Complete Your Profile",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: const Color(0xFF7C3AED),
-          unselectedLabelColor: Colors.grey,
+          unselectedLabelColor: const Color(0xFF64748B),
           indicatorColor: const Color(0xFF7C3AED),
+          indicatorWeight: 3,
           tabs: const [
-            Tab(icon: Icon(Icons.link), text: "Link Existing"),
-            Tab(icon: Icon(Icons.person_add), text: "New Patient"),
+            Tab(text: "Link Existing"),
+            Tab(text: "Register New"),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildLinkTab(),
-          _buildRegisterTab(),
-        ],
+        children: [_buildLinkTab(), _buildRegisterTab()],
       ),
     );
   }
@@ -206,74 +228,118 @@ class _PatientLinkPageState extends State<PatientLinkPage>
 
   Widget _buildLinkTab() {
     return SingleChildScrollView(
-      child: Center(
-        child: SizedBox(
-          width: 420,
-          child: Card(
-            margin: const EdgeInsets.all(24),
-            elevation: 4,
-            shadowColor: const Color(0xFF7C3AED).withOpacity(0.2),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Link your hospital record",
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C1D95))),
-                  const SizedBox(height: 6),
-                  const Text(
-                      "If a hospital has already registered your record, link it here using your phone number or Patient ID.",
-                      style: TextStyle(color: Colors.black54, fontSize: 13)),
-                  const SizedBox(height: 22),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: const Color(0xFFF3E8FF),
-                        borderRadius: BorderRadius.circular(14),
-                        border:
-                            Border.all(color: const Color(0xFFDDD6FE))),
-                    child: Column(
-                      children: [
-                        RadioListTile<LinkMethod>(
-                          value: LinkMethod.phone,
-                          groupValue: method,
-                          activeColor: const Color(0xFF7C3AED),
-                          title: const Text("Use Phone Number"),
-                          onChanged: (v) =>
-                              setState(() => method = v!),
-                        ),
-                        const Divider(height: 1),
-                        RadioListTile<LinkMethod>(
-                          value: LinkMethod.patientId,
-                          groupValue: method,
-                          activeColor: const Color(0xFF7C3AED),
-                          title: const Text("Use Patient ID (from bill)"),
-                          onChanged: (v) =>
-                              setState(() => method = v!),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  if (method == LinkMethod.phone)
-                    _inputField(phoneController, "Phone Number",
-                        keyboardType: TextInputType.phone),
-                  if (method == LinkMethod.patientId)
-                    _inputField(patientIdController, "Patient ID",
-                        hint: "e.g. AbC123Xyz"),
-                  const SizedBox(height: 26),
-                  _actionButton(
-                    label: loadingLink ? "Linking..." : "Link Record",
-                    onPressed: loadingLink ? null : linkPatient,
-                  ),
-                ],
-              ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Access Your Records",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
             ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "If a hospital has already registered you, link your records here.",
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+          ),
+          const SizedBox(height: 32),
+
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _methodButton(
+                    label: "Phone",
+                    isSelected: method == LinkMethod.phone,
+                    onTap: () => setState(() => method = LinkMethod.phone),
+                  ),
+                ),
+                Expanded(
+                  child: _methodButton(
+                    label: "Patient ID",
+                    isSelected: method == LinkMethod.patientId,
+                    onTap: () => setState(() => method = LinkMethod.patientId),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          if (method == LinkMethod.phone)
+            _inputField(
+              phoneController,
+              "Phone Number",
+              icon: Icons.phone_outlined,
+              keyboardType: TextInputType.phone,
+              hint: "Enter registered number",
+            ),
+          if (method == LinkMethod.patientId)
+            _inputField(
+              patientIdController,
+              "Patient ID",
+              icon: Icons.tag,
+              hint: "Check your hospital document",
+            ),
+
+          const SizedBox(height: 40),
+
+          _actionButton(
+            label: loadingLink ? "Verifying..." : "Link My Records",
+            onPressed: loadingLink ? null : linkPatient,
+          ),
+
+          const SizedBox(height: 24),
+          const Center(
+            child: Text(
+              "Need help? Contact your hospital administrator.",
+              style: TextStyle(color: Colors.grey, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _methodButton({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected
+                ? const Color(0xFF7C3AED)
+                : const Color(0xFF64748B),
           ),
         ),
       ),
@@ -284,184 +350,206 @@ class _PatientLinkPageState extends State<PatientLinkPage>
 
   Widget _buildRegisterTab() {
     return SingleChildScrollView(
-      child: Center(
-        child: SizedBox(
-          width: 420,
-          child: Card(
-            margin: const EdgeInsets.all(24),
-            elevation: 4,
-            shadowColor: const Color(0xFF7C3AED).withOpacity(0.2),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text("Register as New Patient",
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF4C1D95))),
-                  const SizedBox(height: 6),
-                  const Text(
-                      "Your details will be sent to the chosen hospital for approval. Once confirmed, you can access your dashboard.",
-                      style: TextStyle(color: Colors.black54, fontSize: 13)),
-                  const SizedBox(height: 22),
-                  _inputField(nameRegController, "Full Name",
-                      icon: Icons.person_outline),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _inputField(ageRegController, "Age",
-                            keyboardType: TextInputType.number,
-                            icon: Icons.cake_outlined),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: bloodGroupReg,
-                          decoration: InputDecoration(
-                            labelText: "Blood",
-                            filled: true,
-                            fillColor: const Color(0xFFFDFBFF),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14)),
-                          ),
-                          items: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"]
-                              .map((bg) => DropdownMenuItem(value: bg, child: Text(bg)))
-                              .toList(),
-                          onChanged: (v) => setState(() => bloodGroupReg = v!),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  _inputField(phoneRegController, "Phone Number",
-                      keyboardType: TextInputType.phone,
-                      icon: Icons.phone_outlined),
-                  const SizedBox(height: 14),
-                  _inputField(emailRegController, "Email Address (Optional)",
-                      icon: Icons.email_outlined),
-                  const SizedBox(height: 14),
-                  DropdownButtonFormField<String>(
-                    value: genderReg,
-                    decoration: InputDecoration(
-                      labelText: "Gender",
-                      filled: true,
-                      fillColor: const Color(0xFFFDFBFF),
-                      prefixIcon: const Icon(Icons.wc_outlined),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: "Male", child: Text("Male")),
-                      DropdownMenuItem(value: "Female", child: Text("Female")),
-                      DropdownMenuItem(value: "Other", child: Text("Other")),
-                    ],
-                    onChanged: (v) => setState(() => genderReg = v!),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text("Select Hospital for Registration",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  const SizedBox(height: 8),
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('accounts')
-                        .where('role', isEqualTo: 'hospital')
-                        .where('approved', isEqualTo: true)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) return const LinearProgressIndicator();
-                      final hospitals = snapshot.data!.docs;
-                      return DropdownButtonFormField<String>(
-                        value: selectedHospitalId,
-                        decoration: InputDecoration(
-                          hintText: "Choose Hospital",
-                          filled: true,
-                          fillColor: const Color(0xFFFDFBFF),
-                          prefixIcon: const Icon(Icons.business_outlined),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14)),
-                        ),
-                        items: hospitals.map((h) {
-                          final d = h.data() as Map<String, dynamic>;
-                          return DropdownMenuItem(
-                              value: h.id, child: Text(d['hospitalName'] ?? "Unnamed"));
-                        }).toList(),
-                        onChanged: (v) {
-                          setState(() {
-                            selectedHospitalId = v;
-                            final doc = hospitals.firstWhere((h) => h.id == v);
-                            selectedHospitalName =
-                                (doc.data() as Map<String, dynamic>)['hospitalName'];
-                          });
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 26),
-                  _actionButton(
-                    label: loadingReg ? "Requesting..." : "Submit Registration",
-                    onPressed: loadingReg ? null : registerNewPatient,
-                  ),
-                ],
-              ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "New Registration",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
             ),
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            "Register your details with your preferred hospital.",
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
+          ),
+          const SizedBox(height: 32),
+
+          _inputField(
+            nameRegController,
+            "Full Name",
+            icon: Icons.person_outline,
+          ),
+          const SizedBox(height: 20),
+
+          Row(
+            children: [
+              Expanded(
+                child: _inputField(
+                  ageRegController,
+                  "Age",
+                  keyboardType: TextInputType.number,
+                  icon: Icons.cake_outlined,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _dropdownField(
+                  label: "Blood Group",
+                  value: bloodGroupReg,
+                  items: ["O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"],
+                  onChanged: (v) => setState(() => bloodGroupReg = v!),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          _inputField(
+            phoneRegController,
+            "Phone Number",
+            keyboardType: TextInputType.phone,
+            icon: Icons.phone_outlined,
+          ),
+          const SizedBox(height: 20),
+
+          _dropdownField(
+            label: "Gender",
+            value: genderReg,
+            items: ["Male", "Female", "Other"],
+            onChanged: (v) => setState(() => genderReg = v!),
+          ),
+          const SizedBox(height: 32),
+
+          const Text(
+            "Primary Hospital",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('accounts')
+                .where('role', isEqualTo: 'hospital')
+                .where('approved', isEqualTo: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const LinearProgressIndicator();
+              final hospitals = snapshot.data!.docs;
+              return DropdownButtonFormField<String>(
+                value: selectedHospitalId,
+                decoration: InputDecoration(
+                  hintText: "Choose a healthcare facility",
+                  prefixIcon: const Icon(Icons.business_outlined),
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                items: hospitals.map((h) {
+                  final d = h.data() as Map<String, dynamic>;
+                  return DropdownMenuItem(
+                    value: h.id,
+                    child: Text(d['hospitalName'] ?? "Unnamed"),
+                  );
+                }).toList(),
+                onChanged: (v) {
+                  setState(() {
+                    selectedHospitalId = v;
+                    final doc = hospitals.firstWhere((h) => h.id == v);
+                    selectedHospitalName =
+                        (doc.data() as Map<String, dynamic>)['hospitalName'];
+                  });
+                },
+              );
+            },
+          ),
+          const SizedBox(height: 40),
+
+          _actionButton(
+            label: loadingReg ? "Submitting..." : "Send Request",
+            onPressed: loadingReg ? null : registerNewPatient,
+          ),
+          const SizedBox(height: 40),
+        ],
       ),
     );
   }
 
-  // ---- Shared helpers ----
+  // ---- Helpers ----
 
-  Widget _inputField(TextEditingController ctrl, String label,
-      {String? hint,
-      TextInputType? keyboardType,
-      IconData? icon}) {
+  Widget _inputField(
+    TextEditingController ctrl,
+    String label, {
+    String? hint,
+    TextInputType? keyboardType,
+    IconData? icon,
+  }) {
     return TextField(
       controller: ctrl,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        filled: true,
-        fillColor: const Color(0xFFFDFBFF),
         prefixIcon: icon != null ? Icon(icon) : null,
-        border:
-            OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: Color(0xFF7C3AED), width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF7C3AED), width: 2),
         ),
       ),
     );
   }
 
-  Widget _actionButton(
-      {required String label, required VoidCallback? onPressed}) {
+  Widget _dropdownField({
+    required String label,
+    required String value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      items: items
+          .map((val) => DropdownMenuItem(value: val, child: Text(val)))
+          .toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _actionButton({
+    required String label,
+    required VoidCallback? onPressed,
+  }) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 56,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF7C3AED),
-          disabledBackgroundColor: Colors.grey.shade300,
+          foregroundColor: Colors.white,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14)),
-          elevation: 3,
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: Text(
           label,
-          style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
     );

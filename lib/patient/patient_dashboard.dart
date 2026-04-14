@@ -66,20 +66,30 @@ class _PatientDashboardState extends State<PatientDashboard> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        title: const Text(
-          "Patient Dashboard",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        foregroundColor: const Color(0xFF0F172A),
+        centerTitle: false,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "HealthConnect",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            Text(
+              "Your Personal Health Hub",
+              style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.normal),
+            ),
+          ],
         ),
         actions: [
           IconButton(
             tooltip: "Recent Receipts",
-            icon: const Icon(Icons.receipt_long),
+            icon: const Icon(Icons.receipt_long_outlined, color: Color(0xFF7C3AED)),
             onPressed: () => _showRecentReceipts(context),
           ),
           IconButton(
             tooltip: "Logout",
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.redAccent),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               if (mounted) {
@@ -92,50 +102,73 @@ class _PatientDashboardState extends State<PatientDashboard> {
               }
             },
           ),
+          const SizedBox(width: 8),
         ],
       ),
 
       // ================= BODY =================
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        child: pages[currentIndex],
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFFF8FAFC),
+        ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: KeyedSubtree(
+            key: ValueKey<int>(currentIndex),
+            child: pages[currentIndex],
+          ),
+        ),
       ),
 
       // ================= BOTTOM NAV =================
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentIndex,
-        onTap: (index) => setState(() => currentIndex = index),
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF7C3AED),
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: "Overview",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.medical_services_outlined),
-            activeIcon: Icon(Icons.medical_services),
-            label: "History",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            activeIcon: Icon(Icons.calendar_today),
-            label: "Appts",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.layers_outlined),
-            activeIcon: Icon(Icons.layers),
-            label: "Smart-Plan",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.security_outlined),
-            activeIcon: Icon(Icons.security),
-            label: "Consent",
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: currentIndex,
+          onTap: (index) => setState(() => currentIndex = index),
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF7C3AED),
+          unselectedItemColor: const Color(0xFF94A3B8),
+          selectedFontSize: 12,
+          unselectedFontSize: 12,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard_outlined),
+              activeIcon: Icon(Icons.dashboard_rounded),
+              label: "Overview",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history_edu_outlined),
+              activeIcon: Icon(Icons.history_edu_rounded),
+              label: "History",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today_outlined),
+              activeIcon: Icon(Icons.calendar_today_rounded),
+              label: "Appts",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.auto_awesome_outlined),
+              activeIcon: Icon(Icons.auto_awesome_rounded),
+              label: "Smart-Plan",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shield_outlined),
+              activeIcon: Icon(Icons.shield_rounded),
+              label: "Consent",
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -146,18 +179,28 @@ class _PatientDashboardState extends State<PatientDashboard> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
+        height: MediaQuery.of(context).size.height * 0.75,
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
         ),
         child: Column(
           children: [
             const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+            Container(width: 48, height: 5, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10))),
             const Padding(
-              padding: EdgeInsets.all(24.0),
-              child: Text("Recent Receipts", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              padding: EdgeInsets.fromLTRB(24, 24, 24, 8),
+              child: Row(
+                children: [
+                  Icon(Icons.receipt_long_rounded, color: Color(0xFF7C3AED)),
+                  SizedBox(width: 12),
+                  Text("Billing History", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Divider(),
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
@@ -175,11 +218,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.receipt_long_outlined, size: 48, color: Colors.grey),
+                          Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey.shade200),
                           const SizedBox(height: 16),
-                          const Text("No booking records found.", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 8),
-                          Text("User ID: $patientId", style: const TextStyle(color: Colors.grey, fontSize: 10)),
+                          const Text("No transactions found", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     );
@@ -201,34 +242,53 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   });
 
                   return ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.all(24),
                     itemCount: sortedDocs.length,
-                    separatorBuilder: (context, index) => const Divider(),
+                    separatorBuilder: (context, index) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final data = sortedDocs[index];
                       final type = data['type'] ?? "Consultation";
                       final date = data['date'] ?? "Recent";
                       
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: const Color(0xFFEDE9FE),
-                          child: Icon(
-                            type == 'Test' ? Icons.biotech : Icons.medical_services,
-                            color: const Color(0xFF7C3AED),
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFF1F5F9)),
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          leading: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Icon(
+                              type == 'Test' ? Icons.biotech_rounded : Icons.medical_services_rounded,
+                              color: const Color(0xFF7C3AED),
+                              size: 24,
+                            ),
                           ),
-                        ),
-                        title: Text(
-                          type == 'Test' ? (data['testType'] ?? "Diagnostic Test") : (data['requestedDoctorName'] ?? "Doctor Consultation"),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text("${data['targetName']} • $date"),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.download, color: Color(0xFF7C3AED)),
-                          onPressed: () => PdfExportUtility.generatePaymentReceipt({
-                            ...data,
-                            'serviceType': type == 'Test' ? 'Hospital Test' : 'Doctor Consultation',
-                            'amount': type == 'Test' ? 1000 : 500, // Fallback amounts if not in record
-                          }),
+                          title: Text(
+                            type == 'Test' ? (data['testType'] ?? "Diagnostic Test") : (data['requestedDoctorName'] ?? "Doctor Consultation"),
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                          ),
+                          subtitle: Text("${data['targetName']}\n$date", style: const TextStyle(height: 1.5, fontSize: 13)),
+                          trailing: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF7C3AED).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.download_rounded, color: Color(0xFF7C3AED), size: 20),
+                              onPressed: () => PdfExportUtility.generatePaymentReceipt({
+                                ...data,
+                                'serviceType': type == 'Test' ? 'Hospital Test' : 'Doctor Consultation',
+                                'amount': type == 'Test' ? 1000 : 500,
+                              }),
+                            ),
+                          ),
                         ),
                       );
                     },

@@ -77,147 +77,203 @@ class _PatientAuthPageState extends State<PatientAuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: SizedBox(
-              width: 400,
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // --- Hero Section ---
+            Container(
+              height: 300,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(28),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.health_and_safety,
+                      size: 80,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "HealthConnect",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const Text(
+                    "Patient Portal",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    isLogin ? "Welcome Back" : "Create Account",
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isLogin
+                        ? "Sign in to access your secure medical records"
+                        : "Join HealthConnect to manage your healthcare journey",
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Email
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: "Email Address",
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFF7C3AED), width: 2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Password
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFF7C3AED), width: 2),
+                      ),
+                    ),
+                  ),
+                  
+                  if (isLogin)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          "Forgot Password?",
+                          style: TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  
+                  const SizedBox(height: 24),
+
+                  // Submit Button
+                  SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: loading ? null : submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7C3AED),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: loading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : Text(
+                              isLogin ? "Sign In" : "Get Started",
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Toggle Login/Register
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // -------- ICON --------
-                      Container(
-                        alignment: Alignment.center,
-                        child: Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEDE9FE),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.person_outline,
-                            size: 36,
-                            color: Color(0xFF7C3AED),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // -------- TITLE --------
                       Text(
-                        isLogin ? "Patient Login" : "Patient Registration",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        isLogin ? "Don't have an account? " : "Already have an account? ",
+                        style: TextStyle(color: Colors.grey.shade600),
                       ),
-
-                      const SizedBox(height: 8),
-
-                      // -------- SUBTITLE --------
-                      Text(
-                        isLogin
-                            ? "Access your medical records securely"
-                            : "Create an account to access your medical history",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // -------- EMAIL --------
-                      TextField(
-                        controller: emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: "Email",
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // -------- PASSWORD --------
-                      TextField(
-                        controller: passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: "Password",
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // -------- BUTTON --------
-                      SizedBox(
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: loading ? null : submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7C3AED),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            loading
-                                ? "Please wait..."
-                                : isLogin
-                                ? "Login"
-                                : "Register",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // -------- TOGGLE --------
-                      TextButton(
-                        onPressed: () {
-                          setState(() => isLogin = !isLogin);
-                        },
+                      GestureDetector(
+                        onTap: () => setState(() => isLogin = !isLogin),
                         child: Text(
-                          isLogin
-                              ? "Don’t have an account? Register"
-                              : "Already have an account? Login",
-                          style: const TextStyle(color: Color(0xFF7C3AED)),
+                          isLogin ? "Register Now" : "Sign In",
+                          style: const TextStyle(
+                            color: Color(0xFF7C3AED),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
