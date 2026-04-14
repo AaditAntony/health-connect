@@ -128,6 +128,17 @@ class HospitalOverviewTab extends StatelessWidget {
               .where('hospitalId', isEqualTo: hospitalId)
               .snapshots(),
         ),
+        _StatCard(
+          title: "Pending Consultations",
+          icon: Icons.pending_actions_rounded,
+          color: const Color(0xFF0D9488),
+          stream: FirebaseFirestore.instance
+              .collection('appointments')
+              .where('targetId', isEqualTo: hospitalId)
+              .where('type', isEqualTo: 'Consultation')
+              .where('status', isEqualTo: 'pending')
+              .snapshots(),
+        ),
         _ApprovalStatusCard(hospitalId: hospitalId),
       ],
     );
